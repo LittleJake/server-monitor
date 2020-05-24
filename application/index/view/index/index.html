@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <h3>Monitor List</h3>
+    <ol>
+        {foreach $hash as $k => $v}
+        <li><a href="{:url('index/index/info',['token'=>$k])}" target="_blank">{$v}</a></li>
+        {/foreach}
+    </ol>
+</div>
+</body>
+</html>
