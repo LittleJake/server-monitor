@@ -3,6 +3,7 @@ namespace app\index\controller;
 
 use app\common\lib\SystemMonitor;
 
+
 class Index extends Base
 {
     public function index()
