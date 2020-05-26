@@ -1,35 +1,33 @@
 <?php
 namespace app\index\controller;
 
-use think\facade\Cache;
+use app\common\lib\SystemMonitor;
 
 class Index extends Base
 {
     public function index()
     {
-
-        $hash = Cache::handler()->hGetAll("system_monitor:hashes");
+        $hash = SystemMonitor::getHashes();
+        $info = SystemMonitor::fetchIPInfo(array_values($hash));
 
         $this->assign("hash", $hash);
+        $this->assign("info", $info);
         return $this->fetch();
     }
 
     public function info($token = ''){
-        if(strlen($token) != 64){
-            return $this->error("Wrong Token");
-        }
+        if(strlen($token) != 64)
+            $this->error("Wrong Token");
 
-        $ip = Cache::handler()->hMGet("system_monitor:hashes", [$token])[$token];
-        if(empty($ip)){
-            return $this->error("Wrong Token");
-        }
-        $json = json_decode(Cache::handler()->get("system_monitor:stat:".$ip), true);
-        $uptime = intval($json['Uptime']);
-        $uptime_str = floor($uptime / (24*60*60)) ." Days ".
-            floor(($uptime / (60*60)) % 24) ." Hours ".
-            floor(($uptime / (60)) % 60) . " Minutes ".
-            floor($uptime % 60) . " Seconds";
-        $info = Cache::handler()->hGetAll("system_monitor:info:".$ip);
+        $hash = SystemMonitor::getHashes();
+        $ip = $hash[$token];
+
+        if(empty($ip))
+            $this->error("Wrong Token");
+
+        $json = json_decode(SystemMonitor::getStat($ip), true);
+        $uptime_str = SystemMonitor::timeFormat(intval($json['Uptime']));
+        $info = SystemMonitor::getInfo($ip);
         $this->assign("json", $json);
         $this->assign("uptime", $uptime_str);
         $this->assign("info", $info);

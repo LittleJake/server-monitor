@@ -3,15 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icon-css@3.4.6/css/flag-icon.min.css">
 </head>
 <body>
 <div>
-    <h3>Monitor List</h3>
+    <h3>Server Monitor List</h3>
     <ol>
         {foreach $hash as $k => $v}
-        <li><a href="{:url('index/index/info',['token'=>$k])}" target="_blank">{$v}</a></li>
+        <li>
+            <span class="flag-icon flag-icon-{:strtolower($info[$v]['countryCode'])}"></span>
+            <a href="{:url('index/index/info',['token'=>$k])}" target="_blank">
+                {:preg_replace("/\\.[\\d]+/",".*",$v)}
+            </a>
+        </li>
         {/foreach}
     </ol>
+
 </div>
 </body>
 </html>
