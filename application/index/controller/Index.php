@@ -9,7 +9,9 @@ class Index extends Base
     {
         $hash = SystemMonitor::getHashes();
         $info = SystemMonitor::fetchIPInfo(array_values($hash));
+        $json = SystemMonitor::getStat(array_values($hash));
 
+        $this->assign("json", $json);
         $this->assign("hash", $hash);
         $this->assign("info", $info);
         return $this->fetch();
@@ -25,12 +27,14 @@ class Index extends Base
         if(empty($ip))
             $this->error("Wrong Token");
 
-        $json = json_decode(SystemMonitor::getStat($ip), true);
+        $json = SystemMonitor::getStat($ip);
         $uptime_str = SystemMonitor::timeFormat(intval($json['Uptime']));
         $info = SystemMonitor::getInfo($ip);
         $this->assign("json", $json);
         $this->assign("uptime", $uptime_str);
         $this->assign("info", $info);
+        if($this->request->isAjax())
+            return $this->fetch("index/info_ajax");
         return $this->fetch();
     }
 }

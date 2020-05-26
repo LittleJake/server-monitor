@@ -51,13 +51,27 @@ class SystemMonitor
     }
 
     static public function getStat($ip) {
-        if(Cache::has("system_monitor:stat:$ip")
-            && !empty(Cache::get("system_monitor:stat:$ip"))){
-            $stat = Cache::get("system_monitor:stat:$ip");
-        } else{
-            $stat = Cache::store('redis')->handler()
-                ->get("system_monitor:stat:$ip");
-            Cache::set("system_monitor:stat:$ip", $stat);
+        if(is_array($ip)){
+            foreach ($ip as $v){
+                if(Cache::has("system_monitor:stat:$v")
+                    && !empty(Cache::get("system_monitor:stat:$v"))){
+                    $stat[$v] = Cache::get("system_monitor:stat:$v");
+                } else{
+                    $tmp = json_decode(Cache::store('redis')->handler()
+                        ->get("system_monitor:stat:$v"),true);
+                    $stat[$v] = $tmp;
+                    Cache::set("system_monitor:stat:$v", $tmp);
+                }
+            }
+        }else{
+            if(Cache::has("system_monitor:stat:$ip")
+                && !empty(Cache::get("system_monitor:stat:$ip"))){
+                $stat = Cache::get("system_monitor:stat:$ip");
+            } else{
+                $stat = json_decode(Cache::store('redis')->handler()
+                    ->get("system_monitor:stat:$ip"),true);
+                Cache::set("system_monitor:stat:$ip", $stat);
+            }
         }
 
         return $stat;

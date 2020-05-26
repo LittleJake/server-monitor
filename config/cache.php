@@ -19,7 +19,7 @@ return [
     'default' => [
         'type' => 'file',
         // 全局缓存有效期（0为永久有效）
-        'expire'=> 150,
+        'expire'=> 240,
         // 缓存前缀
         'prefix'=> 'monitor',
         // 缓存目录
