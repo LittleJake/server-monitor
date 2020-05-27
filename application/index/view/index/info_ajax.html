@@ -30,7 +30,11 @@
             <div class="mdui-col-xs-12 mdui-col-md-6">
                 {foreach $info as $k => $v}
                 <h4>{$k}</h4>
+                {if $k == 'Update Time'}
+                <p>{$v|date="Y-m-d H:i:s"}</p>
+                {else}
                 <p>{$v|default='None'}</p>
+                {/if}
                 {/foreach}
             </div>
             <div class="mdui-col-xs-12 mdui-col-md-6">

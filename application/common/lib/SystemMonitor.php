@@ -78,13 +78,27 @@ class SystemMonitor
     }
 
     static public function getInfo($ip) {
-        if(Cache::has("system_monitor:info:$ip")
-            && !empty(Cache::get("system_monitor:info:$ip"))){
-            $info = Cache::get("system_monitor:info:$ip");
-        } else{
-            $info = Cache::store('redis')->handler()
-                ->hGetAll("system_monitor:info:$ip");
-            Cache::set("system_monitor:info:$ip", $info);
+        if(is_array($ip)){
+            foreach ($ip as $v){
+                if(Cache::has("system_monitor:info:$v")
+                    && !empty(Cache::get("system_monitor:info:$v"))){
+                    $info[$v] = Cache::get("system_monitor:info:$v");
+                }else{
+                    $tmp = Cache::store('redis')->handler()
+                    ->hGetAll("system_monitor:info:$v");
+                    $info[$v] = $tmp;
+                    Cache::set("system_monitor:info:$v", $tmp);
+                }
+            }
+        }else{
+            if(Cache::has("system_monitor:info:$ip")
+                && !empty(Cache::get("system_monitor:info:$ip"))){
+                $info = Cache::get("system_monitor:info:$ip");
+            } else{
+                $info = Cache::store('redis')->handler()
+                    ->hGetAll("system_monitor:info:$ip");
+                Cache::set("system_monitor:info:$ip", $info);
+            }
         }
 
         return $info;
