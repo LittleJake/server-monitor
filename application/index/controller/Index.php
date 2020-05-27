@@ -6,14 +6,19 @@ use app\common\lib\SystemMonitor;
 
 class Index extends Base
 {
+    protected $middleware = ['FlowControl'];
+
     public function index()
     {
         $hash = SystemMonitor::getHashes();
-        $info = SystemMonitor::fetchIPInfo(array_values($hash));
-        $json = SystemMonitor::getStat(array_values($hash));
+        $ip = SystemMonitor::fetchIPInfo(array_values($hash));
+        $info = SystemMonitor::getInfo(array_values($hash));
+//        $json = SystemMonitor::getStat(array_values($hash));
+//
+//        $this->assign("json", $json);
 
-        $this->assign("json", $json);
         $this->assign("hash", $hash);
+        $this->assign("ip", $ip);
         $this->assign("info", $info);
         return $this->fetch();
     }

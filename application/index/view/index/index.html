@@ -32,16 +32,16 @@
     <ul class="mdui-list">
         {foreach $hash as $k => $v}
         <li class="mdui-list-item mdui-ripple">
-            <span class="mdui-list-item-icon flag-icon flag-icon-{:strtolower($info[$v]['countryCode'])}"></span>
+            <span class="mdui-list-item-icon flag-icon flag-icon-{:strtolower($ip[$v]['countryCode'])}"></span>
             <div class="mdui-list-item-content" data-href="{:url('index/index/info',['token'=>$k])}">
                 <div class="mdui-list-item-title">
                     {:preg_replace("/\\.[\\d]+/",".*",$v)}
                 </div>
                 <div class="mdui-list-item-text mdui-list-item-one-line">
-                    {$info[$v]['city'].", ".$info[$v]['countryCode']}
+                    {$ip[$v]['city'].", ".$ip[$v]['countryCode']}
                 </div>
             </div>
-            {if(!empty($json[$v]))}
+            {if(!empty($info[$v]) && (time() - intval($info[$v]['Update Time'])) < 450)}
             <i class="mdui-icon material-icons mdui-text-color-green">&#xe2bf;</i>
             {else}
             <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>
@@ -59,7 +59,7 @@
             <div class="mdui-panel-item-body">
                 <div class="mdui-col-xs-12 mdui-col-md-6">
                     <h4>Active Servers</h4>
-                    <p>{:sizeof($json)}</p>
+                    <p>{:sizeof($info)}</p>
                 </div>
                 <div class="mdui-col-xs-12 mdui-col-md-6">
 
