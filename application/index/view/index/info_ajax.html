@@ -1,0 +1,188 @@
+<style>
+    .circle {
+        margin: 20px;
+        width: 150px;
+        height: 70px;
+        display: inline-block;
+    }
+    .full-circle {
+        margin: 20px;
+        width: 100px;
+        height: 100px;
+        position: relative;
+        display: inline-block;
+    }
+    .line {
+        margin: 20px;
+        height: 8px;
+        position: relative;
+    }
+</style>
+<div class="mdui-panel" mdui-panel>
+    <div class="mdui-panel-item mdui-panel-item-open">
+        <div class="mdui-panel-item-header">
+            <i class="mdui-icon material-icons">&#xe88e;</i>
+            <div class="mdui-panel-item-title">System Info</div>
+            <div class="mdui-panel-item-summary">IP, System version, etc.</div>
+            <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+        </div>
+        <div class="mdui-panel-item-body">
+            <div class="mdui-col-xs-12 mdui-col-md-6">
+                {foreach $info as $k => $v}
+                <h4>{$k}</h4>
+                {if $k == 'Update Time'}
+                <p>{$v|date="Y-m-d H:i:s"}</p>
+                {else}
+                <p>{$v|default='None'}</p>
+                {/if}
+                {/foreach}
+            </div>
+            <div class="mdui-col-xs-12 mdui-col-md-6">
+                <h4>Process</h4>
+                <p>{$json['Process']}</p>
+                <h4>Connection</h4>
+                <p>{$json['Connection']}</p>
+                <h4>Uptime</h4>
+                <p>{$uptime}</p>
+            </div>
+        </div>
+    </div>
+    <div class="mdui-panel-item mdui-panel-item-open">
+        <div class="mdui-panel-item-header">
+            <i class="mdui-icon material-icons">&#xe24b;</i>
+            <div class="mdui-panel-item-title">CPU Load</div>
+            <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+        </div>
+        <div class="mdui-panel-item-body">
+            <div id="cpu_1_min" class="circle">
+                1 Min
+            </div>
+            <div id="cpu_5_min" class="circle">
+                5 Min
+            </div>
+            <div id="cpu_15_min" class="circle">
+                15 Min
+            </div>
+        </div>
+    </div>
+    <div class="mdui-panel-item mdui-panel-item-open">
+        <div class="mdui-panel-item-header">
+            <i class="mdui-icon material-icons">&#xe1db;</i>
+            <div class="mdui-panel-item-title">Storage</div>
+            <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+        </div>
+        <div class="mdui-panel-item-body">
+            <div>
+                <p>{$json['Disk']['used']} / {$json['Disk']['total']}</p>
+                <div id="disk_status" class="full-circle"></div>
+            </div>
+        </div>
+    </div>
+    <div class="mdui-panel-item mdui-panel-item-open">
+        <div class="mdui-panel-item-header">
+            <i class="mdui-icon material-icons">&#xe322;</i>
+            <div class="mdui-panel-item-title">Memory</div>
+            <div class="mdui-panel-item-summary">Including Physical and Swap.</div>
+            <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+        </div>
+        <div class="mdui-panel-item-body">
+            <div>
+                <p><strong>Memory</strong>  {$json['Memory']['Mem']['used']} MB / {$json['Memory']['Mem']['total']} MB</p>
+                <div id="memory_status" class="line"></div>
+            </div>
+            <div>
+                <p><strong>Swap</strong> {$json['Memory']['Swap']['used']} MB / {$json['Memory']['Swap']['total']} MB</p>
+                <div id="swap_status" class="line"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    var memory_config = {
+        strokeWidth: 4,
+        easing: 'easeInOut',
+        duration: 1400,
+        color: '#dea4ff',
+        trailColor: '#eee',
+        trailWidth: 1,
+        svgStyle: {width: '100%', height: '100%'},
+        text: {
+            style: {
+                // Text color.
+                // Default: same as stroke color (options.color)
+                color: '#000',
+                position: 'absolute',
+                right: '0',
+                top: '15px',
+                padding: 0,
+                margin: 0,
+                transform: null
+            },
+            autoStyleContainer: false
+        },
+        from: {color: '#FFEA82'},
+        to: {color: '#ED6A5A'},
+        step: (state, bar) => {
+            bar.setText(Math.round(bar.value() * 100) + ' %');
+        }
+    };
+    var cpu_config = {
+        strokeWidth: 6,
+        color: '#000',
+        trailColor: '#eee',
+        trailWidth: 1,
+        easing: 'easeInOut',
+        duration: 1400,
+        svgStyle: null,
+        text: {
+            value: '',
+            alignToBottom: false
+        },
+        from: {color: '#42ff96'},
+        to: {color: '#ED6A5A'},
+        // Set default step function for all animate calls
+        step: (state, bar) => {
+            bar.path.setAttribute('stroke', state.color);
+            var value = Math.round(bar.value() * 100);
+            bar.setText(value + '%');
+        }
+    };
+    var disk_config = {
+        color: '#555',
+        strokeWidth: 4,
+        trailWidth: 1,
+        easing: 'easeInOut',
+        duration: 1400,
+        text: {
+            autoStyleContainer: false
+        },
+        from: { color: '#999', width: 1 },
+        to: { color: '#000', width: 4 },
+        // Set default step function for all animate calls
+        step: function(state, circle) {
+            circle.path.setAttribute('stroke', state.color);
+            circle.path.setAttribute('stroke-width', state.width);
+
+            var value = Math.round(circle.value() * 100);
+            circle.setText(value + " %");
+        }
+    };
+    var cpu_1 = new ProgressBar.SemiCircle(cpu_1_min, cpu_config);
+    var cpu_5 = new ProgressBar.SemiCircle(cpu_5_min, cpu_config);
+    var cpu_15 = new ProgressBar.SemiCircle(cpu_15_min, cpu_config);
+    var disk = new ProgressBar.Circle(disk_status, disk_config);
+    var mem = new ProgressBar.Line(memory_status, memory_config);
+    var swap = new ProgressBar.Line(swap_status, memory_config);
+    {if $json['Memory']['Mem']['total'] != 0}
+    mem.animate(1-{:doubleVal($json['Memory']['Mem']['free'])/ doubleVal($json['Memory']['Mem']['total'])});
+    {/if}
+        {if $json['Memory']['Swap']['total'] != 0}
+        swap.animate(1-{:doubleVal($json['Memory']['Swap']['free'])/ doubleVal($json['Memory']['Swap']['total'])});
+        {/if}
+            disk.animate({:doubleVal($json['Disk']['percent'])/100});
+
+            cpu_1.animate({$json['Load']['1min']});
+            cpu_5.animate({$json['Load']['5min']});
+            cpu_15.animate({$json['Load']['15min']});
+</script>
