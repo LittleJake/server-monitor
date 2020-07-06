@@ -22,14 +22,14 @@
     <div class="mdui-panel-item mdui-panel-item-open">
         <div class="mdui-panel-item-header">
             <i class="mdui-icon material-icons">&#xe88e;</i>
-            <div class="mdui-panel-item-title">System Info</div>
-            <div class="mdui-panel-item-summary">IP, System version, etc.</div>
+            <div class="mdui-panel-item-title">{:lang("System Info")}</div>
+            <div class="mdui-panel-item-summary">{:lang("System Info Description")}</div>
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
             <div class="mdui-col-xs-12 mdui-col-md-6">
                 {foreach $info as $k => $v}
-                <h4>{$k}</h4>
+                <h4>{:lang($k)}</h4>
                 {if $k == 'Update Time'}
                 <p>{$v|date="Y-m-d H:i:s"}</p>
                 {else}
@@ -38,11 +38,11 @@
                 {/foreach}
             </div>
             <div class="mdui-col-xs-12 mdui-col-md-6">
-                <h4>Process</h4>
+                <h4>{:lang("Process")}</h4>
                 <p>{$json['Process']}</p>
-                <h4>Connection</h4>
+                <h4>{:lang("Connection")}</h4>
                 <p>{$json['Connection']}</p>
-                <h4>Uptime</h4>
+                <h4>{:lang("Uptime")}</h4>
                 <p>{$uptime}</p>
             </div>
         </div>
@@ -50,7 +50,7 @@
     <div class="mdui-panel-item mdui-panel-item-open">
         <div class="mdui-panel-item-header">
             <i class="mdui-icon material-icons">&#xe24b;</i>
-            <div class="mdui-panel-item-title">CPU Load</div>
+            <div class="mdui-panel-item-title">{:lang("CPU Load")}</div>
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
@@ -63,36 +63,44 @@
             <div id="cpu_15_min" class="circle">
                 15 Min
             </div>
+            <canvas id="cpu-collection"></canvas>
         </div>
     </div>
     <div class="mdui-panel-item mdui-panel-item-open">
         <div class="mdui-panel-item-header">
             <i class="mdui-icon material-icons">&#xe1db;</i>
-            <div class="mdui-panel-item-title">Storage</div>
+            <div class="mdui-panel-item-title">{:lang("Storage")}</div>
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
-            <div>
+            <div class="mdui-col-lg-3">
                 <p>{$json['Disk']['used']} / {$json['Disk']['total']}</p>
                 <div id="disk_status" class="full-circle"></div>
+            </div>
+            <div class="mdui-col-lg-9">
+                <canvas id="disk-collection"></canvas>
             </div>
         </div>
     </div>
     <div class="mdui-panel-item mdui-panel-item-open">
         <div class="mdui-panel-item-header">
             <i class="mdui-icon material-icons">&#xe322;</i>
-            <div class="mdui-panel-item-title">Memory</div>
-            <div class="mdui-panel-item-summary">Including Physical and Swap.</div>
+            <div class="mdui-panel-item-title">{:lang("Memory")}</div>
+            <div class="mdui-panel-item-summary">{:lang("Memory Description")}</div>
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
             <div>
-                <p><strong>Memory</strong>  {$json['Memory']['Mem']['used']} MB / {$json['Memory']['Mem']['total']} MB</p>
+                <h4>{:lang('Memory')}</h4>
+                <p>{$json['Memory']['Mem']['used']} MB / {$json['Memory']['Mem']['total']} MB</p>
                 <div id="memory_status" class="line"></div>
+                <canvas id="memory-collection"></canvas>
             </div>
             <div>
-                <p><strong>Swap</strong> {$json['Memory']['Swap']['used']} MB / {$json['Memory']['Swap']['total']} MB</p>
+                <h4>{:lang('Swap')}</h4>
+                <p>{$json['Memory']['Swap']['used']} MB / {$json['Memory']['Swap']['total']} MB</p>
                 <div id="swap_status" class="line"></div>
+                <canvas id="swap-collection"></canvas>
             </div>
         </div>
     </div>
@@ -168,21 +176,98 @@
             circle.setText(value + " %");
         }
     };
-    var cpu_1 = new ProgressBar.SemiCircle(cpu_1_min, cpu_config);
-    var cpu_5 = new ProgressBar.SemiCircle(cpu_5_min, cpu_config);
-    var cpu_15 = new ProgressBar.SemiCircle(cpu_15_min, cpu_config);
+    new ProgressBar.SemiCircle(cpu_1_min, cpu_config).animate({$json['Load']['1min']});
+    new ProgressBar.SemiCircle(cpu_5_min, cpu_config).animate({$json['Load']['5min']});
+    new ProgressBar.SemiCircle(cpu_15_min, cpu_config).animate({$json['Load']['15min']});
     var disk = new ProgressBar.Circle(disk_status, disk_config);
     var mem = new ProgressBar.Line(memory_status, memory_config);
     var swap = new ProgressBar.Line(swap_status, memory_config);
     {if $json['Memory']['Mem']['total'] != 0}
     mem.animate(1-{:doubleVal($json['Memory']['Mem']['free'])/ doubleVal($json['Memory']['Mem']['total'])});
     {/if}
-        {if $json['Memory']['Swap']['total'] != 0}
-        swap.animate(1-{:doubleVal($json['Memory']['Swap']['free'])/ doubleVal($json['Memory']['Swap']['total'])});
-        {/if}
-            disk.animate({:doubleVal($json['Disk']['percent'])/100});
+    {if $json['Memory']['Swap']['total'] != 0}
+    swap.animate(1-{:doubleVal($json['Memory']['Swap']['free'])/ doubleVal($json['Memory']['Swap']['total'])});
+    {/if}
+    disk.animate({:doubleVal($json['Disk']['percent'])/100});
 
-            cpu_1.animate({$json['Load']['1min']});
-            cpu_5.animate({$json['Load']['5min']});
-            cpu_15.animate({$json['Load']['15min']});
+        $.ajax({
+            url: "{:url('api/disk/get', ['token' => $token])}",
+            method: "get",
+            success: function(e){
+                var ctx_disk = document.getElementById('disk-collection').getContext('2d');
+                new Chart(ctx_disk, {
+                    type: 'line',
+                    data: {
+                        labels: e.time,
+                        datasets: [{
+                            label: 'Disk Usage(GB)', borderColor: 'rgb(30,138,0)', backgroundColor: 'rgb(30,138,0)', data: e.load,
+                        }]
+                    },
+                    options: {responsive: true, title: {text: "{:lang('Disk')}", display: true},
+                            yAxes: [{ticks: {suggestedMin: 10, suggestedMax: 50}}]}
+                });
+            }
+        });
+        $.ajax({
+            url: "{:url('api/memory/get', ['token' => $token])}",
+            method: "get",
+            success: function(e){
+                var ctx_memory = document.getElementById('memory-collection').getContext('2d');
+                new Chart(ctx_memory, {
+                    type: 'line',
+                    data: {
+                        labels: e.time,
+                        datasets: [{
+                            label: 'Memory Usage(MB)', borderColor: 'rgb(255, 99, 132)', backgroundColor: 'rgb(255, 99, 132)', data: e.load,
+                        }]
+                    },
+                    options: {responsive: true, title: {text: "{:lang('Memory')}", display: true},
+                            yAxes: [{ticks: {suggestedMin: 10, suggestedMax: 50}}]}
+                });
+            }
+        });
+        $.ajax({
+            url: "{:url('api/swap/get', ['token' => $token])}",
+            method: "get",
+            success: function(e){
+                var ctx_swap = document.getElementById('swap-collection').getContext('2d');
+                new Chart(ctx_swap, {
+                    type: 'line',
+                    data: {
+                        labels: e.time,
+                        datasets: [{
+                            label: 'Swap Usage(MB)', borderColor: 'rgb(255, 99, 132)', backgroundColor: 'rgb(255, 99, 132)', data: e.load,
+                        }]
+                    },
+                    options: {
+                        responsive: true, title: {text: "{:lang('Swap')}", display: true},
+                        yAxes: [{ticks: {suggestedMin: 10, suggestedMax: 50}}]
+                    }
+                });
+            }
+        });
+        $.ajax({
+            url: "{:url('api/cpu/get', ['token' => $token])}",
+            method: "get",
+            success: function(e){
+                var ctx_cpu = document.getElementById('cpu-collection').getContext('2d');
+                new Chart(ctx_cpu, {
+                    type: 'line',
+                    data: {
+                        labels: e.time,
+                        datasets: [{
+                            label: 'CPU Usage',
+                            borderColor: 'rgb(255,135,14)',
+                            backgroundColor: 'rgb(255,135,14)',
+                            data: e.load,
+                        }]
+                    },
+                    options: {
+                        responsive: true, title: {text: "{:lang('CPU')}", display: true},
+                        yAxes: [{ticks: {suggestedMin: 10, suggestedMax: 50}}]
+                    }
+                });
+            }
+        });
+
 </script>

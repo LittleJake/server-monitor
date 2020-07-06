@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Server Monitor List</title>
+    <title>{:lang("Server Monitor")}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icon-css@3.4.6/css/flag-icon.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/zdhxiong/mdui@0.4.3/dist/css/mdui.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -25,37 +25,46 @@
         <span class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white" mdui-drawer="{target:'#drawer',swipe:true}">
             <i class="mdui-icon material-icons">menu</i>
         </span>
-        <a href="{:url('/')}" class="mdui-typo-headline">Server Monitor List</a>
+        <a href="{:url('/')}" class="mdui-typo-headline">{:lang("Server Monitor")}</a>
         <div class="mdui-toolbar-spacer"></div>
     </div>
 </div>
 <div class="mdui-drawer" id="drawer">
-    <ul class="mdui-list">
-        {foreach $hash as $k => $v}
-        <li class="mdui-list-item mdui-ripple">
-            <span class="mdui-list-item-icon flag-icon flag-icon-{:strtolower($ip[$v]['countryCode'])}"></span>
-            <div class="mdui-list-item-content" data-href="{:url('index/index/info',['token'=>$k])}">
-                <div class="mdui-list-item-title">
-                    {:preg_replace("/\\.[\\d]+/",".*",$v)}
-                </div>
-                <div class="mdui-list-item-text mdui-list-item-one-line">
-                    {$ip[$v]['city'].", ".$ip[$v]['countryCode']}
-                </div>
+    <div class="mdui-list" mdui-collapse="{accordion: false}">
+        <div class="mdui-collapse-item">
+            <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
+                <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">&#xe30a;</i>
+                <div class="mdui-list-item-content">{:lang("Server List")}</div>
+                <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
             </div>
-            {if(!empty($info[$v]) && (time() - intval($info[$v]['Update Time'])) < 450)}
-            <i class="mdui-icon material-icons mdui-text-color-green">&#xe2bf;</i>
-            {else}
-            <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>
-            {/if}
-        </li>
-        {/foreach}
-    </ul>
+            <div class="mdui-collapse-item-body mdui-list">
+                {foreach $hash as $k => $v}
+                <div class="mdui-list-item mdui-ripple mdui-p-l-2">
+                    <span class="mdui-list-item-icon flag-icon flag-icon-{:strtolower($ip[$v]['countryCode'])}"></span>
+                    <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['token'=>$k])}">
+                        <div class="mdui-list-item-title">
+                            {:preg_replace("/\\.[\\d]+/",".*",$v)}
+                        </div>
+                        <div class="mdui-list-item-text mdui-list-item-one-line">
+                            {$ip[$v]['city'].", ".$ip[$v]['countryCode']}
+                        </div>
+                    </div>
+                    {if(!empty($info[$v]) && (time() - intval($info[$v]['Update Time'])) < 450)}
+                    <i class="mdui-icon material-icons mdui-text-color-green">&#xe2bf;</i>
+                    {else}
+                    <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>
+                    {/if}
+                </div>
+                {/foreach}
+            </div>
+        </div>
+    </div>
 </div>
 <div class="mdui-container" id="ajax">
     <div class="mdui-panel" mdui-panel>
         <div class="mdui-panel-item mdui-panel-item-open">
             <div class="mdui-panel-item-header">
-                <div class="mdui-panel-item-title">About</div>
+                <div class="mdui-panel-item-title">{:lang('About')}</div>
             </div>
             <div class="mdui-panel-item-body">
                 <h2>Server Monitor</h2>
@@ -68,14 +77,15 @@
 <div class="bottom-nav mdui-color-indigo">
     <div class="nav-text">
         <p class="mdui-text-color-white-text">LittleJake, 2020. </p>
-        <p class="mdui-text-color-white-secondary">Licensed under the Apache License, Version 2.0</p>
+        <p class="mdui-text-color-white-secondary">{:lang('License')}</p>
     </div>
 </div>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zdhxiong/mdui@0.4.3/dist/js/mdui.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/jquery/jquery@3.5.1/dist/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/kimmobrunfeldt/progressbar.js@1.1.0/dist/progressbar.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <script>
-    $('.mdui-list-item-content').on('click',function () {
+    $('.ajax-load').on('click',function () {
         url = $(this).attr('data-href');
         $.ajax({
             'url': url,

@@ -2,6 +2,7 @@
 
 namespace app\common\lib;
 
+use think\Exception;
 use think\facade\Cache;
 use think\facade\Log;
 
@@ -105,16 +106,12 @@ class SystemMonitor
     }
 
     static public function timeFormat($time){
-        return floor($time / (24*60*60)) ." Days ".
-            floor(($time / (60*60)) % 24) ." Hours ".
-            floor(($time / (60)) % 60) . " Minutes ".
-            floor($time % 60) . " Seconds";
+        return lang("Uptime Format", [floor($time / (24*60*60)), floor(($time / (60*60)) % 24)
+            , floor(($time / (60)) % 60), floor($time % 60)]);
     }
 
     static private function curl_get($url){
-        $header = array(
-            'Accept: application/json',
-        );
+        $header = ['Accept: application/json'];
         $curl = curl_init();
         //设置抓取的url
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -142,5 +139,85 @@ class SystemMonitor
             curl_close($curl);
 
         return $data;
+    }
+
+    static public function getCpuCollection($ip){
+        $time =  time();
+        if(!Cache::has("system_monitor:collection:cpu:$ip")){
+            $data = Cache::store('redis')->handler()
+                ->zRangeByScore("system_monitor:collection:cpu:$ip", $time - 15000, $time
+                    , ['withscores' => TRUE]);
+            Cache::set("system_monitor:collection:cpu:$ip",$data,150);
+        } else {
+            $data = Cache::get("system_monitor:collection:cpu:$ip");
+        }
+        return $data;
+    }
+
+    static public function getSwapCollection($ip){
+        $time =  time();
+        if(!Cache::has("system_monitor:collection:swap:$ip")){
+            $data = Cache::store('redis')->handler()
+                ->zRangeByScore("system_monitor:collection:swap:$ip", $time - 15000, $time
+                    , ['withscores' => TRUE]);
+            Cache::set("system_monitor:collection:swap:$ip",$data,150);
+        } else {
+            $data = Cache::get("system_monitor:collection:swap:$ip");
+        }
+        return $data;
+    }
+
+    static public function getMemoryCollection($ip){
+        $time =  time();
+
+        if(!Cache::has("system_monitor:collection:memory:$ip")){
+            $data = Cache::store('redis')->handler()
+                ->zRangeByScore("system_monitor:collection:memory:$ip", $time - 15000, $time
+                    , ['withscores' => TRUE]);
+            Cache::set("system_monitor:collection:memory:$ip",$data,150);
+        } else {
+            $data = Cache::get("system_monitor:collection:memory:$ip");
+        }
+        return $data;
+    }
+
+    static public function getDiskCollection($ip){
+        $time =  time();
+
+        if(!Cache::has("system_monitor:collection:disk:$ip")){
+            $data = Cache::store('redis')->handler()
+                ->zRangeByScore("system_monitor:collection:disk:$ip", $time - 15000, $time
+                    , ['withscores' => TRUE]);
+            Cache::set("system_monitor:collection:disk:$ip",$data,150);
+        } else {
+            $data = Cache::get("system_monitor:collection:disk:$ip");
+        }
+
+        return $data;
+    }
+
+    static public function collectionFormat($data){
+        $k = [];
+        $v = [];
+
+        foreach ($data as $kk => $vv){
+            $k[] = date('m-d H:i',$vv);
+            $v[] = floatval(json_decode($kk, true)['value']);
+        }
+
+        return [
+            'time' => $k,
+            'load' => $v
+        ];
+    }
+
+    static public function getIPByHash($token){
+        $hash = SystemMonitor::getHashes();
+        $ip = $hash[$token];
+
+        if(empty($ip))
+            throw new Exception("Wrong Token", 403);
+
+        return $ip;
     }
 }
