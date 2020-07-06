@@ -6,7 +6,9 @@ use app\common\lib\SystemMonitor;
 
 class Index extends Base
 {
-    protected $middleware = ['FlowControl'];
+    protected $middleware = [
+        'FlowControl',
+    ];
 
     public function index()
     {
@@ -27,11 +29,7 @@ class Index extends Base
         if(strlen($token) != 64)
             $this->error("Wrong Token");
 
-        $hash = SystemMonitor::getHashes();
-        $ip = $hash[$token];
-
-        if(empty($ip))
-            $this->error("Wrong Token");
+        $ip = SystemMonitor::getIPByHash($token);
 
         $json = SystemMonitor::getStat($ip);
         $uptime_str = SystemMonitor::timeFormat(intval($json['Uptime']));
@@ -39,6 +37,7 @@ class Index extends Base
         $this->assign("json", $json);
         $this->assign("uptime", $uptime_str);
         $this->assign("info", $info);
+        $this->assign("token", $token);
         if($this->request->isAjax())
             return $this->fetch("index/info_ajax");
         return $this->fetch();
