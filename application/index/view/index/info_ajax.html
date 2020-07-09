@@ -54,14 +54,10 @@
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
-            <div id="cpu_1_min" class="circle">
-                1 Min
-            </div>
-            <div id="cpu_5_min" class="circle">
-                5 Min
-            </div>
-            <div id="cpu_15_min" class="circle">
-                15 Min
+            <div class="mdui-row">
+                <div id="cpu_1_min" class="mdui-col-xs-12 mdui-col-md-4" style="height: 300px;"></div>
+                <div id="cpu_5_min" class="mdui-col-xs-12 mdui-col-md-4" style="height: 300px;"></div>
+                <div id="cpu_15_min" class="mdui-col-xs-12 mdui-col-md-4" style="height: 300px;"></div>
             </div>
             <div id="cpu-collection" class="mdui-col-xs-12" style="height: 300px;"></div>
         </div>
@@ -75,7 +71,7 @@
         <div class="mdui-panel-item-body">
             <div class="mdui-col-lg-3">
                 <p>{$json['Disk']['used']} / {$json['Disk']['total']}</p>
-                <div id="disk_status" class="full-circle"></div>
+                <div id="disk_status" class="mdui-col-xs-12" style="height: 300px;"></div>
             </div>
             <div class="mdui-col-lg-9">
                 <div id="disk-collection" class="mdui-col-xs-12" style="height: 300px;"></div>
@@ -135,51 +131,40 @@
             bar.setText(Math.round(bar.value() * 100) + ' %');
         }
     };
-    var cpu_config = {
-        strokeWidth: 6,
-        color: '#000',
-        trailColor: '#eee',
-        trailWidth: 1,
-        easing: 'easeInOut',
-        duration: 1400,
-        svgStyle: null,
-        text: {
-            value: '',
-            alignToBottom: false
-        },
-        from: {color: '#42ff96'},
-        to: {color: '#ED6A5A'},
-        // Set default step function for all animate calls
-        step: (state, bar) => {
-            bar.path.setAttribute('stroke', state.color);
-            var value = Math.round(bar.value() * 100);
-            bar.setText(value + '%');
-        }
-    };
-    var disk_config = {
-        color: '#555',
-        strokeWidth: 4,
-        trailWidth: 1,
-        easing: 'easeInOut',
-        duration: 1400,
-        text: {
-            autoStyleContainer: false
-        },
-        from: { color: '#999', width: 1 },
-        to: { color: '#000', width: 4 },
-        // Set default step function for all animate calls
-        step: function(state, circle) {
-            circle.path.setAttribute('stroke', state.color);
-            circle.path.setAttribute('stroke-width', state.width);
 
-            var value = Math.round(circle.value() * 100);
-            circle.setText(value + " %");
-        }
-    };
-    new ProgressBar.SemiCircle(cpu_1_min, cpu_config).animate({$json['Load']['1min']});
-    new ProgressBar.SemiCircle(cpu_5_min, cpu_config).animate({$json['Load']['5min']});
-    new ProgressBar.SemiCircle(cpu_15_min, cpu_config).animate({$json['Load']['15min']});
-    var disk = new ProgressBar.Circle(disk_status, disk_config);
+    var disk_config = {
+        series:
+            [{
+                type: 'gauge',
+                detail: {formatter: '{value}%'},
+                data: [{value: "{:doubleVal($json['Disk']['percent'])}"}],
+                axisLine: {lineStyle: {width: 5}},
+                splitLine: {show: false},
+                axisLabel: {show: false}
+            }]};
+    var cpu_config = {
+        series:
+            [{
+                type: 'gauge',
+                detail: {formatter: '{value}%'},
+                data: [{value: 0, name: ''}],
+                axisLine: {lineStyle: {width: 5}},
+                splitLine: {show: false},
+                axisLabel: {show: false}
+            }]};
+
+    echarts.init(document.getElementById('disk_status')).setOption(disk_config);
+
+    cpu_config.series[0].data[0].value = "{$json['Load']['1min']}" * 100;
+    cpu_config.series[0].data[0].name= "1 Min";
+    echarts.init(document.getElementById('cpu_1_min')).setOption(cpu_config);
+    cpu_config.series[0].data[0].value = "{$json['Load']['5min']}" * 100;
+    cpu_config.series[0].data[0].name= "5 Min";
+    echarts.init(document.getElementById('cpu_5_min')).setOption(cpu_config);
+    cpu_config.series[0].data[0].value = "{$json['Load']['15min']}" * 100;
+    cpu_config.series[0].data[0].name= "15 Min";
+    echarts.init(document.getElementById('cpu_15_min')).setOption(cpu_config);
+
     var mem = new ProgressBar.Line(memory_status, memory_config);
     var swap = new ProgressBar.Line(swap_status, memory_config);
     {if $json['Memory']['Mem']['total'] != 0}
@@ -188,7 +173,6 @@
     {if $json['Memory']['Swap']['total'] != 0}
     swap.animate(1-{:doubleVal($json['Memory']['Swap']['free'])/ doubleVal($json['Memory']['Swap']['total'])});
     {/if}
-    disk.animate({:doubleVal($json['Disk']['percent'])/100});
 
         $.ajax({
             url: "{:url('api/disk/get', ['token' => $token])}",
