@@ -145,7 +145,7 @@ class SystemMonitor
         $time =  time();
         if(!Cache::has("system_monitor:collection:cpu:$ip")){
             $data = Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:cpu:$ip", $time - 15000, $time
+                ->zRangeByScore("system_monitor:collection:cpu:$ip", 0, $time
                     , ['withscores' => TRUE]);
             Cache::set("system_monitor:collection:cpu:$ip",$data,150);
         } else {
@@ -158,7 +158,7 @@ class SystemMonitor
         $time =  time();
         if(!Cache::has("system_monitor:collection:swap:$ip")){
             $data = Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:swap:$ip", $time - 15000, $time
+                ->zRangeByScore("system_monitor:collection:swap:$ip", 0, $time
                     , ['withscores' => TRUE]);
             Cache::set("system_monitor:collection:swap:$ip",$data,150);
         } else {
@@ -172,7 +172,7 @@ class SystemMonitor
 
         if(!Cache::has("system_monitor:collection:memory:$ip")){
             $data = Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:memory:$ip", $time - 15000, $time
+                ->zRangeByScore("system_monitor:collection:memory:$ip", 0, $time
                     , ['withscores' => TRUE]);
             Cache::set("system_monitor:collection:memory:$ip",$data,150);
         } else {
@@ -186,7 +186,7 @@ class SystemMonitor
 
         if(!Cache::has("system_monitor:collection:disk:$ip")){
             $data = Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:disk:$ip", $time - 15000, $time
+                ->zRangeByScore("system_monitor:collection:disk:$ip", 0, $time
                     , ['withscores' => TRUE]);
             Cache::set("system_monitor:collection:disk:$ip",$data,150);
         } else {
