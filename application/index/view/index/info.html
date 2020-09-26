@@ -60,7 +60,7 @@
                 <div class="mdui-panel-item-title">{:lang("CPU Load")}</div>
                 <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
             </div>
-            <div class="mdui-panel-item-body overflow">
+            <div class="mdui-panel-item-body">
                 <div class="mdui-row">
                     <div id="cpu_1_min" class="mdui-col-xs-12 mdui-col-md-4" style="height: 300px;"></div>
                     <div id="cpu_5_min" class="mdui-col-xs-12 mdui-col-md-4" style="height: 300px;"></div>
@@ -75,7 +75,7 @@
                 <div class="mdui-panel-item-title">{:lang("Storage")}</div>
                 <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
             </div>
-            <div class="mdui-panel-item-body overflow">
+            <div class="mdui-panel-item-body">
                 <div class="mdui-col-lg-3">
                     <p>{$json['Disk']['used']} / {$json['Disk']['total']}</p>
                     <div id="disk_status" class="mdui-col-xs-12" style="height: 300px;"></div>
@@ -92,7 +92,7 @@
                 <div class="mdui-panel-item-summary">{:lang("Memory Description")}</div>
                 <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
             </div>
-            <div class="mdui-panel-item-body overflow">
+            <div class="mdui-panel-item-body">
                 <div>
                     <h4>{:lang('Memory')}</h4>
                     <p>{$json['Memory']['Mem']['used']} MB / {$json['Memory']['Mem']['total']} MB</p>
