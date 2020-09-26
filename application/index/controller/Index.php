@@ -40,6 +40,7 @@ class Index extends Base
         $this->assign("token", $token);
         if($this->request->isAjax())
             return $this->fetch("index/info_ajax");
+
         return $this->fetch();
     }
 }

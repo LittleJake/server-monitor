@@ -1,17 +1,4 @@
 <style>
-    .circle {
-        margin: 20px;
-        width: 150px;
-        height: 70px;
-        display: inline-block;
-    }
-    .full-circle {
-        margin: 20px;
-        width: 100px;
-        height: 100px;
-        position: relative;
-        display: inline-block;
-    }
     .line {
         margin: 20px;
         height: 8px;
@@ -100,7 +87,6 @@
             </div>
         </div>
     </div>
-
 </div>
 <script>
     var memory_config = {
@@ -131,7 +117,7 @@
     new ProgressBar.Line(memory_status, memory_config)
         .animate(1-"{:doubleVal($json['Memory']['Mem']['free'])/ doubleVal($json['Memory']['Mem']['total'])}");
     new ProgressBar.Line(swap_status, memory_config)
-        .animate(1-"{:doubleVal($json['Memory']['Swap']['free'])/ doubleVal($json['Memory']['Swap']['total'])}");
+        .animate(1-"{if $json['Memory']['Swap']['total'] == 0}1{else}{:doubleVal($json['Memory']['Swap']['free'])/ doubleVal($json['Memory']['Swap']['total'])}{/if}");
 
     $.ajax({
         url: "{:url('api/disk/get', ['token' => $token])}", method: "get",
