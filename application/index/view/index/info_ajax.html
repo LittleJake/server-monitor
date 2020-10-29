@@ -87,8 +87,35 @@
             </div>
         </div>
     </div>
+    <div class="mdui-panel-item mdui-panel-item-open">
+        <div class="mdui-panel-item-header">
+            <i class="mdui-icon material-icons">&#xe322;</i>
+            <div class="mdui-panel-item-title">{:lang("Network")}</div>
+            <div class="mdui-panel-item-summary">{:lang("Network Description")}</div>
+            <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+        </div>
+        <div class="mdui-panel-item-body">
+            <div>
+                <div id="rx-collection" class="mdui-col-xs-12" style="height: 300px;"></div>
+            </div>
+            <div>
+                <div id="tx-collection" class="mdui-col-xs-12" style="height: 300px;"></div>
+            </div>
+        </div>
+    </div>
 </div>
 <script>
+    var network_config = {
+        title: {text: ''},
+        tooltip: {trigger: 'axis', axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}},
+        legend: {data: ['packets', 'bytes']},
+        grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
+        xAxis: [{type: 'category', boundaryGap: false, data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']}],
+        yAxis: [{type: 'value'}],
+        series: [{name: 'packets', type: 'line', stack: '总量', areaStyle: {}, data: [120, 132, 101, 134, 90, 230, 210]},
+            {name: 'bytes', type: 'line', stack: '总量', areaStyle: {}, data: [220, 182, 191, 234, 290, 330, 310]},]
+    };
+
     var memory_config = {
         strokeWidth: 4, easing: 'easeInOut', duration: 1400, color: '#dea4ff', trailColor: '#eee', trailWidth: 1,
         svgStyle: {width: '100%', height: '100%'},
@@ -119,6 +146,32 @@
     new ProgressBar.Line(swap_status, memory_config)
         .animate(1-"{if $json['Memory']['Swap']['total'] == 0}1{else}{:doubleVal($json['Memory']['Swap']['free'])/ doubleVal($json['Memory']['Swap']['total'])}{/if}");
 
+    $.ajax({
+        url: "{:url('api/network/rx', ['token' => $token])}", method: "get",
+        success: function(e){
+            let ctx_rx = echarts.init(document.getElementById('rx-collection')),
+                option = network_config;
+                option.title.text = "RX";
+                option.xAxis = [{type: 'category', boundaryGap: false, data: e.time}];
+                option.series = [{name: 'packets', type: 'line', stack: '总量', areaStyle: {}, data: e.packets},
+                    {name: 'bytes', type: 'line', stack: '总量', areaStyle: {}, data: e.bytes},]
+
+            ctx_rx.setOption(option);
+        }
+    });
+    $.ajax({
+        url: "{:url('api/network/tx', ['token' => $token])}", method: "get",
+        success: function(e){
+            let ctx_tx = echarts.init(document.getElementById('tx-collection')),
+                option = network_config;
+            option.title.text = "TX";
+            option.xAxis = [{type: 'category', boundaryGap: false, data: e.time}];
+            option.series = [{name: 'packets', type: 'line', stack: '总量', areaStyle: {}, data: e.packets},
+                {name: 'bytes', type: 'line', stack: '总量', areaStyle: {}, data: e.bytes},]
+
+            ctx_tx.setOption(option);
+        }
+    });
     $.ajax({
         url: "{:url('api/disk/get', ['token' => $token])}", method: "get",
         success: function(e){

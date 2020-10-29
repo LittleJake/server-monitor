@@ -17,4 +17,5 @@ return [
     'Uptime' => 'Uptime',
     'Uptime Format' => '%d Days %d Hours %d Minutes %d Seconds',
     'License' => 'Licensed under the Apache License, Version 2.0',
+    'Network Description' => 'RX and TX.'
 ];
