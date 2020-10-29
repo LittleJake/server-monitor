@@ -15,5 +15,7 @@ Route::get('api/disk/:token','api/disk/get');
 Route::get('api/cpu/:token','api/cpu/get');
 Route::get('api/swap/:token','api/swap/get');
 Route::get('api/memory/:token','api/memory/get');
+Route::get('api/network/rx/:token','api/network/rx');
+Route::get('api/network/tx/:token','api/network/tx');
 
 return [];

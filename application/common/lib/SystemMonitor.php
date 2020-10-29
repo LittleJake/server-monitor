@@ -196,6 +196,37 @@ class SystemMonitor
         return $data;
     }
 
+    static public function getNetworkRXCollection($ip){
+        $time =  time();
+
+        if(!Cache::has("system_monitor:collection:network:RX:$ip")){
+            $data = Cache::store('redis')->handler()
+                ->zRangeByScore("system_monitor:collection:network:RX:$ip", 0, $time
+                    , ['withscores' => TRUE]);
+            Cache::set("system_monitor:collection:network:RX:$ip",$data,150);
+        } else {
+            $data = Cache::get("system_monitor:collection:network:RX:$ip");
+        }
+
+        return $data;
+    }
+
+    static public function getNetworkTXCollection($ip){
+        $time =  time();
+
+        if(!Cache::has("system_monitor:collection:network:TX:$ip")){
+            $data = Cache::store('redis')->handler()
+                ->zRangeByScore("system_monitor:collection:network:TX:$ip", 0, $time
+                    , ['withscores' => TRUE]);
+            Cache::set("system_monitor:collection:network:TX:$ip",$data,150);
+        } else {
+            $data = Cache::get("system_monitor:collection:network:TX:$ip");
+        }
+
+        return $data;
+    }
+
+
     static public function collectionFormat($data){
         $k = [];
         $v = [];
@@ -208,6 +239,28 @@ class SystemMonitor
         return [
             'time' => $k,
             'load' => $v
+        ];
+    }
+
+
+
+    static public function networkFormat($data){
+        $k = [];
+        $packets = [];
+        $bytes = [];
+
+        foreach ($data as $kk => $vv){
+            $k[] = date('m-d H:i',$vv);
+            $arr = explode(',',json_decode($kk, true)['value']);
+            $packets[] = intval($arr[0]);
+            $bytes[] = intval($arr[1]);
+        }
+
+        return [
+            'time' => $k,
+            'packets' => $packets,
+            'bytes' => $bytes,
+
         ];
     }
 
