@@ -95,7 +95,7 @@
             <div class="mdui-panel-item-body">
                 <div>
                     <h4>{:lang('Memory')}</h4>
-                    <p>{$json['Memory']['Mem']['used']} MB / {$json['Memory']['Mem']['total']} MB</p>
+                    <p>{$json['Memory']['Mem']['total'] - $json['Memory']['Mem']['free']} MB / {$json['Memory']['Mem']['total']} MB</p>
                     <div id="memory_status" class="line"></div>
                     <div id="memory-collection" class="mdui-col-xs-12" style="height: 300px;"></div>
                 </div>
