@@ -108,12 +108,10 @@
     var network_config = {
         title: {text: ''},
         tooltip: {trigger: 'axis', axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}},
-        legend: {data: ['packets', 'bytes']},
-        grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
-        xAxis: [{type: 'category', boundaryGap: false, data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']}],
+        legend: {data: ['Packets (k)', 'Throughput (MB)']},
+        grid: {left: '3%', right: '4%', bottom: '15%', containLabel: true},
         yAxis: [{type: 'value'}],
-        series: [{name: 'packets', type: 'line', stack: '总量', areaStyle: {}, data: [120, 132, 101, 134, 90, 230, 210]},
-            {name: 'bytes', type: 'line', stack: '总量', areaStyle: {}, data: [220, 182, 191, 234, 290, 330, 310]},]
+        dataZoom: [{show: true, realtime: true, start: 30, end: 70,}],
     };
 
     var memory_config = {
@@ -153,8 +151,8 @@
                 option = network_config;
                 option.title.text = "RX";
                 option.xAxis = [{type: 'category', boundaryGap: false, data: e.time}];
-                option.series = [{name: 'packets', type: 'line', stack: '总量', areaStyle: {}, data: e.packets},
-                    {name: 'bytes', type: 'line', stack: '总量', areaStyle: {}, data: e.bytes},]
+                option.series = [{name: 'Packets (k)', type: 'line', stack: '总量', areaStyle: {}, data: e.packets},
+                    {name: 'Throughput (MB)', type: 'line', stack: '总量', areaStyle: {}, data: e.megabytes},]
 
             ctx_rx.setOption(option);
         }
@@ -166,8 +164,8 @@
                 option = network_config;
             option.title.text = "TX";
             option.xAxis = [{type: 'category', boundaryGap: false, data: e.time}];
-            option.series = [{name: 'packets', type: 'line', stack: '总量', areaStyle: {}, data: e.packets},
-                {name: 'bytes', type: 'line', stack: '总量', areaStyle: {}, data: e.bytes},]
+            option.series = [{name: 'Packets (k)', type: 'line', stack: '总量', areaStyle: {}, data: e.packets},
+                {name: 'Throughput (MB)', type: 'line', stack: '总量', areaStyle: {}, data: e.megabytes},]
 
             ctx_tx.setOption(option);
         }

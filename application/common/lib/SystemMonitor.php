@@ -247,20 +247,19 @@ class SystemMonitor
     static public function networkFormat($data){
         $k = [];
         $packets = [];
-        $bytes = [];
+        $megabytes = [];
 
         foreach ($data as $kk => $vv){
             $k[] = date('m-d H:i',$vv);
             $arr = explode(',',json_decode($kk, true)['value']);
-            $packets[] = intval($arr[0]);
-            $bytes[] = intval($arr[1]);
+            $packets[] = (intval($arr[0])*1.0)/1000;
+            $megabytes[] = number_format((intval($arr[1])*1.0)/1048576,2);
         }
 
         return [
             'time' => $k,
             'packets' => $packets,
-            'bytes' => $bytes,
-
+            'megabytes' => $megabytes,
         ];
     }
 
