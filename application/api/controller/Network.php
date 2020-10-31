@@ -16,24 +16,12 @@ class Network extends Controller
      *
      * @return \think\Response
      */
-    public function RX($token = '')
+    public function get($token = '')
     {
         $ip = SystemMonitor::getIPByHash($token);
-
-        $network = SystemMonitor::getNetworkRXCollection($ip);
-        return json(SystemMonitor::networkFormat($network));
-    }
-
-    /**
-     * 显示资源列表
-     *
-     * @return \think\Response
-     */
-    public function TX($token = '')
-    {
-        $ip = SystemMonitor::getIPByHash($token);
-
-        $network = SystemMonitor::getNetworkTXCollection($ip);
-        return json(SystemMonitor::networkFormat($network));
+        return json([
+            'RX' => SystemMonitor::networkFormat(SystemMonitor::getNetworkRXCollection($ip)),
+            'TX' => SystemMonitor::networkFormat(SystemMonitor::getNetworkTXCollection($ip))
+        ]);
     }
 }

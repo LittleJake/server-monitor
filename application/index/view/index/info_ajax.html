@@ -89,17 +89,14 @@
     </div>
     <div class="mdui-panel-item mdui-panel-item-open">
         <div class="mdui-panel-item-header">
-            <i class="mdui-icon material-icons">&#xe322;</i>
+            <i class="mdui-icon material-icons">&#xe640;</i>
             <div class="mdui-panel-item-title">{:lang("Network")}</div>
             <div class="mdui-panel-item-summary">{:lang("Network Description")}</div>
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
             <div>
-                <div id="rx-collection" class="mdui-col-xs-12" style="height: 300px;"></div>
-            </div>
-            <div>
-                <div id="tx-collection" class="mdui-col-xs-12" style="height: 300px;"></div>
+                <div id="network-collection" class="mdui-col-xs-12" style="height: 600px;"></div>
             </div>
         </div>
     </div>
@@ -108,10 +105,11 @@
     var network_config = {
         title: {text: ''},
         tooltip: {trigger: 'axis', axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}},
-        legend: {data: ['Packets (k)', 'Throughput (MB)']},
-        grid: {left: '3%', right: '4%', bottom: '15%', containLabel: true},
-        yAxis: [{type: 'value'}],
-        dataZoom: [{show: true, realtime: true, start: 30, end: 70,}],
+        legend: {bottom: 50, data: ['RX Packets (k)', 'RX Throughput (MB)', 'TX Packets (k)', 'TX Throughput (MB)',]},
+        grid: [{left: 50, right: 50, height: '35%'}, {left: 50, right: 50, top: '45%', height: '35%'}],
+        axisPointer: {link: {xAxisIndex: 'all'}},
+        yAxis: [{type: 'value'}, {gridIndex: 1, type: 'value', inverse: true}],
+        dataZoom: [{show: true, realtime: true, start: 30, end: 70, xAxisIndex: [0, 1]}, {type: 'inside', realtime: true, start: 30, end: 70, xAxisIndex: [0, 1]}],
     };
 
     var memory_config = {
@@ -145,29 +143,19 @@
         .animate(1-"{if $json['Memory']['Swap']['total'] == 0}1{else}{:doubleVal($json['Memory']['Swap']['free'])/ doubleVal($json['Memory']['Swap']['total'])}{/if}");
 
     $.ajax({
-        url: "{:url('api/network/rx', ['token' => $token])}", method: "get",
+        url: "{:url('api/network/get', ['token' => $token])}", method: "get",
         success: function(e){
-            let ctx_rx = echarts.init(document.getElementById('rx-collection')),
+            let ctx_network = echarts.init(document.getElementById('network-collection')),
                 option = network_config;
-                option.title.text = "RX";
-                option.xAxis = [{type: 'category', boundaryGap: false, data: e.time}];
-                option.series = [{name: 'Packets (k)', type: 'line', stack: '总量', areaStyle: {}, data: e.packets},
-                    {name: 'Throughput (MB)', type: 'line', stack: '总量', areaStyle: {}, data: e.megabytes},]
+                option.title.text = "Network RX & TX";
+                option.xAxis = [{type: 'category', boundaryGap: false, data: e.RX.time},{
+                    gridIndex: 1, boundaryGap: false, data: e.TX.time, show: false}];
+                option.series = [{name: 'RX Packets (k)', type: 'line', areaStyle: {}, data: e.RX.packets},
+                    {name: 'RX Throughput (MB)', type: 'line', areaStyle: {}, data: e.RX.megabytes},
+                    {name: 'TX Packets (k)', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.TX.packets},
+                    {name: 'TX Throughput (MB)', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.TX.megabytes},]
 
-            ctx_rx.setOption(option);
-        }
-    });
-    $.ajax({
-        url: "{:url('api/network/tx', ['token' => $token])}", method: "get",
-        success: function(e){
-            let ctx_tx = echarts.init(document.getElementById('tx-collection')),
-                option = network_config;
-            option.title.text = "TX";
-            option.xAxis = [{type: 'category', boundaryGap: false, data: e.time}];
-            option.series = [{name: 'Packets (k)', type: 'line', stack: '总量', areaStyle: {}, data: e.packets},
-                {name: 'Throughput (MB)', type: 'line', stack: '总量', areaStyle: {}, data: e.megabytes},]
-
-            ctx_tx.setOption(option);
+            ctx_network.setOption(option);
         }
     });
     $.ajax({
@@ -288,5 +276,4 @@
             ctx_cpu.setOption(option);
         }
     });
-
 </script>
