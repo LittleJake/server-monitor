@@ -5,20 +5,23 @@ namespace app\api\controller;
 use app\common\lib\SystemMonitor;
 use think\Controller;
 use think\Exception;
+use think\Response;
 
 class Cpu extends Controller
 {
     protected $middleware = ['FlowControl', 'CheckToken'];
+
     /**
      * 显示资源列表
      *
-     * @return \think\Response
+     * @param string $token
+     * @return Response
+     * @throws Exception
      */
     public function get($token = '')
     {
         $ip = SystemMonitor::getIPByHash($token);
 
-        $cpu = SystemMonitor::getCpuCollection($ip);
-        return json(SystemMonitor::collectionFormat($cpu));
+        return json(SystemMonitor::collectionFormat(SystemMonitor::getCpuCollection($ip)));
     }
 }

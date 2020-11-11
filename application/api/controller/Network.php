@@ -5,7 +5,7 @@ namespace app\api\controller;
 use app\common\lib\SystemMonitor;
 use think\Controller;
 use think\Exception;
-use think\Request;
+use think\Response;
 
 class Network extends Controller
 {
@@ -14,7 +14,9 @@ class Network extends Controller
     /**
      * 显示资源列表
      *
-     * @return \think\Response
+     * @param string $token
+     * @return Response
+     * @throws Exception
      */
     public function get($token = '')
     {

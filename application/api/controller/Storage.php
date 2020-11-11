@@ -5,22 +5,22 @@ namespace app\api\controller;
 use app\common\lib\SystemMonitor;
 use think\Controller;
 use think\Exception;
-use think\Request;
+use think\Response;
 
-class Swap extends Controller
+class Storage extends Controller
 {
     protected $middleware = ['FlowControl', 'CheckToken'];
 
     /**
      * 显示资源列表
      *
-     * @return \think\Response
+     * @param string $token
+     * @return Response
+     * @throws Exception
      */
     public function get($token = '')
     {
         $ip = SystemMonitor::getIPByHash($token);
-
-        $cpu = SystemMonitor::getSwapCollection($ip);
-        return json(SystemMonitor::collectionFormat($cpu));
+        return json(SystemMonitor::collectionFormat(SystemMonitor::getDiskCollection($ip)));
     }
 }
