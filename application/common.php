@@ -15,11 +15,8 @@ function getIcon($desp = ''){
     $icon = ['redhat', 'centos', 'ubuntu', 'debian', 'windows', 'intel', 'amd', 'qemu', 'linux'];
 
     foreach ($icon as $v)
-        if(stristr($desp, $v)) {
-            $url.="$v.svg";
-            return $url;
-        }
-
+        if(stristr($desp, $v))
+            return $url."$v.svg";
 
     return $url."linux.svg";
 }

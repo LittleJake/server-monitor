@@ -5,7 +5,7 @@ namespace app\api\controller;
 use app\common\lib\SystemMonitor;
 use think\Controller;
 use think\Exception;
-use think\Request;
+use think\Response;
 
 class Memory extends Controller
 {
@@ -14,13 +14,17 @@ class Memory extends Controller
     /**
      * 显示资源列表
      *
-     * @return \think\Response
+     * @param string $token
+     * @return Response
+     * @throws Exception
      */
     public function get($token = '')
     {
         $ip = SystemMonitor::getIPByHash($token);
 
-        $cpu = SystemMonitor::getMemoryCollection($ip);
-        return json(SystemMonitor::collectionFormat($cpu));
+        return json([
+            'swap' => SystemMonitor::collectionFormat(SystemMonitor::getSwapCollection($ip)),
+            'memory' => SystemMonitor::collectionFormat(SystemMonitor::getMemoryCollection($ip))
+        ]);
     }
 }
