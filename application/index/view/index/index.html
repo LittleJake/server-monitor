@@ -33,13 +33,13 @@
             <div class="mdui-collapse-item-body mdui-list">
                 {foreach $hash as $k => $v}
                 <div class="mdui-list-item mdui-ripple mdui-p-l-2">
-                    <span class="mdui-list-item-icon flag-icon flag-icon-{:strtolower($ip[$v]['countryCode'])}"></span>
+                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip[$v]['countryCode'])?'none':strtolower($ip[$v]['countryCode'])}"></span>
                     <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['token'=>$k])}">
                         <div class="mdui-list-item-title">
                             {:preg_replace("/\\.[\\d]+/",".*",$v)}
                         </div>
                         <div class="mdui-list-item-text mdui-list-item-one-line">
-                            {$ip[$v]['city'].", ".$ip[$v]['countryCode']}
+                            {:empty($ip[$v]['countryCode'])?"Private":$ip[$v]['city'].", ".$ip[$v]['countryCode']}
                         </div>
                     </div>
                     {if(!empty($info[$v]) && (time() - intval($info[$v]['Update Time'])) < 450)}
