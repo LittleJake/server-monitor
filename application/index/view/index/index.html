@@ -42,7 +42,7 @@
                             {:empty($ip[$v]['countryCode'])?"Private":$ip[$v]['city'].", ".$ip[$v]['countryCode']}
                         </div>
                     </div>
-                    {if(!empty($info[$v]) && (time() - intval($info[$v]['Update Time'])) < 450)}
+                    {if(!empty($info[$v]) && (time() - intval($info[$v]['Update Time'])) < 500)}
                     <i class="mdui-icon material-icons mdui-text-color-green">&#xe2bf;</i>
                     {else}
                     <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>
