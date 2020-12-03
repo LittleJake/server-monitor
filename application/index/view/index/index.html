@@ -7,14 +7,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/zdhxiong/mdui@0.4.3/dist/css/mdui.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 </head>
-<body class="mdui-drawer-body-left mdui-appbar-with-toolbar">
+<body class="mdui-drawer-body-left mdui-appbar-with-toolbar mdui-theme-primary-indigo">
 <style>
     #ajax {min-height: calc(100vh - 150px);}
     .bottom-nav{padding: 10px 0;width: 100%;}
     .nav-text{margin: 20px 20px;}
 </style>
 <div class="mdui-appbar mdui-appbar-fixed">
-    <div class="mdui-toolbar mdui-color-indigo">
+    <div class="mdui-toolbar mdui-color-theme">
         <span class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white" mdui-drawer="{target:'#drawer',swipe:true}">
             <i class="mdui-icon material-icons">menu</i>
         </span>
@@ -61,16 +61,16 @@
             </div>
             <div class="mdui-panel-item-body">
                 <h2>Server Monitor</h2>
-                <p class="mdui-text-color-black-text">Made and Loved by <a href="https://github.com/LittleJake">LittleJake</a>, 2020.</p>
+                <p class="mdui-text-color-black">Made and Loved by <a href="https://github.com/LittleJake">LittleJake</a>, 2020.</p>
                 <p class="mdui-text-color-black-secondary">Every code is valuable.</p>
             </div>
         </div>
     </div>
 </div>
-<div class="bottom-nav mdui-color-indigo">
+<div class="bottom-nav mdui-color-theme">
     <div class="nav-text">
-        <p class="mdui-text-color-white-text">LittleJake, 2020. </p>
-        <p class="mdui-text-color-white-secondary">{:lang('License')}</p>
+        <p>LittleJake, 2020. </p>
+        <p>{:lang('License')}</p>
     </div>
 </div>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zdhxiong/mdui@0.4.3/dist/js/mdui.min.js"></script>
