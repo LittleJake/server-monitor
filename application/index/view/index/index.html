@@ -21,6 +21,9 @@
         <a href="{:url('/')}" class="mdui-typo-headline">{:lang("Server Monitor")}</a>
         <div class="mdui-toolbar-spacer"></div>
     </div>
+    <div class="mdui-progress mdui-hidden" id="loading">
+        <div class="mdui-progress-indeterminate"></div>
+    </div>
 </div>
 <div class="mdui-drawer" id="drawer">
     <div class="mdui-list" mdui-collapse="{accordion: false}">
@@ -76,15 +79,17 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zdhxiong/mdui@0.4.3/dist/js/mdui.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/jquery/jquery@3.5.1/dist/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/kimmobrunfeldt/progressbar.js@1.1.0/dist/progressbar.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@4.8.0/dist/echarts.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@4.8.0/dist/echarts.min.js"></script>
 <script>
     $('.ajax-load').on('click',function () {
         url = $(this).attr('data-href');
+        $('#loading').removeClass("mdui-hidden");
         $.ajax({
             'url': url,
             'success': function(data){
                 $('#ajax').html(data);
                 mdui.mutation();
+                $('#loading').addClass("mdui-hidden");
             },
             'error': function () {
                 window.location = url;

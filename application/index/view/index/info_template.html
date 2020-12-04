@@ -14,7 +14,7 @@
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
-            <div class="mdui-col-xs-12 mdui-col-md-6">
+            <div class="mdui-col-xs-12 mdui-col-md-6 mdui-typo">
                 {foreach $info as $k => $v}
                 <h4>{:lang($k)}</h4>
                 {if $k == 'Update Time'}
@@ -29,7 +29,7 @@
                 {/if}
                 {/foreach}
             </div>
-            <div class="mdui-col-xs-12 mdui-col-md-6">
+            <div class="mdui-col-xs-12 mdui-col-md-6 mdui-typo">
                 <h4>{:lang("Process")}</h4>
                 <p>{$json['Process']}</p>
                 <h4>{:lang("Connection")}</h4>
