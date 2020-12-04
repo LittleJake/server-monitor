@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "296bd8a1d28e39d56dcd80ce7be249f3",
+    "content-hash": "8d454d5eb803c038186cb3d4a3e2fefd",
     "packages": [
         {
             "name": "topthink/framework",
-            "version": "v5.1.39",
+            "version": "v5.1.40",
             "source": {
                 "type": "git",
                 "url": "https://github.com/top-think/framework.git",
-                "reference": "5762858f3d58faafb3a39427f8788884b2927007"
+                "reference": "df0f92d58c70207c9ce9526fa7743eeff0831328"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/top-think/framework/zipball/5762858f3d58faafb3a39427f8788884b2927007",
-                "reference": "5762858f3d58faafb3a39427f8788884b2927007",
+                "url": "https://api.github.com/repos/top-think/framework/zipball/df0f92d58c70207c9ce9526fa7743eeff0831328",
+                "reference": "df0f92d58c70207c9ce9526fa7743eeff0831328",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -61,20 +61,24 @@
                 "orm",
                 "thinkphp"
             ],
-            "time": "2019-11-17T23:22:02+00:00"
+            "support": {
+                "issues": "https://github.com/top-think/framework/issues",
+                "source": "https://github.com/top-think/framework/tree/v5.1.40"
+            },
+            "time": "2020-10-09T07:36:44+00:00"
         },
         {
-            "name": "topthink/think-installer",
-            "version": "v2.0.0",
+            "name": "topthink/think-captcha",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/top-think/think-installer.git",
-                "reference": "f5400a12c60e513911aef41fe443fa6920952675"
+                "url": "https://github.com/top-think/think-captcha.git",
+                "reference": "54c8a51552f99ff9ea89ea9c272383a8f738ceee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/top-think/think-installer/zipball/f5400a12c60e513911aef41fe443fa6920952675",
-                "reference": "f5400a12c60e513911aef41fe443fa6920952675",
+                "url": "https://api.github.com/repos/top-think/think-captcha/zipball/54c8a51552f99ff9ea89ea9c272383a8f738ceee",
+                "reference": "54c8a51552f99ff9ea89ea9c272383a8f738ceee",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -84,10 +88,59 @@
                 ]
             },
             "require": {
-                "composer-plugin-api": "^1.0"
+                "topthink/framework": "5.1.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "think\\captcha\\": "src/"
+                },
+                "files": [
+                    "src/helper.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "yunwuxin",
+                    "email": "448901948@qq.com"
+                }
+            ],
+            "description": "captcha package for thinkphp5",
+            "support": {
+                "issues": "https://github.com/top-think/think-captcha/issues",
+                "source": "https://github.com/top-think/think-captcha/tree/2.0"
+            },
+            "time": "2017-12-31T16:37:49+00:00"
+        },
+        {
+            "name": "topthink/think-installer",
+            "version": "v2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/top-think/think-installer.git",
+                "reference": "52f4b717a46fd00bccd47c5a9f10a5c56d29fcf9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/top-think/think-installer/zipball/52f4b717a46fd00bccd47c5a9f10a5c56d29fcf9",
+                "reference": "52f4b717a46fd00bccd47c5a9f10a5c56d29fcf9",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "composer-plugin-api": "^1.0||^2.0"
             },
             "require-dev": {
-                "composer/composer": "1.0.*@dev"
+                "composer/composer": "^1.0||^2.0"
             },
             "type": "composer-plugin",
             "extra": {
@@ -108,7 +161,11 @@
                     "email": "448901948@qq.com"
                 }
             ],
-            "time": "2018-05-11T06:45:42+00:00"
+            "support": {
+                "issues": "https://github.com/top-think/think-installer/issues",
+                "source": "https://github.com/top-think/think-installer/tree/v2.0.1"
+            },
+            "time": "2020-10-27T05:43:17+00:00"
         }
     ],
     "packages-dev": [],
@@ -120,5 +177,6 @@
     "platform": {
         "php": ">=5.6.0"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "2.0.0"
 }
