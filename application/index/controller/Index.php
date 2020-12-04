@@ -13,10 +13,8 @@ class Index extends Base
         $hash = SystemMonitor::getHashes();
         $ip = SystemMonitor::fetchIPInfo(array_values($hash));
         $info = SystemMonitor::getInfo(array_values($hash));
-//        $json = SystemMonitor::getStat(array_values($hash));
-//
-//        $this->assign("json", $json);
 
+        ksort($ip);
         $this->assign("hash", $hash);
         $this->assign("ip", $ip);
         $this->assign("info", $info);
