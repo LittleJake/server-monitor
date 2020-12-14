@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icon-css@3.4.6/css/flag-icon.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/zdhxiong/mdui@0.4.3/dist/css/mdui.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script type="text/javascript">
+        var onloadCallback = function() {grecaptcha.render('recaptcha', {'sitekey' : '{:env("RECAPTCHA.HTML_TOKEN")}'});};
+    </script>
+</head>
+<body class="mdui-appbar-with-toolbar mdui-theme-primary-indigo mdui-theme-accent-indigo">
+<style>
+    #main {min-height: calc(100vh - 150px);}
+    .bottom-nav{padding: 10px 0;width: 100%;}
+    .nav-text{margin: 20px 20px;}
+</style>
+<div class="mdui-appbar mdui-appbar-fixed">
+    <div class="mdui-toolbar mdui-color-theme">
+        <a href="{:url('/')}" class="mdui-typo-headline">{:lang("Server Monitor")}</a>
+        <div class="mdui-toolbar-spacer"></div>
+    </div>
+</div>
+<div class="mdui-container">
+    <div class="mdui-panel" id="main">
+        <div class="mdui-panel-item mdui-panel-item-open">
+            <div class="mdui-panel-item-header">
+                <div class="mdui-panel-item-title">Login</div>
+            </div>
+            <div class="mdui-panel-item-body">
+                <form>
+                    <div class="mdui-textfield">
+                        <label class="mdui-textfield-label">Login Token</label>
+                        <input class="mdui-textfield-input" autocomplete="off" type="text" name="token" />
+                    </div>
+                    <div id="recaptcha"></div>
+                    <br/>
+                    <input id="submit" type="button" value="Submit" class="mdui-btn mdui-color-theme-accent">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bottom-nav mdui-color-indigo">
+    <div class="nav-text">
+        <p class="mdui-text-color-white-text">LittleJake, 2020. </p>
+        <p class="mdui-text-color-white-secondary">{:lang('License')}</p>
+    </div>
+</div>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zdhxiong/mdui@0.4.3/dist/js/mdui.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/jquery/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="https://www.recaptcha.net/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
+<script>
+    function checkForm(){
+        var captcha = $('textarea[name="g-recaptcha-response"]').val(), token = $('input[name="token"]').val();
+        if (token.length !== 64){mdui.alert('Wrong Token');return false;}
+        if (captcha == null || captcha === ''){mdui.alert('Wrong Captcha');return false;}
+        return true;
+    }
+    $('#submit').on('click', function () {
+        if(checkForm())
+            $.ajax({
+                'type': 'POST',
+                'data': {
+                    'g-recaptcha-response': $('textarea[name="g-recaptcha-response"]').val(),
+                    'token': $('input[name="token"]').val()
+                },
+                'success': function (resp) {window.location = "{:url('admin/index/index')}";},
+                'error': function (data) {
+                    mdui.alert("HTTP"+data.status+" - "+data.responseJSON.message);grecaptcha.reset();
+                }
+            })
+    });
+</script>
+</body>
+</html>
