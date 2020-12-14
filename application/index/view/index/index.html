@@ -34,10 +34,11 @@
                 <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
             </div>
             <div class="mdui-collapse-item-body mdui-list">
-                {foreach $hash as $k => $v}
+                {volist name="hash" id="v"}
+                {if !isset($hide[$key])}
                 <div class="mdui-list-item mdui-ripple mdui-p-l-2">
                     <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip[$v]['countryCode'])?'none':strtolower($ip[$v]['countryCode'])}"></span>
-                    <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['token'=>$k])}">
+                    <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['token'=>$key])}">
                         <div class="mdui-list-item-title">
                             {:preg_replace("/\\.[\\d]+\\.[\\d]+/",".*.*",$v)}
                         </div>
@@ -51,7 +52,8 @@
                     <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>
                     {/if}
                 </div>
-                {/foreach}
+                {/if}
+                {/volist}
             </div>
         </div>
     </div>

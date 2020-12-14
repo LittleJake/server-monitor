@@ -46,5 +46,10 @@ return [
         // 缓存目录
         'path' => '../runtime/cache/',
     ],
-
+    'token' => [
+        'type' => 'file',
+        'expire' => 0,
+        'prefix' => 'token',
+        'path' => '../runtime/cache/',
+    ]
 ];

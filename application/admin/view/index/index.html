@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Control Panel</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icon-css@3.4.6/css/flag-icon.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/zdhxiong/mdui@0.4.3/dist/css/mdui.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+</head>
+<body class="mdui-appbar-with-toolbar mdui-theme-primary-indigo mdui-theme-accent-indigo">
+<style>
+    #main {min-height: calc(100vh - 150px);}
+    .bottom-nav{padding: 10px 0;width: 100%;}
+    .nav-text{margin: 20px 20px;}
+    .word-wrap{word-break: break-all}
+</style>
+<div class="mdui-appbar mdui-appbar-fixed">
+    <div class="mdui-toolbar mdui-color-theme">
+        <a href="{:url('/')}" class="mdui-typo-headline">{:lang("Server Monitor")}</a>
+        <div class="mdui-toolbar-spacer"></div>
+        <a href="{:url('admin/index/logout')}" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">&#xe879;</i></a>
+    </div>
+</div>
+<div class="mdui-container">
+    <div class="mdui-panel" id="main">
+        <div class="mdui-panel-item mdui-panel-item-open">
+            <div class="mdui-panel-item-header">
+                <div class="mdui-panel-item-title">Control</div>
+            </div>
+            <div class="mdui-panel-item-body">
+                {include file='admin@index/index_ajax' /}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bottom-nav mdui-color-indigo">
+    <div class="nav-text">
+        <p class="mdui-text-color-white-text">LittleJake, 2020. </p>
+        <p class="mdui-text-color-white-secondary">{:lang('License')}</p>
+    </div>
+</div>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zdhxiong/mdui@0.4.3/dist/js/mdui.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/jquery/jquery@3.5.1/dist/jquery.min.js"></script>
+<script>
+    $('.delete').on('click', function(){
+        var parent = $(this.parentNode.parentNode.parentNode), btn = $(this);
+        $.ajax({
+            'url': btn.attr("data-href"), 'type': 'DELETE', 'data': {},
+            'success': function (resp) {
+                mdui.snackbar({message: 'Node deleted.', position: 'bottom'});parent.addClass("mdui-hidden");
+            },
+            'error': function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'})}
+        });
+    });
+    $('.switch').on('click', function(){
+        var message = 'Hide.', btn = $(this), display = this.checked;
+        if (display){message = 'Display.'}
+        $.ajax({
+            'url': btn.attr("data-href"), 'type': 'PATCH', 'data': {'display': display?1:0},
+            'success': function (resp) {mdui.snackbar({message: message, position: 'bottom'})},
+            'error': function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'})}
+        });
+    });
+</script>
+</body>
+</html>

@@ -16,5 +16,9 @@ Route::get('api/cpu/:token','api/cpu/get');
 Route::get('api/swap/:token','api/swap/get');
 Route::get('api/memory/:token','api/memory/get');
 Route::get('api/network/:token','api/network/get');
+Route::any('admin/info/:token','admin/info/index');
+Route::any('admin/','admin/index/index');
+Route::rule('admin/login','admin/index/login', 'GET|POST');
+Route::rule('admin/logout','admin/index/logout', 'GET');
 
 return [];

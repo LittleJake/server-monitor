@@ -13,9 +13,12 @@ class Index extends Base
         $hash = SystemMonitor::getHashes();
         $ip = SystemMonitor::fetchIPInfo(array_values($hash));
         $info = SystemMonitor::getInfo(array_values($hash));
+        $hide = array_flip(SystemMonitor::getHide());
+
 
         asort($hash);
         $this->assign("hash", $hash);
+        $this->assign("hide", $hide);
         $this->assign("ip", $ip);
         $this->assign("info", $info);
         return $this->fetch();
