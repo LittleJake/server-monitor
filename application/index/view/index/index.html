@@ -43,7 +43,7 @@
                             {:preg_replace("/[\\d]+\\.[\\d]+\\.[\\d]+/","*.*.*",$v)}
                         </div>
                         <div class="mdui-list-item-text mdui-list-item-one-line">
-                            {:empty($ip[$v]['countryCode'])?"Private":$ip[$v]['countryCode']}
+                            {:empty($ip[$v]['countryCode'])?"Private":$ip[$v]['country']}
                         </div>
                     </div>
                     {if(!empty($info[$v]) && (time() - intval($info[$v]['Update Time'])) < 500)}
