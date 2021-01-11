@@ -56,6 +56,19 @@
     </div>
     <div class="mdui-panel-item mdui-panel-item-open">
         <div class="mdui-panel-item-header">
+            <i class="mdui-icon material-icons">&#xeb3b;</i>
+            <div class="mdui-panel-item-title">{:lang("Thermal")}</div>
+            <div class="mdui-panel-item-summary">{:lang("CPU Temperature")}</div>
+            <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+        </div>
+        <div class="mdui-panel-item-body">
+            <div>
+                <div id="thermal-collection" class="mdui-col-xs-12" style="height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="mdui-panel-item mdui-panel-item-open">
+        <div class="mdui-panel-item-header">
             <i class="mdui-icon material-icons">&#xe1db;</i>
             <div class="mdui-panel-item-title">{:lang("Storage")}</div>
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
@@ -80,7 +93,7 @@
         <div class="mdui-panel-item-body">
             <div>
                 <h4>{:lang('Memory')}</h4>
-                <p>{$json['Memory']['Mem']['total'] - $json['Memory']['Mem']['free']} MB / {$json['Memory']['Mem']['total']} MB</p>
+                <p>{$json['Memory']['Mem']['used']} MB / {$json['Memory']['Mem']['total']} MB</p>
                 <div id="memory_status" class="line"></div>
                 <h4>{:lang('Swap')}</h4>
                 <p>{$json['Memory']['Swap']['used']} MB / {$json['Memory']['Swap']['total']} MB</p>
@@ -152,7 +165,7 @@
     echarts.init(document.getElementById('cpu_15_min')).setOption(circle_config);
 
     new ProgressBar.Line(memory_status, memory_config)
-        .animate(1-"{:doubleVal($json['Memory']['Mem']['free'])/doubleVal($json['Memory']['Mem']['total'])}");
+        .animate("{:doubleVal($json['Memory']['Mem']['used'])/doubleVal($json['Memory']['Mem']['total'])}");
     new ProgressBar.Line(swap_status, memory_config)
         .animate(1-"{if $json['Memory']['Swap']['total'] == 0}1{else}{:doubleVal($json['Memory']['Swap']['free'])/doubleVal($json['Memory']['Swap']['total'])}{/if}");
 
@@ -226,6 +239,46 @@
             }];
 
             ctx_cpu.setOption(option);
+        }
+    });
+    $.ajax({
+        url: "{:url('api/cpu/get', ['token' => $token])}", method: "get",
+        success: function(e){
+            let ctx_cpu = echarts.init(document.getElementById('cpu-collection')), option = ctx_config;
+            option.title.text = '{:lang("CPU Load")}';
+            option.xAxis.data = e.time;
+            option.series = [{
+                name: 'CPU', type: 'line', smooth: true, symbol: 'none',
+                sampling: 'average', itemStyle: {color: 'rgb(255,24,24)'},
+                areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                        offset: 0, color: 'rgb(255, 158, 68)'}, {offset: 1, color: 'rgb(255, 70, 131)'}])},
+                data: e.load
+            }];
+
+            ctx_cpu.setOption(option);
+        }
+    });
+
+    $.ajax({
+        url: "{:url('api/thermal/get', ['token' => $token])}", method: "get",
+        success: function(e){
+            if (e.load.length === 0){
+                document.getElementById('thermal-collection').parentNode.innerHTML="No Sensor Available.";
+                return 0;
+            }
+
+            let ctx_thermal = echarts.init(document.getElementById('thermal-collection')), option = ctx_config;
+            option.title.text = '{:lang("CPU Temperature")}';
+            option.xAxis.data = e.time;
+            option.series = [{
+                name: 'Temperature', type: 'line', smooth: true, symbol: 'none',
+                sampling: 'average', itemStyle: {color: 'rgb(255,24,24)'},
+                areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                        offset: 0, color: 'rgb(255,0,0)'}, {offset: 1, color: 'rgb(0,255,0)'}])},
+                data: e.load
+            }];
+
+            ctx_thermal.setOption(option);
         }
     });
 </script>

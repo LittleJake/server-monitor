@@ -12,7 +12,7 @@ class SystemMonitor
     static public function fetchIPInfo($ip){
         if(is_array($ip)){
             foreach ($ip as $v){
-                $tmp = strstr($v, '/', true);
+                $tmp = !empty(strstr($v, '/', true))?strstr($v, '/', true):$v;
 
                 if(Cache::store('flag')->has($v)
                     && !empty(Cache::store('flag')->get($v)))
@@ -24,7 +24,8 @@ class SystemMonitor
                 }
             }
         }else{
-            $tmp = strstr($ip, '/', true);
+            $tmp = !empty(strstr($ip, '/', true))?strstr($ip, '/', true):$ip;
+
             if(Cache::store('flag')->has($ip)
                 && !empty(Cache::store('flag')->get($ip)))
                 return Cache::store('flag')->get($ip);
@@ -165,7 +166,19 @@ class SystemMonitor
         }
         return $data;
     }
+    static public function getThermalCollection($ip){
+        $time =  time();
 
+        if(!Cache::has("system_monitor:collection:thermal:$ip")){
+            $data = Cache::store('redis')->handler()
+                ->zRangeByScore("system_monitor:collection:thermal:$ip", 0, $time
+                    , ['withscores' => TRUE]);
+            Cache::set("system_monitor:collection:thermal:$ip",$data,150);
+        } else {
+            $data = Cache::get("system_monitor:collection:thermal:$ip");
+        }
+        return $data;
+    }
     static public function getMemoryCollection($ip){
         $time =  time();
 
@@ -249,7 +262,7 @@ class SystemMonitor
             $k[] = date('m-d H:i',$vv);
             $arr = explode(',',json_decode($kk, true)['value']);
             $packets[] = (intval($arr[0])*1.0)/1000;
-            $megabytes[] = number_format((intval($arr[1])*1.0)/1048576,2);
+            $megabytes[] = intval(intval(intval($arr[1])*100.00)/1048576)*1.0/100;
         }
 
         return [
