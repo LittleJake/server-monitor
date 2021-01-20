@@ -29,13 +29,14 @@
     <div class="mdui-list" mdui-collapse="{accordion: false}">
         <div class="mdui-collapse-item">
             <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
-                <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">&#xe30a;</i>
-                <div class="mdui-list-item-content">{:lang("Server List")}</div>
+                <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-theme">&#xe30a;</i>
+                <div class="mdui-list-item-content">{:lang("Online Servers")}</div>
                 <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
             </div>
             <div class="mdui-collapse-item-body mdui-list">
                 {volist name="hash" id="v"}
                 {if !isset($hide[$key])}
+                {if(!empty($info[$v]) && (time() - intval($info[$v]['Update Time'])) < 500)}
                 <div class="mdui-list-item mdui-ripple mdui-p-l-2">
                     <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip[$v]['countryCode'])?'none':strtolower($ip[$v]['countryCode'])}"></span>
                     <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['token'=>$key])}">
@@ -46,12 +47,36 @@
                             {:empty($ip[$v]['countryCode'])?"Private":$ip[$v]['country']}
                         </div>
                     </div>
-                    {if(!empty($info[$v]) && (time() - intval($info[$v]['Update Time'])) < 500)}
                     <i class="mdui-icon material-icons mdui-text-color-green">&#xe2bf;</i>
-                    {else}
-                    <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>
-                    {/if}
                 </div>
+                {/if}
+                {/if}
+                {/volist}
+            </div>
+        </div>
+        <div class="mdui-collapse-item">
+            <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
+                <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-theme-accent">&#xe30a;</i>
+                <div class="mdui-list-item-content">{:lang("Offline Servers")}</div>
+                <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+            </div>
+            <div class="mdui-collapse-item-body mdui-list">
+                {volist name="hash" id="v"}
+                {if !isset($hide[$key])}
+                {if(!empty($info[$v]) && (time() - intval($info[$v]['Update Time'])) >= 500)}
+                <div class="mdui-list-item mdui-ripple mdui-p-l-2">
+                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip[$v]['countryCode'])?'none':strtolower($ip[$v]['countryCode'])}"></span>
+                    <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['token'=>$key])}">
+                        <div class="mdui-list-item-title">
+                            {:preg_replace("/[\\d]+\\.[\\d]+\\.[\\d]+/","*.*.*",$v)}
+                        </div>
+                        <div class="mdui-list-item-text mdui-list-item-one-line">
+                            {:empty($ip[$v]['countryCode'])?"Private":$ip[$v]['country']}
+                        </div>
+                    </div>
+                    <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>
+                </div>
+                {/if}
                 {/if}
                 {/volist}
             </div>
@@ -62,6 +87,7 @@
     <div class="mdui-panel" mdui-panel>
         <div class="mdui-panel-item mdui-panel-item-open">
             <div class="mdui-panel-item-header">
+                <i class="mdui-icon material-icons">&#xe88f;</i>
                 <div class="mdui-panel-item-title">{:lang('About')}</div>
             </div>
             <div class="mdui-panel-item-body">
