@@ -51,7 +51,9 @@
                 <div id="cpu_5_min" class="mdui-col-xs-12 mdui-col-md-4" style="height: 300px;"></div>
                 <div id="cpu_15_min" class="mdui-col-xs-12 mdui-col-md-4" style="height: 300px;"></div>
             </div>
-            <div id="cpu-collection" class="mdui-col-xs-12" style="height: 300px;"></div>
+            <div id="cpu-collection" class="mdui-col-xs-12" style="height: 300px;">
+                <div class="mdui-spinner"></div>
+            </div>
         </div>
     </div>
     <div class="mdui-panel-item mdui-panel-item-open">
@@ -63,7 +65,9 @@
         </div>
         <div class="mdui-panel-item-body">
             <div>
-                <div id="thermal-collection" class="mdui-col-xs-12" style="height: 300px;"></div>
+                <div id="thermal-collection" class="mdui-col-xs-12" style="height: 300px;">
+                    <div class="mdui-spinner"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -79,7 +83,9 @@
                 <div id="disk_status" class="mdui-col-xs-12" style="height: 300px;"></div>
             </div>
             <div class="mdui-col-lg-9">
-                <div id="disk-collection" class="mdui-col-xs-12" style="height: 300px;"></div>
+                <div id="disk-collection" class="mdui-col-xs-12" style="height: 300px;">
+                    <div class="mdui-spinner"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -98,7 +104,9 @@
                 <h4>{:lang('Swap')}</h4>
                 <p>{$json['Memory']['Swap']['used']} MB / {$json['Memory']['Swap']['total']} MB</p>
                 <div id="swap_status" class="line"></div>
-                <div id="memory-collection" class="mdui-col-xs-12" style="height: 300px;"></div>
+                <div id="memory-collection" class="mdui-col-xs-12" style="height: 300px;">
+                    <div class="mdui-spinner"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -111,7 +119,9 @@
         </div>
         <div class="mdui-panel-item-body">
             <div>
-                <div id="network-collection" class="mdui-col-xs-12" style="height: 600px;"></div>
+                <div id="network-collection" class="mdui-col-xs-12" style="height: 600px;">
+                    <div class="mdui-spinner"></div>
+                </div>
             </div>
         </div>
     </div>
