@@ -23,8 +23,6 @@ jobs:
         ssh-port: ${{ secrets.SSH_PORT }} # optional
     - name: Deployment
       run: |
-        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} -p ${{ secrets.SSH_PORT }} 
-        cd ${{ secrets.SSH_DEVELOP_PATH }}
-        sudo git pull
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} -p ${{ secrets.SSH_PORT }} "cd ${{ secrets.SSH_DEVELOP_PATH }};sudo git pull"
         exit
         
