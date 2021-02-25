@@ -21,6 +21,6 @@ jobs:
         ssh-port: ${{ secrets.SSH_PORT }} # optional
     - name: Deployment
       run: |
-        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} -p ${{ secrets.SSH_PORT }} "cd ${{ secrets.SSH_DEVELOP_PATH }};sudo git pull" >/dev/null 2>&1
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} -p ${{ secrets.SSH_PORT }} "cd ${{ secrets.SSH_DEVELOP_PATH }};sudo git pull;sudo chown -R apache:apache ." >/dev/null 2>&1
         exit
         
