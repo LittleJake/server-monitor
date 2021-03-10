@@ -193,6 +193,9 @@
                 {name: 'TX Throughput (MB)',symbol: 'none', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.TX.megabytes},]
 
             ctx_network.setOption(option);
+        },
+        error: function () {
+            document.getElementById('network-collection').parentNode.innerHTML="Fail to load network data.";
         }
     });
     $.ajax({
@@ -209,6 +212,9 @@
                 data: e.load
             }];
             ctx_disk.setOption(option);
+        },
+        error: function () {
+            document.getElementById('disk-collection').parentNode.innerHTML="Fail to load storage data.";
         }
     });
     $.ajax({
@@ -232,6 +238,9 @@
                 data: e.swap.load
             }];
             ctx_mem.setOption(option);
+        },
+        error: function () {
+            document.getElementById('memory-collection').parentNode.innerHTML="Fail to load memory data.";
         }
     });
     $.ajax({
@@ -249,23 +258,9 @@
             }];
 
             ctx_cpu.setOption(option);
-        }
-    });
-    $.ajax({
-        url: "{:url('api/cpu/get', ['token' => $token])}", method: "get",
-        success: function(e){
-            let ctx_cpu = echarts.init(document.getElementById('cpu-collection')), option = ctx_config;
-            option.title.text = '{:lang("CPU Load")}';
-            option.xAxis.data = e.time;
-            option.series = [{
-                name: 'CPU', type: 'line', smooth: true, symbol: 'none',
-                sampling: 'average', itemStyle: {color: 'rgb(255,24,24)'},
-                areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                        offset: 0, color: 'rgb(255, 158, 68)'}, {offset: 1, color: 'rgb(255, 70, 131)'}])},
-                data: e.load
-            }];
-
-            ctx_cpu.setOption(option);
+        },
+        error: function () {
+            document.getElementById('cpu-collection').parentNode.innerHTML="Fail to load CPU data.";
         }
     });
 
@@ -289,6 +284,9 @@
             }];
 
             ctx_thermal.setOption(option);
+        },
+        error: function () {
+            document.getElementById('thermal-collection').parentNode.innerHTML="Fail to load sensor data.";
         }
     });
 </script>
