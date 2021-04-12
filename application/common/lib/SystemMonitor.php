@@ -253,6 +253,22 @@ class SystemMonitor
         ];
     }
 
+    static public function diskFormat($data){
+        $k = [];
+        $v = [];
+
+        foreach ($data as $kk => $vv){
+            $k[] = date('m-d H:i',$vv);
+            foreach (json_decode($kk, true)['value'] as $kkk => $vvv)
+                $v[$kkk][] = $vvv['used'];
+        }
+
+        return [
+            'time' => $k,
+            'load' => $v
+        ];
+    }
+
     static public function networkFormat($data){
         $k = [];
         $packets = [];
