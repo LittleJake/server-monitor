@@ -1,17 +1,14 @@
 name: Deploy
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
+  release:
+    types: [ released ]
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
     - name: Setup SSH
-      uses: kielabokkie/ssh-key-and-known-hosts-action@v1.1.0
+      uses: LittleJake/ssh-key-and-known-hosts-action@v1.1.0
       with:
         # Private key required to access the host
         ssh-private-key: ${{ secrets.SSH_PK }}
@@ -23,4 +20,3 @@ jobs:
       run: |
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} -p ${{ secrets.SSH_PORT }} "cd ${{ secrets.SSH_DEVELOP_PATH }};sudo git pull;sudo chown -R apache:apache ." >/dev/null 2>&1
         exit
-        
