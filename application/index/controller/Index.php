@@ -6,7 +6,10 @@ use app\common\lib\SystemMonitor;
 
 class Index extends Base
 {
-    protected $middleware = ['FlowControl',];
+    protected $middleware = [
+        'FlowControl',
+        'CheckToken' => ['only'=> ['info']]
+    ];
 
     public function index()
     {
@@ -36,7 +39,7 @@ class Index extends Base
         ksort($info);
         $this->assign("json", $json);
         $this->assign("uptime", $uptime_str);
-        $this->assign("info", ($info));
+        $this->assign("info", $info);
         $this->assign("token", $token);
         if($this->request->isAjax())
             return $this->fetch("index/info_ajax");

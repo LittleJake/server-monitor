@@ -11,7 +11,7 @@ class FlowControl
     {
         $ip = $request->ip();
         if(Cache::inc("FlowControl:$ip") > 50)
-            throw new Exception("Trigger Flow Control", 403);
+            throw new Exception("Trigger Flow Control", 503);
         else
             Cache::set("FlowControl:$ip", 0, 1);
         return $next($request);
