@@ -89,7 +89,7 @@
             <div class="mdui-col-lg-3">
                 {volist name="json['Disk']" id="row"}
                 <h4>{$key}</h4>
-                <p>{$row.used} / {$row.total}</p>
+                <p>{$row.used} MB / {$row.total} MB</p>
                 <div id="disk_status_{$i}" class="line"></div>
                 {/volist}
             </div>
@@ -213,7 +213,7 @@
                 option.legend =  {top: 30, data:  Object.keys(e.load)};
                 Object.keys(e.load).forEach(function(k){
                     option.series.push({
-                        name: k, type: 'line', smooth: true, symbol: 'none', sampling: 'average',
+                        name: k + " MB", type: 'line', smooth: true, symbol: 'none', sampling: 'average',
                         areaStyle: {}, data: e.load[k]
                     });
                 });
