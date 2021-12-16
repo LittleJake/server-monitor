@@ -20,7 +20,6 @@ class Storage extends Controller
      */
     public function get($token = '')
     {
-        $ip = SystemMonitor::getIPByHash($token);
-        return json(SystemMonitor::diskFormat(SystemMonitor::getDiskCollection($ip)));
+        return json(SystemMonitor::diskFormat(SystemMonitor::getDiskCollection($token)));
     }
 }

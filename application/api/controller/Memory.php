@@ -20,11 +20,9 @@ class Memory extends Controller
      */
     public function get($token = '')
     {
-        $ip = SystemMonitor::getIPByHash($token);
-
         return json([
-            'swap' => SystemMonitor::collectionFormat(SystemMonitor::getSwapCollection($ip)),
-            'memory' => SystemMonitor::collectionFormat(SystemMonitor::getMemoryCollection($ip))
+            'swap' => SystemMonitor::collectionFormat(SystemMonitor::getSwapCollection($token)),
+            'memory' => SystemMonitor::collectionFormat(SystemMonitor::getMemoryCollection($token))
         ]);
     }
 }

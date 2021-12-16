@@ -20,8 +20,6 @@ class Cpu extends Controller
      */
     public function get($token = '')
     {
-        $ip = SystemMonitor::getIPByHash($token);
-
-        return json(SystemMonitor::collectionFormat(SystemMonitor::getCpuCollection($ip)));
+        return json(SystemMonitor::collectionFormat(SystemMonitor::getCpuCollection($token)));
     }
 }

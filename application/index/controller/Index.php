@@ -15,11 +15,11 @@ class Index extends Base
     {
         $hash = SystemMonitor::getHashes();
         $ip = SystemMonitor::fetchIPInfo(array_values($hash));
-        $info = SystemMonitor::getInfo(array_values($hash));
+        $info = SystemMonitor::getInfo(array_keys($hash));
         $hide = array_flip(SystemMonitor::getHide());
 
-
         asort($hash);
+
         $this->assign("hash", $hash);
         $this->assign("hide", $hide);
         $this->assign("ip", $ip);
@@ -28,14 +28,9 @@ class Index extends Base
     }
 
     public function info($token = ''){
-        if(strlen($token) != 64)
-            $this->error("Wrong Token");
-
-        $ip = SystemMonitor::getIPByHash($token);
-
-        $json = SystemMonitor::getStat($ip);
+        $json = SystemMonitor::getStat($token);
         $uptime_str = SystemMonitor::timeFormat(intval($json['Uptime']));
-        $info = SystemMonitor::getInfo($ip);
+        $info = SystemMonitor::getInfo($token);
         ksort($info);
         $this->assign("json", $json);
         $this->assign("uptime", $uptime_str);

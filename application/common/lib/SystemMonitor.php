@@ -10,6 +10,7 @@ class SystemMonitor
 {
     static private $url = "http://ip-api.com/json/";
     static public function fetchIPInfo($ip){
+        $info = [];
         if(is_array($ip)){
             foreach ($ip as $v){
                 $tmp = !empty(strstr($v, '/', true))?strstr($v, '/', true):$v;
@@ -51,9 +52,10 @@ class SystemMonitor
         return $hash;
     }
 
-    static public function getStat($ip) {
-        if(is_array($ip)){
-            foreach ($ip as $v){
+    static public function getStat($hash) {
+        $stat = [];
+        if(is_array($hash)){
+            foreach ($hash as $v){
                 if(Cache::has("system_monitor:stat:$v")
                     && !empty(Cache::get("system_monitor:stat:$v"))){
                     $stat[$v] = Cache::get("system_monitor:stat:$v");
@@ -65,22 +67,23 @@ class SystemMonitor
                 }
             }
         }else{
-            if(Cache::has("system_monitor:stat:$ip")
-                && !empty(Cache::get("system_monitor:stat:$ip"))){
-                $stat = Cache::get("system_monitor:stat:$ip");
+            if(Cache::has("system_monitor:stat:$hash")
+                && !empty(Cache::get("system_monitor:stat:$hash"))){
+                $stat = Cache::get("system_monitor:stat:$hash");
             } else{
                 $stat = json_decode(Cache::store('redis')->handler()
-                    ->get("system_monitor:stat:$ip"),true);
-                Cache::set("system_monitor:stat:$ip", $stat);
+                    ->get("system_monitor:stat:$hash"),true);
+                Cache::set("system_monitor:stat:$hash", $stat);
             }
         }
 
         return $stat;
     }
 
-    static public function getInfo($ip) {
-        if(is_array($ip)){
-            foreach ($ip as $v){
+    static public function getInfo($hash) {
+        $info = [];
+        if(is_array($hash)){
+            foreach ($hash as $v){
                 if(Cache::has("system_monitor:info:$v")
                     && !empty(Cache::get("system_monitor:info:$v"))){
                     $info[$v] = Cache::get("system_monitor:info:$v");
@@ -92,13 +95,13 @@ class SystemMonitor
                 }
             }
         }else{
-            if(Cache::has("system_monitor:info:$ip")
-                && !empty(Cache::get("system_monitor:info:$ip"))){
-                $info = Cache::get("system_monitor:info:$ip");
+            if(Cache::has("system_monitor:info:$hash")
+                && !empty(Cache::get("system_monitor:info:$hash"))){
+                $info = Cache::get("system_monitor:info:$hash");
             } else{
                 $info = Cache::store('redis')->handler()
-                    ->hGetAll("system_monitor:info:$ip");
-                Cache::set("system_monitor:info:$ip", $info);
+                    ->hGetAll("system_monitor:info:$hash");
+                Cache::set("system_monitor:info:$hash", $info);
             }
         }
 
@@ -141,98 +144,98 @@ class SystemMonitor
         return $data;
     }
 
-    static public function getCpuCollection($ip){
+    static public function getCpuCollection($hash){
         $time =  time();
-        if(!Cache::has("system_monitor:collection:cpu:$ip")){
+        if(!Cache::has("system_monitor:collection:cpu:$hash")){
             $data = Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:cpu:$ip", 0, $time
+                ->zRangeByScore("system_monitor:collection:cpu:$hash", 0, $time
                     , ['withscores' => TRUE]);
-            Cache::set("system_monitor:collection:cpu:$ip",$data,150);
+            Cache::set("system_monitor:collection:cpu:$hash",$data,150);
         } else {
-            $data = Cache::get("system_monitor:collection:cpu:$ip");
+            $data = Cache::get("system_monitor:collection:cpu:$hash");
         }
         return $data;
     }
 
-    static public function getSwapCollection($ip){
+    static public function getSwapCollection($hash){
         $time =  time();
-        if(!Cache::has("system_monitor:collection:swap:$ip")){
+        if(!Cache::has("system_monitor:collection:swap:$hash")){
             $data = Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:swap:$ip", 0, $time
+                ->zRangeByScore("system_monitor:collection:swap:$hash", 0, $time
                     , ['withscores' => TRUE]);
-            Cache::set("system_monitor:collection:swap:$ip",$data,150);
+            Cache::set("system_monitor:collection:swap:$hash",$data,150);
         } else {
-            $data = Cache::get("system_monitor:collection:swap:$ip");
+            $data = Cache::get("system_monitor:collection:swap:$hash");
         }
         return $data;
     }
-    static public function getThermalCollection($ip){
+    static public function getThermalCollection($hash){
         $time =  time();
 
-        if(!Cache::has("system_monitor:collection:thermal:$ip")){
+        if(!Cache::has("system_monitor:collection:thermal:$hash")){
             $data = Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:thermal:$ip", 0, $time
+                ->zRangeByScore("system_monitor:collection:thermal:$hash", 0, $time
                     , ['withscores' => TRUE]);
-            Cache::set("system_monitor:collection:thermal:$ip",$data,150);
+            Cache::set("system_monitor:collection:thermal:$hash",$data,150);
         } else {
-            $data = Cache::get("system_monitor:collection:thermal:$ip");
+            $data = Cache::get("system_monitor:collection:thermal:$hash");
         }
         return $data;
     }
-    static public function getMemoryCollection($ip){
+    static public function getMemoryCollection($hash){
         $time =  time();
 
-        if(!Cache::has("system_monitor:collection:memory:$ip")){
+        if(!Cache::has("system_monitor:collection:memory:$hash")){
             $data = Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:memory:$ip", 0, $time
+                ->zRangeByScore("system_monitor:collection:memory:$hash", 0, $time
                     , ['withscores' => TRUE]);
-            Cache::set("system_monitor:collection:memory:$ip",$data,150);
+            Cache::set("system_monitor:collection:memory:$hash",$data,150);
         } else {
-            $data = Cache::get("system_monitor:collection:memory:$ip");
+            $data = Cache::get("system_monitor:collection:memory:$hash");
         }
         return $data;
     }
 
-    static public function getDiskCollection($ip){
+    static public function getDiskCollection($hash){
         $time =  time();
 
-        if(!Cache::has("system_monitor:collection:disk:$ip")){
+        if(!Cache::has("system_monitor:collection:disk:$hash")){
             $data = Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:disk:$ip", 0, $time
+                ->zRangeByScore("system_monitor:collection:disk:$hash", 0, $time
                     , ['withscores' => TRUE]);
-            Cache::set("system_monitor:collection:disk:$ip",$data,150);
+            Cache::set("system_monitor:collection:disk:$hash",$data,150);
         } else {
-            $data = Cache::get("system_monitor:collection:disk:$ip");
-        }
-
-        return $data;
-    }
-
-    static public function getNetworkRXCollection($ip){
-        $time =  time();
-
-        if(!Cache::has("system_monitor:collection:network:RX:$ip")){
-            $data = Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:network:RX:$ip", 0, $time
-                    , ['withscores' => TRUE]);
-            Cache::set("system_monitor:collection:network:RX:$ip",$data,150);
-        } else {
-            $data = Cache::get("system_monitor:collection:network:RX:$ip");
+            $data = Cache::get("system_monitor:collection:disk:$hash");
         }
 
         return $data;
     }
 
-    static public function getNetworkTXCollection($ip){
+    static public function getNetworkRXCollection($hash){
         $time =  time();
 
-        if(!Cache::has("system_monitor:collection:network:TX:$ip")){
+        if(!Cache::has("system_monitor:collection:network:RX:$hash")){
             $data = Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:network:TX:$ip", 0, $time
+                ->zRangeByScore("system_monitor:collection:network:RX:$hash", 0, $time
                     , ['withscores' => TRUE]);
-            Cache::set("system_monitor:collection:network:TX:$ip",$data,150);
+            Cache::set("system_monitor:collection:network:RX:$hash",$data,150);
         } else {
-            $data = Cache::get("system_monitor:collection:network:TX:$ip");
+            $data = Cache::get("system_monitor:collection:network:RX:$hash");
+        }
+
+        return $data;
+    }
+
+    static public function getNetworkTXCollection($hash){
+        $time =  time();
+
+        if(!Cache::has("system_monitor:collection:network:TX:$hash")){
+            $data = Cache::store('redis')->handler()
+                ->zRangeByScore("system_monitor:collection:network:TX:$hash", 0, $time
+                    , ['withscores' => TRUE]);
+            Cache::set("system_monitor:collection:network:TX:$hash",$data,150);
+        } else {
+            $data = Cache::get("system_monitor:collection:network:TX:$hash");
         }
 
         return $data;
@@ -298,32 +301,30 @@ class SystemMonitor
     }
 
     static public function deleteInfo($hash){
-        $ip = self::getIPByHash($hash);
-        Cache::rm("system_monitor:collection:cpu:$ip");
-        Cache::rm("system_monitor:collection:disk:$ip");
-        Cache::rm("system_monitor:collection:memory:$ip");
-        Cache::rm("system_monitor:collection:swap:$ip");
-        Cache::rm("system_monitor:collection:network:RX:$ip");
-        Cache::rm("system_monitor:collection:network:TX:$ip");
-        Cache::rm("system_monitor:collection:network:tmp:$ip");
-        Cache::rm("system_monitor:collection:info:$ip");
-        Cache::rm("system_monitor:stat:$ip");
+        Cache::rm("system_monitor:collection:cpu:$hash");
+        Cache::rm("system_monitor:collection:disk:$hash");
+        Cache::rm("system_monitor:collection:memory:$hash");
+        Cache::rm("system_monitor:collection:swap:$hash");
+        Cache::rm("system_monitor:collection:network:RX:$hash");
+        Cache::rm("system_monitor:collection:network:TX:$hash");
+        Cache::rm("system_monitor:collection:network:tmp:$hash");
+        Cache::rm("system_monitor:collection:info:$hash");
+        Cache::rm("system_monitor:stat:$hash");
         Cache::rm("system_monitor:hashes");
-        Cache::store('redis')->rm("system_monitor:collection:cpu:$ip");
-        Cache::store('redis')->rm("system_monitor:collection:disk:$ip");
-        Cache::store('redis')->rm("system_monitor:collection:memory:$ip");
-        Cache::store('redis')->rm("system_monitor:collection:swap:$ip");
-        Cache::store('redis')->rm("system_monitor:collection:network:RX:$ip");
-        Cache::store('redis')->rm("system_monitor:collection:network:TX:$ip");
-        Cache::store('redis')->rm("system_monitor:collection:network:tmp:$ip");
-        Cache::store('redis')->rm("system_monitor:collection:info:$ip");
-        Cache::store('redis')->rm("system_monitor:stat:$ip");
+        Cache::store('redis')->rm("system_monitor:collection:cpu:$hash");
+        Cache::store('redis')->rm("system_monitor:collection:disk:$hash");
+        Cache::store('redis')->rm("system_monitor:collection:memory:$hash");
+        Cache::store('redis')->rm("system_monitor:collection:swap:$hash");
+        Cache::store('redis')->rm("system_monitor:collection:network:RX:$hash");
+        Cache::store('redis')->rm("system_monitor:collection:network:TX:$hash");
+        Cache::store('redis')->rm("system_monitor:collection:network:tmp:$hash");
+        Cache::store('redis')->rm("system_monitor:collection:info:$hash");
+        Cache::store('redis')->rm("system_monitor:stat:$hash");
         Cache::store('redis')->handler()->sRem("system_monitor:nodes", $ip);
         Cache::store('redis')->handler()->hDel("system_monitor:hashes", $hash);
     }
 
     public static function setDisplay($hash, $display){
-        self::getIPByHash($hash);
         if (!empty($display))
             Cache::store('redis')->handler()
                 ->sRem("system_monitor:hide", $hash);
