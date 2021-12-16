@@ -22,8 +22,6 @@ class Thermal extends Controller
      */
     public function get($token = '')
     {
-        $ip = SystemMonitor::getIPByHash($token);
-
-        return json(SystemMonitor::collectionFormat(SystemMonitor::getThermalCollection($ip)));
+        return json(SystemMonitor::collectionFormat(SystemMonitor::getThermalCollection($token)));
     }
 }

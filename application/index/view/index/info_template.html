@@ -1,6 +1,7 @@
 <style>
     .line {margin: 20px;height: 8px;position: relative;}
     .graph {height: 40vh;}
+    p > svg {width: 32px; height: 32px;}
 </style>
 <div class="mdui-panel" mdui-panel>
     <div class="mdui-panel-item mdui-panel-item-open">
@@ -17,10 +18,19 @@
                 {if $k == 'Update Time'}
                 <p>{$v|date="Y-m-d H:i:s"}</p>
                 {elseif ($k == 'System Version' || $k == 'CPU')}
-                <p>
-                    <img height="32" width="32" src="{:getIcon($v)}" />
-                    {$v|default='None'}
-                </p>
+                <?php $icon = getIcon($v) ?>
+                <p class="icon-{$icon[0]}"></p>
+                <script>
+                    $.ajax({
+                        url: '{$icon[1]}',
+                        type: "GET",
+                        dataType: "text",
+                        success: function(res){
+                            $(".icon-{:$icon[0]}").html(res+"{$v|default='None'}");
+                            $(".icon-{:$icon[0]}>svg").css("fill", "{$icon[2]}");
+                        }
+                    });
+                </script>
                 {else}
                 <p>{$v|default='None'}</p>
                 {/if}
@@ -66,7 +76,7 @@
     </div>
     <div class="mdui-panel-item mdui-panel-item-open">
         <div class="mdui-panel-item-header">
-            <i class="mdui-icon material-icons">&#xeb3b;</i>
+            <i class="mdui-icon material-icons" style="color: #5dd8ff;">&#xeb3b;</i>
             <div class="mdui-panel-item-title">{:lang("Thermal")}</div>
             <div class="mdui-panel-item-summary">{:lang("CPU Temperature")}</div>
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
@@ -180,7 +190,7 @@
         new ProgressBar.Line(cpu_5_min, memory_config).animate("{$json['Load']['5min']}");
         new ProgressBar.Line(cpu_15_min, memory_config).animate("{$json['Load']['15min']}");
         new ProgressBar.Line(memory_status, memory_config)
-            .animate("{:doubleVal($json['Memory']['Mem']['used'])/doubleVal($json['Memory']['Mem']['total'])}");
+            .animate("{if $json['Memory']['Mem']['total'] == 0}0{else}{:doubleVal($json['Memory']['Mem']['used'])/doubleVal($json['Memory']['Mem']['total'])}{/if}");
         new ProgressBar.Line(swap_status, memory_config)
             .animate(1-"{if $json['Memory']['Swap']['total'] == 0}1{else}{:doubleVal($json['Memory']['Swap']['free'])/doubleVal($json['Memory']['Swap']['total'])}{/if}");
 

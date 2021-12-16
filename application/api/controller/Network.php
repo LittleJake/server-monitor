@@ -20,10 +20,9 @@ class Network extends Controller
      */
     public function get($token = '')
     {
-        $ip = SystemMonitor::getIPByHash($token);
         return json([
-            'RX' => SystemMonitor::networkFormat(SystemMonitor::getNetworkRXCollection($ip)),
-            'TX' => SystemMonitor::networkFormat(SystemMonitor::getNetworkTXCollection($ip))
+            'RX' => SystemMonitor::networkFormat(SystemMonitor::getNetworkRXCollection($token)),
+            'TX' => SystemMonitor::networkFormat(SystemMonitor::getNetworkTXCollection($token))
         ]);
     }
 }
