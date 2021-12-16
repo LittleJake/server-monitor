@@ -301,6 +301,7 @@ class SystemMonitor
     }
 
     static public function deleteInfo($hash){
+        $ip = SystemMonitor::getIPByHash($hash);
         Cache::rm("system_monitor:collection:cpu:$hash");
         Cache::rm("system_monitor:collection:disk:$hash");
         Cache::rm("system_monitor:collection:memory:$hash");
