@@ -321,7 +321,6 @@ class SystemMonitor
         Cache::store('redis')->rm("system_monitor:collection:network:tmp:$hash");
         Cache::store('redis')->rm("system_monitor:collection:info:$hash");
         Cache::store('redis')->rm("system_monitor:stat:$hash");
-        Cache::store('redis')->handler()->sRem("system_monitor:nodes", $ip);
         Cache::store('redis')->handler()->hDel("system_monitor:hashes", $hash);
     }
 
