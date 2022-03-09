@@ -26,6 +26,16 @@ cp .env.example .env
 php think token:generate
 ```
 
+#### 配置Redis数据源
+```bash
+vim .env
+```
+
+#### 刷新数据源缓存（加速网站访问）
+```bash
+php think refresh:cache
+```
+
 ### 界面演示
 ![首页](https://cdn.jsdelivr.net/gh/LittleJake/blog-static-files@imgs/imgs/20210225163426.png)
 
@@ -55,4 +65,4 @@ MDUI
 
 ThinkPHP
 
-ip-api.com
+ipapi.co

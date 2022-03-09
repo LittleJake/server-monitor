@@ -43,6 +43,8 @@
                 <p>{$json['Connection']}</p>
                 <h4>{:lang("Uptime")}</h4>
                 <p>{$uptime}</p>
+                <h4>{:lang("Country")}</h4>
+                <p>{$ip['country_name']}</p>
             </div>
         </div>
     </div>
@@ -214,7 +216,7 @@
             }
         });
         $.ajax({
-            url: "{:url('api/storage/get', ['token' => $token])}", method: "get",
+            url: "{:url('api/disk/get', ['token' => $token])}", method: "get",
             success: function(e){
                 let ctx_disk = echarts.init(document.getElementById('disk-collection')), option = ctx_config;
                 option.title.text = '{:lang("Storage")}';

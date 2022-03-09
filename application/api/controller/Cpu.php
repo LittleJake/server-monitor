@@ -20,6 +20,6 @@ class Cpu extends Controller
      */
     public function get($token = '')
     {
-        return json(SystemMonitor::collectionFormat(SystemMonitor::getCpuCollection($token)));
+        return json(SystemMonitor::collectionFormat(SystemMonitor::getCollection($token, "cpu")));
     }
 }

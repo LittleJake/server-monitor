@@ -11,7 +11,7 @@
 
 
 Route::get('info/:token','index/index/info');
-Route::get('api/storage/:token','api/storage/get');
+Route::get('api/disk/:token','api/disk/get');
 Route::get('api/cpu/:token','api/cpu/get');
 Route::get('api/swap/:token','api/swap/get');
 Route::get('api/memory/:token','api/memory/get');
