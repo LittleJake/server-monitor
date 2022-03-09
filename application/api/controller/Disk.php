@@ -7,7 +7,7 @@ use think\Controller;
 use think\Exception;
 use think\Response;
 
-class Storage extends Controller
+class Disk extends Controller
 {
     protected $middleware = ['FlowControl', 'CheckToken'];
 
@@ -20,6 +20,6 @@ class Storage extends Controller
      */
     public function get($token = '')
     {
-        return json(SystemMonitor::diskFormat(SystemMonitor::getDiskCollection($token)));
+        return json(SystemMonitor::diskFormat(SystemMonitor::getCollection($token, 'disk')));
     }
 }

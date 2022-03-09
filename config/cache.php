@@ -23,7 +23,7 @@ return [
         // 缓存前缀
         'prefix'=> 'monitor',
         // 缓存目录
-        'path' => '../runtime/cache/',
+        'path' => preg_match("/cli/i", php_sapi_name())?'./runtime/cache/':'../runtime/cache/',
     ],
     'redis' => [
         'type'       => 'Redis',
@@ -44,12 +44,12 @@ return [
         // 缓存前缀
         'prefix'=> 'flag',
         // 缓存目录
-        'path' => '../runtime/cache/',
+        'path' => preg_match("/cli/i", php_sapi_name())?'./runtime/cache/':'../runtime/cache/',
     ],
     'token' => [
         'type' => 'file',
         'expire' => 0,
         'prefix' => 'token',
-        'path' => '../runtime/cache/',
+        'path' => preg_match("/cli/i", php_sapi_name())?'./runtime/cache/':'../runtime/cache/',
     ]
 ];

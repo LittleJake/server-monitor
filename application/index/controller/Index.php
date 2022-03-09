@@ -31,11 +31,13 @@ class Index extends Base
         $json = SystemMonitor::getStat($token);
         $uptime_str = SystemMonitor::timeFormat(intval($json['Uptime']));
         $info = SystemMonitor::getInfo($token);
+        $ip = SystemMonitor::fetchIPInfo(SystemMonitor::getIPByHash($token));
         ksort($info);
         $this->assign("json", $json);
         $this->assign("uptime", $uptime_str);
         $this->assign("info", $info);
         $this->assign("token", $token);
+        $this->assign("ip", $ip);
         if($this->request->isAjax())
             return $this->fetch("index/info_ajax");
 

@@ -9,7 +9,7 @@
 </head>
 <body class="mdui-drawer-body-left mdui-appbar-with-toolbar mdui-theme-primary-indigo">
 <style>
-    #ajax {min-height: calc(100vh - 150px);}
+    #ajax {min-height: calc(100vh - 170px);}
     .bottom-nav{padding: 10px 0;width: 100%;}
     .nav-text{margin: 20px 20px;}
 </style>
@@ -38,13 +38,13 @@
                 {if !isset($hide[$key])}
                 {if(!empty($info[$key]) && (time() - intval($info[$key]['Update Time'])) < 500)}
                 <div class="mdui-list-item mdui-ripple mdui-p-l-2">
-                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip[$v]['countryCode'])?'none':strtolower($ip[$v]['countryCode'])}"></span>
+                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip[$v]['country_code'])?'none':strtolower($ip[$v]['country_code'])}"></span>
                     <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['token'=>$key])}">
                         <div class="mdui-list-item-title">
                             {$info[$key]['IPV4']}
                         </div>
                         <div class="mdui-list-item-text mdui-list-item-one-line">
-                            {:empty($ip[$v]['countryCode'])?"Private":$ip[$v]['country']}
+                            {:empty($ip[$v]['country_code'])?"Private":$ip[$v]['country_name']}
                         </div>
                     </div>
                     <i class="mdui-icon material-icons mdui-text-color-green">&#xe2bf;</i>
@@ -65,13 +65,13 @@
                 {if !isset($hide[$key])}
                 {if(!empty($info[$key]) && (time() - intval($info[$key]['Update Time'])) >= 500)}
                 <div class="mdui-list-item mdui-ripple mdui-p-l-2">
-                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip[$v]['countryCode'])?'none':strtolower($ip[$v]['countryCode'])}"></span>
+                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip[$v]['country_code'])?'none':strtolower($ip[$v]['country_code'])}"></span>
                     <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['token'=>$key])}">
                         <div class="mdui-list-item-title">
                             {$info[$key]['IPV4']}
                         </div>
                         <div class="mdui-list-item-text mdui-list-item-one-line">
-                            {:empty($ip[$v]['countryCode'])?"Private":$ip[$v]['country']}
+                            {:empty($ip[$v]['country_code'])?"Private":$ip[$v]['country_name']}
                         </div>
                     </div>
                     <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>

@@ -5,7 +5,7 @@ namespace app\command;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
-use think\Cache;
+use think\facade\Cache;
 
 class token extends Command
 {
@@ -25,11 +25,7 @@ class token extends Command
         for($i = 64;$i;$i--)
             $token .= substr($str, rand(0,strlen($str)-1), 1);
 
-        $cache = new Cache([
-            'type' => 'complex',
-            'default' => ['type' => '', 'expire' => 0, 'prefix' => '', 'path' => '',],
-            'token' => ['type' => 'file', 'expire' => 0, 'prefix' => 'token', 'path' => './runtime/cache/',]]);
-        $cache->store('token')->set('ADMIN.TOKEN', $token);
+        Cache::store('token')->set('ADMIN.TOKEN', $token);
         // 指令输出
         $output->writeln("The new token is: \n$token\nPlease keep it nice and safe.");
     }
