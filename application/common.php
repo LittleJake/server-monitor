@@ -11,7 +11,7 @@
 
 // 应用公共文件
 function getIcon($desp = ''){
-    $url = "https://cdn.jsdelivr.net/npm/simple-icons@v3/icons/";
+    $url = "https://cdnjs.cloudflare.com/ajax/libs/simple-icons/6.22.0/";
     $icon = [
         'redhat' => "#EE0000",
         'centos' => "#262577",

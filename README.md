@@ -37,19 +37,19 @@ php think refresh:cache
 ```
 
 ### 界面演示
-![首页](https://cdn.jsdelivr.net/gh/LittleJake/blog-static-files@imgs/imgs/20210225163426.png)
+![首页](https://static.littlejake.net/imgs/imgs/20210225163426.png)
 
-![信息](https://cdn.jsdelivr.net/gh/LittleJake/blog-static-files@imgs/imgs/20210225163427.png)
+![信息](https://static.littlejake.net/imgs/imgs/20210225163427.png)
 
-![流量](https://cdn.jsdelivr.net/gh/LittleJake/blog-static-files@imgs/imgs/20210225163428.png)
+![流量](https://static.littlejake.net/imgs/imgs/20210225163428.png)
 
-![内存](https://cdn.jsdelivr.net/gh/LittleJake/blog-static-files@imgs/imgs/20210225163422.png)
+![内存](https://static.littlejake.net/imgs/imgs/20210225163422.png)
 
-![温度、根目录空间](https://cdn.jsdelivr.net/gh/LittleJake/blog-static-files@imgs/imgs/20210225163423.png)
+![温度、根目录空间](https://static.littlejake.net/imgs/imgs/20210225163423.png)
 
-![后台登录](https://cdn.jsdelivr.net/gh/LittleJake/blog-static-files@imgs/imgs/20210225163425.png)
+![后台登录](https://static.littlejake.net/imgs/imgs/20210225163425.png)
 
-![后台管理](https://cdn.jsdelivr.net/gh/LittleJake/blog-static-files@imgs/imgs/20210225163424.png)
+![后台管理](https://static.littlejake.net/imgs/imgs/20210225163424.png)
 
 
 ### Demo
