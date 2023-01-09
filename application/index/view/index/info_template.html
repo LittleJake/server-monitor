@@ -1,6 +1,7 @@
 <style>
     .line {margin: 20px;height: 8px;position: relative;}
-    .graph {height: 40vh;}
+    .h-40 {height: 40vh;}
+    .graph {overflow: visible;}
     p > svg {width: 32px; height: 32px;}
 </style>
 <div class="mdui-panel" mdui-panel>
@@ -21,6 +22,7 @@
                 <?php $icon = getIcon($v) ?>
                 <p class="icon-{$icon[0]}"></p>
                 <script>
+                    $(".icon-{:$icon[0]}").html("{$v|default='None'}");
                     $.ajax({
                         url: '{$icon[1]}',
                         type: "GET",
@@ -44,7 +46,7 @@
                 <h4>{:lang("Uptime")}</h4>
                 <p>{$uptime}</p>
                 <h4>{:lang("Country")}</h4>
-                <p>{$ip['country_name']}</p>
+                <p class="mdui-valign"><span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip['country_code'])?'none':strtolower($ip['country_code'])}"></span>{$ip['country_name']}</p>
             </div>
         </div>
     </div>
@@ -55,23 +57,21 @@
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
-            <div class="mdui-row">
-                <div class="mdui-col-xs-12 mdui-col-md-4">
-                    <h4>CPU 1 Min</h4>
-                    <div id="cpu_1_min" class="line"></div>
-                </div>
-                <div class="mdui-col-xs-12 mdui-col-md-4">
-                    <h4>CPU 5 Min</h4>
-                    <div id="cpu_5_min" class="line"></div>
-                </div>
-                <div class="mdui-col-xs-12 mdui-col-md-4">
-                    <h4>CPU 15 Min</h4>
-                    <div id="cpu_15_min" class="line"></div>
-                </div>
-            </div>
-            <div class="mdui-col-xs-12">
-                <div id="cpu-collection" class="graph">
-                    <div class="mdui-spinner"></div>
+            <div class="mdui-container">
+                <div class="mdui-row">
+                    <div class="mdui-col-lg-3">
+                        <h4>CPU 1 Min</h4>
+                        <div id="cpu_1_min" class="line"></div>
+                        <h4>CPU 5 Min</h4>
+                        <div id="cpu_5_min" class="line"></div>
+                        <h4>CPU 15 Min</h4>
+                        <div id="cpu_15_min" class="line"></div>
+                    </div>
+                    <div class="mdui-col-lg-9">
+                        <div id="cpu-collection" class="graph h-40">
+                            <div class="mdui-spinner"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -84,9 +84,13 @@
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
-            <div class="mdui-col-xs-12">
-                <div id="thermal-collection" class="graph">
-                    <div class="mdui-spinner"></div>
+            <div class="mdui-container">
+                <div class="mdui-row">
+                    <div class="mdui-col-xs-12">
+                        <div id="thermal-collection" class="graph h-40">
+                            <div class="mdui-spinner"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -98,16 +102,20 @@
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
-            <div class="mdui-col-lg-3">
-                {volist name="json['Disk']" id="row"}
-                <h4>{$key}</h4>
-                <p>{$row.used} MB / {$row.total} MB</p>
-                <div id="disk_status_{$i}" class="line"></div>
-                {/volist}
-            </div>
-            <div class="mdui-col-lg-9">
-                <div class="graph" id="disk-collection">
-                    <div class="mdui-spinner"></div>
+            <div class="mdui-container">
+                <div class="mdui-row">
+                    <div class="mdui-col-lg-3 h-40" style="overflow: scroll;">
+                        {volist name="json['Disk']" id="row"}
+                        <h4>{$key}</h4>
+                        <p>{$row.used} MB / {$row.total} MB</p>
+                        <div id="disk_status_{$i}" class="line"></div>
+                        {/volist}
+                    </div>
+                    <div class="mdui-col-lg-9">
+                        <div id="disk-collection" class="graph h-40">
+                            <div class="mdui-spinner"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -127,7 +135,7 @@
             <p>{$json['Memory']['Swap']['used']} MB / {$json['Memory']['Swap']['total']} MB</p>
             <div id="swap_status" class="line"></div>
             <div class="mdui-col-xs-12">
-                <div id="memory-collection" class="graph">
+                <div id="memory-collection" class="graph h-40">
                     <div class="mdui-spinner"></div>
                 </div>
             </div>
@@ -150,96 +158,123 @@
     </div>
 </div>
 <script>
-    var network_config = {
-            title: {text: ''},
-            tooltip: {trigger: 'axis', axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}},
-            legend: {bottom: 50, data: ['RX Packets (k)', 'RX Throughput (MB)', 'TX Packets (k)', 'TX Throughput (MB)',]},
-            grid: [{left: 50, right: 50, height: '35%'}, {left: 50, right: 50, top: '45%', height: '35%'}],
-            axisPointer: {link: {xAxisIndex: 'all'}},
-            yAxis: [{type: 'value'}, {gridIndex: 1, type: 'value', inverse: true}],
-            dataZoom: [{show: true, realtime: true, start: 70, end: 100, xAxisIndex: [0, 1]}, {type: 'inside', realtime: true, start: 70, end: 100, xAxisIndex: [0, 1]}],
-        },
-        memory_config = {
-            strokeWidth: 4, easing: 'easeInOut', duration: 1400, color: '#dea4ff', trailColor: '#eee', trailWidth: 1,
+    var bar_config = {
+            strokeWidth: 4, easing: 'easeInOut', duration: 1400, color: '#33cc33', trailColor: '#eee', trailWidth: 1,
             svgStyle: {width: '100%', height: '100%'},
             text: {
                 style: {color: '#000', position: 'absolute', right: '0', top: '15px', padding: 0, margin: 0, transform: null},
                 autoStyleContainer: false
             },
-            from: {color: '#FFEA82'}, to: {color: '#ED6A5A'},
-            step: (state, bar) => {bar.setText(Math.round(bar.value() * 100) + ' %');}
-        },
-        ctx_config = {
-            tooltip: {trigger: 'axis', position: function (pt) {return [pt[0], '10%'];}},
-            title: {left: 'center', text: ''},
-            xAxis: {type: 'category', boundaryGap: false, data: []},
-            yAxis: {type: 'value', boundaryGap: [0, '100%']},
-            dataZoom: [{type: 'inside', start: 70, end: 100}, {
-                start: 90, end: 100, handleSize: '80%',
-                handleStyle: {
-                    color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)',
-                    shadowOffsetX: 2, shadowOffsetY: 2
-                }}],
-            series: []
-        };
+            from: {color: '#99e699'},to: {color: '#ff8080'},
+            step: (state, bar) => {bar.setText(Math.round(bar.value() * 100) + ' %');bar.path.setAttribute('stroke', state.color)}
+    };
 
     //disk
     {volist name="json['Disk']" id="row"}
-    new ProgressBar.Line(disk_status_{$i}, memory_config).animate("{$row.percent / 100}");
+    new ProgressBar.Line(disk_status_{$i}, bar_config).animate("{$row.percent / 100}");
     {/volist}
-        //cpu
-        new ProgressBar.Line(cpu_1_min, memory_config).animate("{$json['Load']['1min']}");
-        new ProgressBar.Line(cpu_5_min, memory_config).animate("{$json['Load']['5min']}");
-        new ProgressBar.Line(cpu_15_min, memory_config).animate("{$json['Load']['15min']}");
-        new ProgressBar.Line(memory_status, memory_config)
-            .animate("{if $json['Memory']['Mem']['total'] == 0}0{else}{:doubleVal($json['Memory']['Mem']['used'])/doubleVal($json['Memory']['Mem']['total'])}{/if}");
-        new ProgressBar.Line(swap_status, memory_config)
-            .animate(1-"{if $json['Memory']['Swap']['total'] == 0}1{else}{:doubleVal($json['Memory']['Swap']['free'])/doubleVal($json['Memory']['Swap']['total'])}{/if}");
+    //cpu
+    new ProgressBar.Line(cpu_1_min, bar_config).animate("{$json['Load']['1min']}");
+    new ProgressBar.Line(cpu_5_min, bar_config).animate("{$json['Load']['5min']}");
+    new ProgressBar.Line(cpu_15_min, bar_config).animate("{$json['Load']['15min']}");
+    new ProgressBar.Line(memory_status, bar_config)
+        .animate("{if $json['Memory']['Mem']['total'] == 0}0{else}{:doubleVal($json['Memory']['Mem']['used'])/doubleVal($json['Memory']['Mem']['total'])}{/if}");
+    new ProgressBar.Line(swap_status, bar_config)
+        .animate(1-"{if $json['Memory']['Swap']['total'] == 0}1{else}{:doubleVal($json['Memory']['Swap']['free'])/doubleVal($json['Memory']['Swap']['total'])}{/if}");
 
-        $.ajax({
-            url: "{:url('api/network/get', ['token' => $token])}", method: "get",
-            success: function(e){
-                let ctx_network = echarts.init(document.getElementById('network-collection')),
-                    option = network_config;
-                option.title.text = "Network RX & TX";
-                option.xAxis = [{type: 'category', boundaryGap: false, data: e.RX.time},{
-                    gridIndex: 1, boundaryGap: false, data: e.TX.time, show: false}];
-                option.series = [{name: 'RX Packets (k)',symbol: 'none', type: 'line', areaStyle: {}, data: e.RX.packets},
-                    {name: 'RX Throughput (MB)',symbol: 'none', type: 'line', areaStyle: {}, data: e.RX.megabytes},
-                    {name: 'TX Packets (k)',symbol: 'none', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.TX.packets},
-                    {name: 'TX Throughput (MB)',symbol: 'none', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.TX.megabytes},]
+    $.ajax({
+        url: "{:url('api/network/get', ['token' => $token])}", method: "get",
+        success: function(e){
+            let option = {
+                title: {text:"Network RX & TX", left: 'center'},
+                tooltip: {trigger: 'axis', axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}},
+                legend: {bottom: 50, data: ['RX Packets (k)', 'RX Throughput (MB)', 'TX Packets (k)', 'TX Throughput (MB)',]},
+                grid: [{left: 50, right: 50, height: '35%'}, {left: 50, right: 50, top: '45%', height: '35%'}],
+                axisPointer: {link: {xAxisIndex: 'all'}},
+                dataZoom: [{show: true, realtime: true, start: 70, end: 100, xAxisIndex: [0, 1]}, {type: 'inside', realtime: true, start: 70, end: 100, xAxisIndex: [0, 1]}],
+                xAxis: [
+                    {type: 'category', boundaryGap: false, data: e.RX.time},
+                    {gridIndex: 1, boundaryGap: false, data: e.TX.time, show: false}
+                ],
+                yAxis: [{
+                    type: 'value',
+                    name: 'Packets',
+                    axisLabel: {formatter: '{value} k'}
+                }, {
+                    gridIndex: 1,
+                    type: 'value',
+                    name: 'Throughput',
+                    axisLabel: {formatter: '{value} MB'},
+                    inverse: true
+                }],
+                series: [
+                    {name: 'RX Packets (k)',symbol: 'none', type: 'line', areaStyle: {}, data: e.RX.packets},
+                    {name: 'TX Packets (k)',symbol: 'none', type: 'line', areaStyle: {}, data: e.TX.packets},
+                    {name: 'RX Throughput (MB)',symbol: 'none', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.RX.megabytes},
+                    {name: 'TX Throughput (MB)',symbol: 'none', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.TX.megabytes},
+                ]
+            };
 
-                ctx_network.setOption(option);
-            },
-            error: function () {
-                document.getElementById('network-collection').parentNode.innerHTML="Fail to load network data.";
-            }
-        });
-        $.ajax({
-            url: "{:url('api/disk/get', ['token' => $token])}", method: "get",
-            success: function(e){
-                let ctx_disk = echarts.init(document.getElementById('disk-collection')), option = ctx_config;
-                option.title.text = '{:lang("Storage")}';
-                option.xAxis.data = e.time;
-                option.series = [];
-                option.legend =  {top: 30, data:  Object.keys(e.load)};
-                Object.keys(e.load).forEach(function(k){
-                    option.series.push({
-                        name: k + " MB", type: 'line', smooth: true, symbol: 'none', sampling: 'average',
-                        areaStyle: {}, data: e.load[k]
-                    });
+            ctx_network = echarts.init(document.getElementById('network-collection'));
+            ctx_network.setOption(option);
+        },
+        error: function () {
+            document.getElementById('network-collection').parentNode.innerHTML="Fail to load network data.";
+        }
+    });
+    
+    $.ajax({
+        url: "{:url('api/disk/get', ['token' => $token])}", method: "get",
+        success: function(e){
+            let option = {
+                tooltip: {trigger: 'axis', position: function (pt) {return [pt[0], '10%'];}},
+                title: {left: 'center', text: '{:lang("Storage")}'},
+                xAxis: {type: 'category', boundaryGap: false, data: e.time},
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {formatter: '{value} MB'}
+                },
+                dataZoom: [{type: 'inside', start: 70, end: 100}, {
+                    start: 90, end: 100, handleSize: '80%',
+                    handleStyle: {
+                        color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)',
+                        shadowOffsetX: 2, shadowOffsetY: 2
+                    }}],
+                series: [],
+                legend: {top: 30}
+            };
+
+            Object.keys(e.load).forEach(function(k){
+                option.series.push({
+                    name: k, type: 'line', smooth: true, symbol: 'none', sampling: 'average',
+                    areaStyle: {}, data: e.load[k]
                 });
-                ctx_disk.setOption(option);
-            },
-            error: function () {document.getElementById('disk-collection').parentNode.innerHTML="Fail to load storage data.";}
-        });
-        $.ajax({
-            url: "{:url('api/memory/get', ['token' => $token])}", method: "get",
-            success: function(e){
-                let ctx_mem = echarts.init(document.getElementById('memory-collection')), option = ctx_config;
-                option.title.text = '{:lang("Memory")}';
-                option.xAxis.data = e.memory.time;
-                option.series = [{
+            });
+
+            ctx_disk = echarts.init(document.getElementById('disk-collection'));
+            ctx_disk.setOption(option);
+        },
+        error: function () {document.getElementById('disk-collection').parentNode.innerHTML="Fail to load storage data.";}
+    });
+
+    $.ajax({
+        url: "{:url('api/memory/get', ['token' => $token])}", method: "get",
+        success: function(e){
+            let option = {
+                tooltip: {trigger: 'axis', position: function (pt) {return [pt[0], '10%'];}},
+                title: {left: 'center', text: '{:lang("Memory")}'},
+                xAxis: {type: 'category', boundaryGap: false, data: e.memory.time},
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {formatter: '{value} MB'}
+                },
+                dataZoom: [{type: 'inside', start: 70, end: 100}, {
+                    start: 90, end: 100, handleSize: '80%',
+                    handleStyle: {
+                        color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)',
+                        shadowOffsetX: 2, shadowOffsetY: 2
+                    }}],
+                series: [{
                     name: 'Memory Usage(MB)', type: 'line', smooth: true, symbol: 'none', sampling: 'average',
                     itemStyle: {color: 'rgb(144,5,146)'},
                     areaStyle: {
@@ -252,53 +287,92 @@
                     areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
                             offset: 0, color: 'rgb(68,115,255)'}, {offset: 1, color: 'rgb(70,129,255)'}])},
                     data: e.swap.load
-                }];
-                ctx_mem.setOption(option);
-            },
-            error: function () {
-                document.getElementById('memory-collection').parentNode.innerHTML="Fail to load memory data.";
-            }
-        });
-        $.ajax({
-            url: "{:url('api/cpu/get', ['token' => $token])}", method: "get",
-            success: function(e){
-                let ctx_cpu = echarts.init(document.getElementById('cpu-collection')), option = ctx_config;
-                option.title.text = '{:lang("CPU Load")}';
-                option.xAxis.data = e.time;
-                option.series = [{
+                }],
+                legend: {top: 30}
+            };
+
+            ctx_mem = echarts.init(document.getElementById('memory-collection'));
+            ctx_mem.setOption(option);
+        },
+        error: function () {
+            document.getElementById('memory-collection').parentNode.innerHTML="Fail to load memory data.";
+        }
+    });
+    $.ajax({
+        url: "{:url('api/cpu/get', ['token' => $token])}", method: "get",
+        success: function(e){
+            let option = {
+                tooltip: {trigger: 'axis', position: function (pt) {return [pt[0], '10%'];}},
+                title: {left: 'center', text: '{:lang("CPU Load")}'},
+                xAxis: {type: 'category', boundaryGap: false, data: e.time},
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {formatter: '{value} %'}
+                },
+                dataZoom: [{type: 'inside', start: 70, end: 100}, {
+                    start: 90, end: 100, handleSize: '80%',
+                    handleStyle: {
+                        color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)',
+                        shadowOffsetX: 2, shadowOffsetY: 2
+                    }}],
+                series: [{
                     name: 'CPU', type: 'line', smooth: true, symbol: 'none',
                     sampling: 'average', itemStyle: {color: 'rgb(255,24,24)'},
                     areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
                             offset: 0, color: 'rgb(255, 158, 68)'}, {offset: 1, color: 'rgb(255, 70, 131)'}])},
                     data: e.load
-                }];
+                }],
+                legend: {top: 30}
+            };
 
-                ctx_cpu.setOption(option);
-            },
-            error: function () {document.getElementById('cpu-collection').parentNode.innerHTML="Fail to load CPU data.";}
-        });
+            ctx_cpu = echarts.init(document.getElementById('cpu-collection'));
+            ctx_cpu.setOption(option);
+        },
+        error: function () {document.getElementById('cpu-collection').parentNode.innerHTML="Fail to load CPU data.";}
+    });
 
-        $.ajax({
-            url: "{:url('api/thermal/get', ['token' => $token])}", method: "get",
-            success: function(e){
-                if (e.load.length === 0){
-                    document.getElementById('thermal-collection').parentNode.innerHTML="No Sensor Available.";
-                    return 0;
-                }
+    $.ajax({
+        url: "{:url('api/thermal/get', ['token' => $token])}", method: "get",
+        success: function(e){
+            if (e.load.length === 0){
+                document.getElementById('thermal-collection').parentNode.innerHTML="No Sensor Available.";
+                return 0;
+            }
 
-                let ctx_thermal = echarts.init(document.getElementById('thermal-collection')), option = ctx_config;
-                option.title.text = '{:lang("CPU Temperature")}';
-                option.xAxis.data = e.time;
-                option.series = [{
-                    name: 'Temperature', type: 'line', smooth: true, symbol: 'none',
-                    sampling: 'average', itemStyle: {color: 'rgb(255,24,24)'},
+            let option = {
+                tooltip: {trigger: 'axis', position: function (pt) {return [pt[0], '10%'];}},
+                title: {left: 'center', text: '{:lang("CPU Temperature")}'},
+                xAxis: {type: 'category', boundaryGap: false, data: e.time},
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {formatter: '{value} °C'}
+                },
+                dataZoom: [{type: 'inside', start: 70, end: 100}, {
+                    start: 90, end: 100, handleSize: '80%',
+                    handleStyle: {
+                        color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)',
+                        shadowOffsetX: 2, shadowOffsetY: 2
+                    }}],
+                series: [{
+                    name: 'Temperature(°C)', type: 'line', smooth: true, symbol: 'none',
+                    sampling: 'average', itemStyle: {color: '#ff8080'},
                     areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                            offset: 0, color: 'rgb(255,0,0)'}, {offset: 1, color: 'rgb(0,255,0)'}])},
+                            offset: 0, color: '#ff8080'}, {offset: 1, color: '#99e699'}])},
                     data: e.load
-                }];
-
-                ctx_thermal.setOption(option);
-            },
-            error: function () {document.getElementById('thermal-collection').parentNode.innerHTML="Fail to load sensor data.";}
-        });
+                }],
+                legend: {top: 30}
+            };
+            
+            ctx_thermal = echarts.init(document.getElementById('thermal-collection'));
+            ctx_thermal.setOption(option);
+        },
+        error: function () {document.getElementById('thermal-collection').parentNode.innerHTML="Fail to load sensor data.";}
+    });
+    window.onresize = function() {
+        ctx_cpu && ctx_cpu.resize();
+        ctx_disk && ctx_disk.resize();
+        ctx_mem && ctx_mem.resize();
+        ctx_thermal && ctx_thermal.resize();
+        ctx_network && ctx_network.resize();
+    };
 </script>
