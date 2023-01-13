@@ -42,15 +42,12 @@ class SystemMonitor
         }, self::$cacheTime);
     }
 
-    static public function getStat($hash) {
+    static public function getLatest($hash) {
         $stat = [];
         $hashes = is_array($hash)?$hash:[$hash];
 
         foreach ($hashes as $h){
-            $stat[$h] = Cache::remember("system_monitor:stat:$h", function () use ($h){
-                return json_decode(Cache::store('redis')->handler()
-                    ->get("system_monitor:stat:$h"),true);
-            }, self::$cacheTime);
+            $stat[$h] = array_key_last(self::getCollection($h));
 
             if(!is_array($hash)) return $stat[$h];
         }
@@ -63,7 +60,7 @@ class SystemMonitor
         $hashes = is_array($hash)?$hash:[$hash];
 
         foreach ($hashes as $h){
-            $info[$h] =  Cache::remember("system_monitor:info:$h", function () use ($h){
+            $info[$h] = Cache::remember("system_monitor:info:$h", function () use ($h){
                 return Cache::store('redis')->handler()->hGetAll("system_monitor:info:$h");
             }, self::$cacheTime);
 
@@ -109,26 +106,36 @@ class SystemMonitor
         return $data;
     }
 
-    static public function getCollection($hash, $key){
-        return Cache::remember("system_monitor:collection:$key:$hash", function () use ($hash, $key){
+    // static public function getCollection($hash, $key){
+    //     return Cache::remember("system_monitor:collection:$key:$hash", function () use ($hash, $key){
+    //         return Cache::store('redis')->handler()
+    //             ->zRangeByScore("system_monitor:collection:$key:$hash", 0, time()
+    //                 , ['withscores' => TRUE]);
+    //     }, self::$cacheTime);
+    // }
+
+    
+    static public function getCollection($hash){
+        return Cache::remember("system_monitor:collection:$hash", function () use ($hash){
             return Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:$key:$hash", 0, time()
+                ->zRangeByScore("system_monitor:collection:$hash", 0, time()
                     , ['withscores' => TRUE]);
         }, self::$cacheTime);
     }
 
-    static public function collectionFormat($data){
+    static public function collectionFormat($data, $name){
         $k = [];
         $v = [];
 
         foreach ($data as $kk => $vv){
             $k[] = date('m-d H:i',$vv);
-            $v[] = floatval(json_decode($kk, true)['value']);
+            foreach (json_decode($kk, true)[$name] as $kkk => $vvv)
+                $v[$kkk][] = $vvv;
         }
 
         return [
             'time' => $k,
-            'load' => $v
+            'value' => $v
         ];
     }
 
@@ -138,33 +145,62 @@ class SystemMonitor
 
         foreach ($data as $kk => $vv){
             $k[] = date('m-d H:i',$vv);
-            foreach (json_decode($kk, true)['value'] as $kkk => $vvv)
+            foreach (json_decode($kk, true)['Disk'] as $kkk => $vvv)
                 $v[$kkk][] = $vvv['used'];
         }
 
         return [
             'time' => $k,
-            'load' => $v
+            'value' => $v
+        ];
+    }
+
+    
+    static public function memoryFormat($data){
+        $k = [];
+        $v = [];
+
+        foreach ($data as $kk => $vv){
+            $k[] = date('m-d H:i',$vv);
+            foreach (json_decode($kk, true)['Memory'] as $kkk => $vvv)
+                $v[$kkk][] = $vvv['used'];
+        }
+
+        return [
+            'time' => $k,
+            'value' => $v
         ];
     }
 
     static public function networkFormat($data){
         $k = [];
-        $packets = [];
-        $megabytes = [];
+        $rx_packets = [];
+        $rx_megabytes = [];
+        $tx_packets = [];
+        $tx_megabytes = [];
 
         foreach ($data as $kk => $vv){
             $k[] = date('m-d H:i',$vv);
-            $arr = explode(',',json_decode($kk, true)['value']);
-            $packets[] = (intval($arr[0])*1.0)/1000;
-            $megabytes[] = intval(intval(intval($arr[1])*100.00)/1048576)*1.0/100;
+            $j = json_decode($kk, true)['Network'];
+            // $arr = explode(',',json_decode($kk, true)['value']);
+            $rx_packets[] = (intval($j['RX']['packets'])*1.0)/1000;
+            $tx_packets[] = (intval($j['TX']['packets'])*1.0)/1000;
+            $rx_megabytes[] = intval(intval(intval($j['RX']['bytes'])*100.00)/1048576)*1.0/100;
+            $tx_megabytes[] = intval(intval(intval($j['TX']['bytes'])*100.00)/1048576)*1.0/100;
         }
 
         return [
-            'time' => $k,
-            'packets' => $packets,
-            'megabytes' => $megabytes,
-        ];
+            'RX' => [
+                'time' => $k,
+                'packets' => $rx_packets,
+                'megabytes' => $rx_megabytes
+            ],
+            'TX' => [
+                'time' => $k,
+                'packets' => $tx_packets,
+                'megabytes' => $tx_megabytes
+                ]
+            ];
     }
 
     static public function getIPByHash($token){

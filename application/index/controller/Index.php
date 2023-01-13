@@ -19,7 +19,7 @@ class Index extends Base
         $hide = array_flip(SystemMonitor::getHide());
 
         asort($hash);
-
+        
         $this->assign("hash", $hash);
         $this->assign("hide", $hide);
         $this->assign("ip", $ip);
@@ -28,14 +28,15 @@ class Index extends Base
     }
 
     public function info($token = ''){
-        $json = SystemMonitor::getStat($token);
-        $uptime_str = SystemMonitor::timeFormat(intval($json['Uptime']));
+        $latest = json_decode(SystemMonitor::getLatest($token), TRUE);
         $info = SystemMonitor::getInfo($token);
+        // $uptime_str = SystemMonitor::timeFormat(intval($info['Uptime']));
         $ip = SystemMonitor::fetchIPInfo(SystemMonitor::getIPByHash($token));
         ksort($info);
-        $this->assign("json", $json);
-        $this->assign("uptime", $uptime_str);
+        $this->assign("latest", $latest);
+        // $this->assign("uptime", $uptime_str);
         $this->assign("info", $info);
+        // var_dump($info);
         $this->assign("token", $token);
         $this->assign("ip", $ip);
         if($this->request->isAjax())

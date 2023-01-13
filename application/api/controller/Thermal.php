@@ -22,6 +22,6 @@ class Thermal extends Controller
      */
     public function get($token = '')
     {
-        return json(SystemMonitor::collectionFormat(SystemMonitor::getCollection($token, 'thermal')));
+        return json(SystemMonitor::collectionFormat(SystemMonitor::getCollection($token), 'Thermal'));
     }
 }
