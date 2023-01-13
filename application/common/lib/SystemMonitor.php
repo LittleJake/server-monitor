@@ -47,7 +47,7 @@ class SystemMonitor
         $hashes = is_array($hash)?$hash:[$hash];
 
         foreach ($hashes as $h){
-            $stat[$h] = array_key_last(self::getCollection($h));
+            $stat[$h] = array_pop(array_keys(self::getCollection($h)));
 
             if(!is_array($hash)) return $stat[$h];
         }
