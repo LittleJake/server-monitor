@@ -20,9 +20,6 @@ class Network extends Controller
      */
     public function get($token = '')
     {
-        return json([
-            'RX' => SystemMonitor::networkFormat(SystemMonitor::getCollection($token, 'network:RX')),
-            'TX' => SystemMonitor::networkFormat(SystemMonitor::getCollection($token, 'network:TX')),
-        ]);
+        return json(SystemMonitor::networkFormat(SystemMonitor::getCollection($token)));
     }
 }

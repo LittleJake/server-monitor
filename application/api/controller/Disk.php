@@ -20,6 +20,6 @@ class Disk extends Controller
      */
     public function get($token = '')
     {
-        return json(SystemMonitor::diskFormat(SystemMonitor::getCollection($token, 'disk')));
+        return json(SystemMonitor::diskFormat(SystemMonitor::getCollection($token)));
     }
 }

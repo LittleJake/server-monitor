@@ -20,9 +20,6 @@ class Memory extends Controller
      */
     public function get($token = '')
     {
-        return json([
-            'swap' => SystemMonitor::collectionFormat(SystemMonitor::getCollection($token, 'swap')),
-            'memory' => SystemMonitor::collectionFormat(SystemMonitor::getCollection($token, 'memory')),
-        ]);
+        return json(SystemMonitor::memoryFormat(SystemMonitor::getCollection($token)));
     }
 }

@@ -1,9 +1,22 @@
 <style>
     .line {margin: 20px;height: 8px;position: relative;}
-    .h-40 {height: 40vh;}
+    .h-60 {height: 60vh;}
     .graph {overflow: visible;}
-    p > svg {width: 32px; height: 32px;}
 </style>
+<script>
+    function load_icon(name,url,color) {
+        $.ajax({
+            url: url,
+            type: "GET",
+            dataType: "text",
+            success: function(res){
+                $(".icon-"+name).html(res);
+                $(".icon-"+name+">svg").css("fill", color);
+                $(".icon-"+name+">svg").addClass("mdui-list-item-icon");
+            }
+        });
+    }
+</script>
 <div class="mdui-panel" mdui-panel>
     <div class="mdui-panel-item mdui-panel-item-open">
         <div class="mdui-panel-item-header">
@@ -14,37 +27,28 @@
         </div>
         <div class="mdui-panel-item-body mdui-typo">
             <div class="mdui-col-xs-12 mdui-col-md-6">
-                {foreach $info as $k => $v}
-                <h4>{:lang($k)}</h4>
-                {if $k == 'Update Time'}
-                <p>{$v|date="Y-m-d H:i:s"}</p>
-                {elseif ($k == 'System Version' || $k == 'CPU')}
-                <?php $icon = getIcon($v) ?>
-                <p class="icon-{$icon[0]}"></p>
-                <script>
-                    $(".icon-{:$icon[0]}").html("{$v|default='None'}");
-                    $.ajax({
-                        url: '{$icon[1]}',
-                        type: "GET",
-                        dataType: "text",
-                        success: function(res){
-                            $(".icon-{:$icon[0]}").html(res+"{$v|default='None'}");
-                            $(".icon-{:$icon[0]}>svg").css("fill", "{$icon[2]}");
-                        }
-                    });
-                </script>
-                {else}
-                <p>{$v|default='None'}</p>
-                {/if}
-                {/foreach}
+                <h4>{:lang("CPU")}</h4>
+                <?php $icon = getIcon($info['CPU']) ?>
+                <p class="mdui-valign"><span class="icon-{$icon[0]}"></span>{$info['CPU']|default='None'}</p>
+                <script>load_icon('{$icon[0]}','{$icon[1]}','{$icon[2]}')</script>
+                <h4>{:lang("System Version")}</h4>
+                <?php $icon = getIcon($info['System Version']) ?>
+                <p class="mdui-valign"><span class="icon-{$icon[0]}"></span>{$info['System Version']|default='None'}</p>
+                <script>load_icon('{$icon[0]}','{$icon[1]}','{$icon[2]}')</script>
+                <h4>{:lang("IPV4")}</h4>
+                <p>{$info['IPV4']|default='None'}</p>
+                <h4>{:lang("IPV6")}</h4>
+                <p>{$info['IPV6']|default='None'}</p>
+                <h4>{:lang("Update Time")}</h4>
+                <p>{$info['Update Time']|date="Y-m-d H:i:s"}</p>
             </div>
             <div class="mdui-col-xs-12 mdui-col-md-6">
                 <h4>{:lang("Process")}</h4>
-                <p>{$json['Process']}</p>
+                <p>{$info['Process']}</p>
                 <h4>{:lang("Connection")}</h4>
-                <p>{$json['Connection']}</p>
+                <p>{$info['Connection']}</p>
                 <h4>{:lang("Uptime")}</h4>
-                <p>{$uptime}</p>
+                <p>{$info['Uptime']}</p>
                 <h4>{:lang("Country")}</h4>
                 <p class="mdui-valign"><span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip['country_code'])?'none':strtolower($ip['country_code'])}"></span>{$ip['country_name']}</p>
             </div>
@@ -57,39 +61,10 @@
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
-            <div class="mdui-container">
-                <div class="mdui-row">
-                    <div class="mdui-col-lg-3">
-                        <h4>CPU 1 Min</h4>
-                        <div id="cpu_1_min" class="line"></div>
-                        <h4>CPU 5 Min</h4>
-                        <div id="cpu_5_min" class="line"></div>
-                        <h4>CPU 15 Min</h4>
-                        <div id="cpu_15_min" class="line"></div>
-                    </div>
-                    <div class="mdui-col-lg-9">
-                        <div id="cpu-collection" class="graph h-40">
-                            <div class="mdui-spinner"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="mdui-panel-item mdui-panel-item-open">
-        <div class="mdui-panel-item-header">
-            <i class="mdui-icon material-icons" style="color: #5dd8ff;">&#xeb3b;</i>
-            <div class="mdui-panel-item-title">{:lang("Thermal")}</div>
-            <div class="mdui-panel-item-summary">{:lang("CPU Temperature")}</div>
-            <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
-        </div>
-        <div class="mdui-panel-item-body">
-            <div class="mdui-container">
-                <div class="mdui-row">
-                    <div class="mdui-col-xs-12">
-                        <div id="thermal-collection" class="graph h-40">
-                            <div class="mdui-spinner"></div>
-                        </div>
+            <div class="mdui-row">
+                <div class="mdui-col-xs-12">
+                    <div id="cpu-collection" class="graph h-60">
+                        <div class="mdui-spinner"></div>
                     </div>
                 </div>
             </div>
@@ -102,19 +77,17 @@
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
-            <div class="mdui-container">
-                <div class="mdui-row">
-                    <div class="mdui-col-lg-3 h-40" style="overflow: scroll;">
-                        {volist name="json['Disk']" id="row"}
-                        <h4>{$key}</h4>
-                        <p>{$row.used} MB / {$row.total} MB</p>
-                        <div id="disk_status_{$i}" class="line"></div>
-                        {/volist}
-                    </div>
-                    <div class="mdui-col-lg-9">
-                        <div id="disk-collection" class="graph h-40">
-                            <div class="mdui-spinner"></div>
-                        </div>
+            <div class="mdui-row">
+                <div class="mdui-col-lg-3 h-60" style="overflow: scroll;">
+                    {volist name="latest['Disk']" id="row"}
+                    <h4>{$key}</h4>
+                    <p>{$row.used} MB / {$row.total} MB</p>
+                    <div id="disk_status_{$i}" class="line"></div>
+                    {/volist}
+                </div>
+                <div class="mdui-col-lg-9">
+                    <div id="disk-collection" class="graph h-60">
+                        <div class="mdui-spinner"></div>
                     </div>
                 </div>
             </div>
@@ -128,14 +101,16 @@
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
-            <h4>{:lang('Memory')}</h4>
-            <p>{$json['Memory']['Mem']['used']} MB / {$json['Memory']['Mem']['total']} MB</p>
-            <div id="memory_status" class="line"></div>
-            <h4>{:lang('Swap')}</h4>
-            <p>{$json['Memory']['Swap']['used']} MB / {$json['Memory']['Swap']['total']} MB</p>
-            <div id="swap_status" class="line"></div>
-            <div class="mdui-col-xs-12">
-                <div id="memory-collection" class="graph h-40">
+            <div class="mdui-col-lg-3">
+                <h4>{:lang('Memory')}</h4>
+                <p>{$latest['Memory']['Mem']['used']} MB / {$latest['Memory']['Mem']['total']} MB</p>
+                <div id="memory_status" class="line"></div>
+                <h4>{:lang('Swap')}</h4>
+                <p>{$latest['Memory']['Swap']['used']} MB / {$latest['Memory']['Swap']['total']} MB</p>
+                <div id="swap_status" class="line"></div>
+            </div>
+            <div class="mdui-col-lg-9">
+                <div id="memory-collection" class="graph h-60">
                     <div class="mdui-spinner"></div>
                 </div>
             </div>
@@ -156,6 +131,21 @@
             </div>
         </div>
     </div>
+    <div class="mdui-panel-item mdui-panel-item-open">
+        <div class="mdui-panel-item-header">
+            <i class="mdui-icon material-icons" style="color: #5dd8ff;">&#xeb3b;</i>
+            <div class="mdui-panel-item-title">{:lang("Thermal")}</div>
+            <div class="mdui-panel-item-summary">{:lang("Thermal Sensor")}</div>
+            <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+        </div>
+        <div class="mdui-panel-item-body">
+            <div class="mdui-col-xs-12">
+                <div id="thermal-collection" class="graph h-60">
+                    <div class="mdui-spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script>
     var bar_config = {
@@ -170,17 +160,14 @@
     };
 
     //disk
-    {volist name="json['Disk']" id="row"}
+    {volist name="latest['Disk']" id="row"}
     new ProgressBar.Line(disk_status_{$i}, bar_config).animate("{$row.percent / 100}");
     {/volist}
-    //cpu
-    new ProgressBar.Line(cpu_1_min, bar_config).animate("{$json['Load']['1min']}");
-    new ProgressBar.Line(cpu_5_min, bar_config).animate("{$json['Load']['5min']}");
-    new ProgressBar.Line(cpu_15_min, bar_config).animate("{$json['Load']['15min']}");
+    
     new ProgressBar.Line(memory_status, bar_config)
-        .animate("{if $json['Memory']['Mem']['total'] == 0}0{else}{:doubleVal($json['Memory']['Mem']['used'])/doubleVal($json['Memory']['Mem']['total'])}{/if}");
+        .animate("{$latest['Memory']['Mem']['percent']/100}");
     new ProgressBar.Line(swap_status, bar_config)
-        .animate(1-"{if $json['Memory']['Swap']['total'] == 0}1{else}{:doubleVal($json['Memory']['Swap']['free'])/doubleVal($json['Memory']['Swap']['total'])}{/if}");
+        .animate("{$latest['Memory']['Swap']['percent']/100}");
 
     $.ajax({
         url: "{:url('api/network/get', ['token' => $token])}", method: "get",
@@ -227,7 +214,7 @@
         url: "{:url('api/disk/get', ['token' => $token])}", method: "get",
         success: function(e){
             let option = {
-                tooltip: {trigger: 'axis', position: function (pt) {return [pt[0], '10%'];}},
+                tooltip: {trigger: 'axis'},
                 title: {left: 'center', text: '{:lang("Storage")}'},
                 xAxis: {type: 'category', boundaryGap: false, data: e.time},
                 yAxis: {
@@ -244,10 +231,10 @@
                 legend: {top: 30}
             };
 
-            Object.keys(e.load).forEach(function(k){
+            Object.keys(e.value).forEach(function(k){
                 option.series.push({
                     name: k, type: 'line', smooth: true, symbol: 'none', sampling: 'average',
-                    areaStyle: {}, data: e.load[k]
+                    areaStyle: {}, data: e.value[k]
                 });
             });
 
@@ -261,9 +248,9 @@
         url: "{:url('api/memory/get', ['token' => $token])}", method: "get",
         success: function(e){
             let option = {
-                tooltip: {trigger: 'axis', position: function (pt) {return [pt[0], '10%'];}},
+                tooltip: {trigger: 'axis'},
                 title: {left: 'center', text: '{:lang("Memory")}'},
-                xAxis: {type: 'category', boundaryGap: false, data: e.memory.time},
+                xAxis: {type: 'category', boundaryGap: false, data: e.time},
                 yAxis: {
                     type: 'value',
                     axisLabel: {formatter: '{value} MB'}
@@ -274,22 +261,30 @@
                         color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)',
                         shadowOffsetX: 2, shadowOffsetY: 2
                     }}],
-                series: [{
-                    name: 'Memory Usage(MB)', type: 'line', smooth: true, symbol: 'none', sampling: 'average',
-                    itemStyle: {color: 'rgb(144,5,146)'},
-                    areaStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                            offset: 0, color: 'rgb(205,68,255)'}, {offset: 1, color: 'rgb(255,70,199)'}])},
-                    data: e.memory.load
-                },{
-                    name: 'Swap Usage(MB)', type: 'line', smooth: true, symbol: 'none', sampling: 'average',
-                    itemStyle: {color: 'rgb(5,64,146)'},
-                    areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                            offset: 0, color: 'rgb(68,115,255)'}, {offset: 1, color: 'rgb(70,129,255)'}])},
-                    data: e.swap.load
-                }],
+                series:[],
+                // series: [{
+                //     name: 'Memory Usage(MB)', type: 'line', smooth: true, symbol: 'none', sampling: 'average',
+                //     itemStyle: {color: 'rgb(144,5,146)'},
+                //     areaStyle: {
+                //         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                //             offset: 0, color: 'rgb(205,68,255)'}, {offset: 1, color: 'rgb(255,70,199)'}])},
+                //     data: e.memory.load
+                // },{
+                //     name: 'Swap Usage(MB)', type: 'line', smooth: true, symbol: 'none', sampling: 'average',
+                //     itemStyle: {color: 'rgb(5,64,146)'},
+                //     areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                //             offset: 0, color: 'rgb(68,115,255)'}, {offset: 1, color: 'rgb(70,129,255)'}])},
+                //     data: e.swap.load
+                // }],
                 legend: {top: 30}
             };
+
+            Object.keys(e.value).forEach(function(k){
+                option.series.push({
+                    name: k, type: 'line', smooth: true, symbol: 'none', sampling: 'average',
+                    areaStyle: {}, data: e.value[k]
+                });
+            });
 
             ctx_mem = echarts.init(document.getElementById('memory-collection'));
             ctx_mem.setOption(option);
@@ -302,7 +297,7 @@
         url: "{:url('api/cpu/get', ['token' => $token])}", method: "get",
         success: function(e){
             let option = {
-                tooltip: {trigger: 'axis', position: function (pt) {return [pt[0], '10%'];}},
+                tooltip: {trigger: 'axis'},
                 title: {left: 'center', text: '{:lang("CPU Load")}'},
                 xAxis: {type: 'category', boundaryGap: false, data: e.time},
                 yAxis: {
@@ -315,16 +310,22 @@
                         color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)',
                         shadowOffsetX: 2, shadowOffsetY: 2
                     }}],
-                series: [{
-                    name: 'CPU', type: 'line', smooth: true, symbol: 'none',
-                    sampling: 'average', itemStyle: {color: 'rgb(255,24,24)'},
-                    areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                            offset: 0, color: 'rgb(255, 158, 68)'}, {offset: 1, color: 'rgb(255, 70, 131)'}])},
-                    data: e.load
-                }],
+                series: [],
                 legend: {top: 30}
             };
-
+            // {
+            //         name: 'CPU', type: 'line', smooth: true, symbol: 'none',
+            //         sampling: 'average', itemStyle: {color: 'rgb(255,24,24)'},
+            //         areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+            //                 offset: 0, color: 'rgb(255, 158, 68)'}, {offset: 1, color: 'rgb(255, 70, 131)'}])},
+            //         data: e.load
+            //     }
+            Object.keys(e.value).forEach(function(k){
+                option.series.push({
+                    name: k, type: 'line', smooth: true, symbol: 'none', sampling: 'average',
+                    areaStyle: {}, data: e.value[k]
+                });
+            });
             ctx_cpu = echarts.init(document.getElementById('cpu-collection'));
             ctx_cpu.setOption(option);
         },
@@ -334,14 +335,14 @@
     $.ajax({
         url: "{:url('api/thermal/get', ['token' => $token])}", method: "get",
         success: function(e){
-            if (e.load.length === 0){
+            if (e.value.length === 0){
                 document.getElementById('thermal-collection').parentNode.innerHTML="No Sensor Available.";
                 return 0;
             }
 
             let option = {
-                tooltip: {trigger: 'axis', position: function (pt) {return [pt[0], '10%'];}},
-                title: {left: 'center', text: '{:lang("CPU Temperature")}'},
+                tooltip: {trigger: 'axis'},
+                title: {left: 'center', text: '{:lang("Thermal Sensor")}'},
                 xAxis: {type: 'category', boundaryGap: false, data: e.time},
                 yAxis: {
                     type: 'value',
@@ -353,15 +354,23 @@
                         color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)',
                         shadowOffsetX: 2, shadowOffsetY: 2
                     }}],
-                series: [{
-                    name: 'Temperature(°C)', type: 'line', smooth: true, symbol: 'none',
-                    sampling: 'average', itemStyle: {color: '#ff8080'},
-                    areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                            offset: 0, color: '#ff8080'}, {offset: 1, color: '#99e699'}])},
-                    data: e.load
-                }],
+                series:[],
+                // series: [{
+                //     name: 'Temperature(°C)', type: 'line', smooth: true, symbol: 'none',
+                //     sampling: 'average', itemStyle: {color: '#ff8080'},
+                //     areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                //             offset: 0, color: '#ff8080'}, {offset: 1, color: '#99e699'}])},
+                //     data: e.load
+                // }],
                 legend: {top: 30}
             };
+            
+            Object.keys(e.value).forEach(function(k){
+                option.series.push({
+                    name: k, type: 'line', smooth: true, symbol: 'none', sampling: 'average',
+                    areaStyle: {}, data: e.value[k]
+                });
+            });
             
             ctx_thermal = echarts.init(document.getElementById('thermal-collection'));
             ctx_thermal.setOption(option);
