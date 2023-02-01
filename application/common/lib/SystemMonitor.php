@@ -26,7 +26,10 @@ class SystemMonitor
                 }, 24*60*60);
             }
             catch (Exception $e){
-                $info[$v] = null;
+                $info[$v] = [
+                    'country_code' => '',
+                    'country_name' => ''
+                ];
             }
 
             if(!is_array($ip)) return $info[$v];
@@ -282,5 +285,16 @@ class SystemMonitor
             self::getCollection($hash, 'network:TX');
             self::getCollection($hash, 'thermal');
         }
+    }
+
+    static public function sortByCountry($arr){
+        uasort($arr, "self::countryCmp");
+        return $arr;
+    }
+
+    static private function countryCmp($a,$b){
+        if ($a["IP"]["country_name"] == $b["IP"]["country_name"]) return 0;
+        if ($a["IP"]["country_name"] == 'Private') return -1;
+        return ($a["IP"]["country_name"]<$b["IP"]["country_name"])?-1:1;
     }
 }
