@@ -37,17 +37,17 @@
                 <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
             </div>
             <div class="mdui-collapse-item-body mdui-list">
-                {volist name="hash" id="v"}
+                {volist name="hashes_online" id="v"}
                 {if !isset($hide[$key])}
-                {if(!empty($info[$key]) && (time() - intval($info[$key]['Update Time'])) < 500)}
+                {if(!empty($v['INFO']))}
                 <div class="mdui-list-item mdui-ripple mdui-p-l-2">
-                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip[$v]['country_code'])?'none':strtolower($ip[$v]['country_code'])}"></span>
+                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($v['IP']['country_code'])?'none':strtolower($v['IP']['country_code'])}"></span>
                     <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['token'=>$key])}">
                         <div class="mdui-list-item-title">
-                            {$info[$key]['IPV4']}
+                            {$v['INFO']['IPV4']}
                         </div>
                         <div class="mdui-list-item-text mdui-list-item-one-line">
-                            {:empty($ip[$v]['country_code'])?"Private":$ip[$v]['country_name']}
+                            {$v['IP']['country_name']}
                         </div>
                     </div>
                     <i class="mdui-icon material-icons mdui-text-color-green">&#xe2bf;</i>
@@ -64,17 +64,17 @@
                 <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
             </div>
             <div class="mdui-collapse-item-body mdui-list">
-                {volist name="hash" id="v"}
+                {volist name="hashes_offline" id="v"}
                 {if !isset($hide[$key])}
-                {if(!empty($info[$key]) && (time() - intval($info[$key]['Update Time'])) >= 500)}
+                {if(!empty($v['INFO']))}
                 <div class="mdui-list-item mdui-ripple mdui-p-l-2">
-                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip[$v]['country_code'])?'none':strtolower($ip[$v]['country_code'])}"></span>
+                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($v['IP']['country_code'])?'none':strtolower($v['IP']['country_code'])}"></span>
                     <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['token'=>$key])}">
                         <div class="mdui-list-item-title">
-                            {$info[$key]['IPV4']}
+                            {$v['INFO']['IPV4']}
                         </div>
                         <div class="mdui-list-item-text mdui-list-item-one-line">
-                            {:empty($ip[$v]['country_code'])?"Private":$ip[$v]['country_name']}
+                            {$v['IP']['country_name']}
                         </div>
                     </div>
                     <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>

@@ -13,17 +13,32 @@ class Index extends Base
 
     public function index()
     {
-        $hash = SystemMonitor::getHashes();
-        $ip = SystemMonitor::fetchIPInfo(array_values($hash));
-        $info = SystemMonitor::getInfo(array_keys($hash));
+        $hashes = SystemMonitor::getHashes();
         $hide = array_flip(SystemMonitor::getHide());
-
-        asort($hash);
+        $hashes_online = [];
+        $hashes_offline = [];
+        $time = time();
         
-        $this->assign("hash", $hash);
+        foreach ($hashes as $hash => $ip) {
+            $hash_temp = [
+                'IP' => SystemMonitor::fetchIPInfo($ip),
+                'INFO' => SystemMonitor::getInfo($hash)
+            ];
+
+            if (empty($hash_temp["IP"]['country_code']))
+                $hash_temp["IP"]["country_name"] = "Private";
+
+            if ((time() - intval($hash_temp['INFO']['Update Time'])) > 500)
+                $hashes_offline[$hash] = $hash_temp;
+            else
+                $hashes_online[$hash] = $hash_temp;
+        }
+
+        $hashes_online = SystemMonitor::sortByCountry($hashes_online);
+        $hashes_offline = SystemMonitor::sortByCountry($hashes_offline);
+        $this->assign("hashes_online", $hashes_online);
+        $this->assign("hashes_offline", $hashes_offline);
         $this->assign("hide", $hide);
-        $this->assign("ip", $ip);
-        $this->assign("info", $info);
         return $this->fetch();
     }
 
@@ -34,9 +49,7 @@ class Index extends Base
         $ip = SystemMonitor::fetchIPInfo(SystemMonitor::getIPByHash($token));
         ksort($info);
         $this->assign("latest", $latest);
-        // $this->assign("uptime", $uptime_str);
         $this->assign("info", $info);
-        // var_dump($info);
         $this->assign("token", $token);
         $this->assign("ip", $ip);
         if($this->request->isAjax())
