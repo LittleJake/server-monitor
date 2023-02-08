@@ -32,7 +32,7 @@ function getIcon($desp = ''){
 
     foreach ($icon as $k => $v)
         if(stristr($desp, $k))
-            return [$k, $url.iconStandadize($k).".svg", $v];
+            return [iconStandadize($k), $url.iconStandadize($k).".svg", $v];
 
     return ['linux', $url."linux.svg", $icon['linux']];
 }
