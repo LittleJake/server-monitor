@@ -24,12 +24,18 @@ function getIcon($desp = ''){
         'linux' => "#FCC624",
         'android' => "#3DDC84",
         'qualcomm' => "#3253DC",
-        'mediatek' => "#EC9430"
+        'mediatek' => "#EC9430",
+        'alpine linux' => "#0D597F",
+        'arm' => "#0091BD",
     ];
 
     foreach ($icon as $k => $v)
         if(stristr($desp, $k))
-            return [$k, $url."$k.svg", $v];
+            return [$k, $url.iconStandadize($k).".svg", $v];
 
     return ['linux', $url."linux.svg", $icon['linux']];
+}
+
+function iconStandadize($name) {
+    return str_replace(str_replace($name, " ", ""), ".", "dot");
 }
