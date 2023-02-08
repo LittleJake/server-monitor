@@ -37,5 +37,5 @@ function getIcon($desp = ''){
 }
 
 function iconStandadize($name) {
-    return str_replace(str_replace($name, " ", ""), ".", "dot");
+    return str_replace(".", "dot", str_replace(" ", "", $name));
 }
