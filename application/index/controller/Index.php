@@ -24,7 +24,7 @@ class Index extends Base
                 'IP' => SystemMonitor::fetchIPInfo($ip),
                 'INFO' => SystemMonitor::getInfo($hash)
             ];
-
+            if (empty($hash_temp['INFO'])) continue;
             if (empty($hash_temp["IP"]['country_code']))
                 $hash_temp["IP"]["country_name"] = "Private";
 
