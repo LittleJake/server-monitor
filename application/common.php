@@ -20,13 +20,14 @@ function getIcon($desp = ''){
         'windows' => "#0078D6",
         'intel' => "#0071C5",
         'amd' => "#ED1C24",
-        'qemu' => "#FF6600",
-        'linux' => "#FCC624",
         'android' => "#3DDC84",
         'qualcomm' => "#3253DC",
         'mediatek' => "#EC9430",
         'alpine linux' => "#0D597F",
+        
         'arm' => "#0091BD",
+        'qemu' => "#FF6600",
+        'linux' => "#FCC624",
     ];
 
     foreach ($icon as $k => $v)
