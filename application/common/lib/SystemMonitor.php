@@ -9,7 +9,7 @@ use think\facade\Log;
 class SystemMonitor
 {
     static private $url = "https://ipapi.co/";
-    static private $cacheTime = 150;
+    static private $cacheTime = 300;
 
     static public function fetchIPInfo($ip){
         $info = [];
@@ -110,15 +110,6 @@ class SystemMonitor
         return $data;
     }
 
-    // static public function getCollection($hash, $key){
-    //     return Cache::remember("system_monitor:collection:$key:$hash", function () use ($hash, $key){
-    //         return Cache::store('redis')->handler()
-    //             ->zRangeByScore("system_monitor:collection:$key:$hash", 0, time()
-    //                 , ['withscores' => TRUE]);
-    //     }, self::$cacheTime);
-    // }
-
-    
     static public function getCollection($hash){
         return Cache::remember("system_monitor:collection:$hash", function () use ($hash){
             return Cache::store('redis')->handler()
@@ -216,25 +207,11 @@ class SystemMonitor
 
     static public function deleteInfo($hash){
         $ip = SystemMonitor::getIPByHash($hash);
-        Cache::rm("system_monitor:collection:cpu:$hash");
-        Cache::rm("system_monitor:collection:disk:$hash");
-        Cache::rm("system_monitor:collection:memory:$hash");
-        Cache::rm("system_monitor:collection:swap:$hash");
-        Cache::rm("system_monitor:collection:network:RX:$hash");
-        Cache::rm("system_monitor:collection:network:TX:$hash");
-        Cache::rm("system_monitor:collection:network:tmp:$hash");
-        Cache::rm("system_monitor:collection:info:$hash");
-        Cache::rm("system_monitor:stat:$hash");
+        Cache::rm("system_monitor:collection:$hash");
+        Cache::rm("system_monitor:info:$hash");
         Cache::rm("system_monitor:hashes");
-        Cache::store('redis')->rm("system_monitor:collection:cpu:$hash");
-        Cache::store('redis')->rm("system_monitor:collection:disk:$hash");
-        Cache::store('redis')->rm("system_monitor:collection:memory:$hash");
-        Cache::store('redis')->rm("system_monitor:collection:swap:$hash");
-        Cache::store('redis')->rm("system_monitor:collection:network:RX:$hash");
-        Cache::store('redis')->rm("system_monitor:collection:network:TX:$hash");
-        Cache::store('redis')->rm("system_monitor:collection:network:tmp:$hash");
-        Cache::store('redis')->rm("system_monitor:collection:info:$hash");
-        Cache::store('redis')->rm("system_monitor:stat:$hash");
+        Cache::store('redis')->rm("system_monitor:collection:$hash");
+        Cache::store('redis')->rm("system_monitor:info:$hash");
         Cache::store('redis')->handler()->hDel("system_monitor:hashes", $hash);
     }
 
@@ -275,15 +252,8 @@ class SystemMonitor
     static public function refreshCache(){
         foreach (self::getHashes() as $hash => $ip){
             self::getInfo($hash);
-            self::getStat($hash);
             self::fetchIPInfo($ip);
-            self::getCollection($hash, 'cpu');
-            self::getCollection($hash, 'disk');
-            self::getCollection($hash, 'memory');
-            self::getCollection($hash, 'swap');
-            self::getCollection($hash, 'network:RX');
-            self::getCollection($hash, 'network:TX');
-            self::getCollection($hash, 'thermal');
+            self::getCollection($hash);
         }
     }
 
