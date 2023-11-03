@@ -7,7 +7,7 @@ use think\console\Command;
 use think\console\Input;
 use think\console\Output;
 
-class refresh extends Command
+class Refresh extends Command
 {
     protected function configure()
     {

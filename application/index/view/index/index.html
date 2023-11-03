@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>{:lang("Server Monitor")}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdui/0.4.3/css/mdui.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdui/1.0.2/css/mdui.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 </head>
 <style>
@@ -33,21 +33,21 @@
         <div class="mdui-collapse-item">
             <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
                 <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-theme">&#xe30a;</i>
-                <div class="mdui-list-item-content">{:lang("Online Servers")}</div>
+                <div class="mdui-list-item-content">{:lang("Online")} ({:count($uuids_online)})</div>
                 <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
             </div>
             <div class="mdui-collapse-item-body mdui-list">
-                {volist name="hashes_online" id="v"}
+                {volist name="uuids_online" id="v"}
                 {if !isset($hide[$key])}
                 {if(!empty($v['INFO']))}
                 <div class="mdui-list-item mdui-ripple mdui-p-l-2">
-                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($v['IP']['country_code'])?'none':strtolower($v['IP']['country_code'])}"></span>
-                    <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['token'=>$key])}">
+                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($v['IP']['countryCode'])?'none':strtolower($v['IP']['countryCode'])}"></span>
+                    <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['uuid'=>$key])}">
                         <div class="mdui-list-item-title">
                             {$v['INFO']['IPV4']}
                         </div>
                         <div class="mdui-list-item-text mdui-list-item-one-line">
-                            {$v['IP']['country_name']}
+                            {$v['IP']['country']}
                         </div>
                     </div>
                     <i class="mdui-icon material-icons mdui-text-color-green">&#xe2bf;</i>
@@ -60,21 +60,21 @@
         <div class="mdui-collapse-item">
             <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
                 <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-theme-accent">&#xe30a;</i>
-                <div class="mdui-list-item-content">{:lang("Offline Servers")}</div>
+                <div class="mdui-list-item-content">{:lang("Offline")} ({:count($uuids_offline)})</div>
                 <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
             </div>
             <div class="mdui-collapse-item-body mdui-list">
-                {volist name="hashes_offline" id="v"}
+                {volist name="uuids_offline" id="v"}
                 {if !isset($hide[$key])}
                 {if(!empty($v['INFO']))}
                 <div class="mdui-list-item mdui-ripple mdui-p-l-2">
-                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($v['IP']['country_code'])?'none':strtolower($v['IP']['country_code'])}"></span>
-                    <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['token'=>$key])}">
+                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($v['IP']['countryCode'])?'none':strtolower($v['IP']['countryCode'])}"></span>
+                    <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['uuid'=>$key])}">
                         <div class="mdui-list-item-title">
                             {$v['INFO']['IPV4']}
                         </div>
                         <div class="mdui-list-item-text mdui-list-item-one-line">
-                            {$v['IP']['country_name']}
+                            {$v['IP']['country']}
                         </div>
                     </div>
                     <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>

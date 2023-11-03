@@ -2,17 +2,17 @@
 
 namespace app\http\middleware;
 
-use app\common\lib\SystemMonitor;
 use think\Exception;
 
 class CheckToken
 {
     public function handle($request, \Closure $next)
     {
-        $token = $request->param('token');
-        if(strlen($token) != 32)
-            throw new Exception("Wrong Token", 403);
-
+        $uuid = $request->param('uuid');
+        $auth = $request->header('authorization');
+        $node_token = Cache::store('token')->has("node_token")?json_decode(Cache::store("token")->get("node_token"), true):[];
+        if($node_token[$uuid] != $auth)
+            throw new Exception("Authorization Failed.", 403);
 
         return $next($request);
     }

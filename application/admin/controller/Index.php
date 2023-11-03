@@ -15,12 +15,12 @@ class Index extends Base
     {
         if (!session('?is_login'))
             $this->redirect('admin/index/login');
-        $hash = SystemMonitor::getHashes();
-        $ip = SystemMonitor::fetchIPInfo(array_values($hash));
+        $uuids = SystemMonitor::getUUIDs();
+        $ip = SystemMonitor::fetchIPInfo(array_values($uuids));
         $hide = array_flip(SystemMonitor::getHide());
 
-        asort($hash);
-        $this->assign("hash", $hash);
+        asort($uuids);
+        $this->assign("uuids", $uuids);
         $this->assign("hide", $hide);
         $this->assign("ip", $ip);
         return $this->fetch();
