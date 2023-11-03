@@ -8,27 +8,28 @@ use think\facade\Log;
 
 class SystemMonitor
 {
-    static private $url = "https://ipapi.co/";
+    static private $url = "http://ip-api.com/json/";
     static private $cacheTime = 300;
 
     static public function fetchIPInfo($ip){
         $info = [];
         $ips = is_array($ip)?$ip:[$ip];
-
         foreach ($ips as $v){
-            $ip_without_cidr = !empty(strstr($v, '/', true))?strstr($v, '/', true):$v;
+            $ip_without_cidr_24 = strrev(strstr(strrev($v), '.')). "0";
             try {
                 //For Multicast IP use TTL
-                $info[$v] = Cache::store('flag')->remember($v, function () use ($ip_without_cidr){
-                    $data = json_decode(self::curl_get(self::$url.$ip_without_cidr."/json/"),true);
+                $info[$v] = Cache::store('flag')->remember($v, function () use ($ip_without_cidr_24){
+                    $data = json_decode(self::curl_get(self::$url."$ip_without_cidr_24?fields=country,countryCode&lang="),true);
                     if($data == null) throw new Exception("Failed to query country code");
                     return $data;
                 }, 24*60*60);
+                Log::info($ip_without_cidr_24);
             }
             catch (Exception $e){
+                Log::error($e->getMessage());
                 $info[$v] = [
-                    'country_code' => '',
-                    'country_name' => ''
+                    'countryCode' => '',
+                    'country' => ''
                 ];
             }
 
@@ -38,40 +39,55 @@ class SystemMonitor
         return $info;
     }
 
-    static public function getHashes(){
+    static public function getUUIDs(){
         return Cache::remember('system_monitor:hashes', function (){
             return Cache::store('redis')->handler()
                 ->hGetAll("system_monitor:hashes");
         }, self::$cacheTime);
     }
 
-    static public function getLatest($hash) {
-        $stat = [];
-        $hashes = is_array($hash)?$hash:[$hash];
+    static public function setUUID($uuid, $ip){
+        return Cache::store('redis')->handler()
+                ->hSet("system_monitor:hashes", $uuid, $ip);
+    }
 
-        foreach ($hashes as $h){
+    static public function getLatest($uuid) {
+        $stat = [];
+        $uuids = is_array($uuid)?$uuid:[$uuid];
+
+        foreach ($uuids as $h){
             $info = array_keys(self::getCollection($h));
             $stat[$h] = array_pop($info);
 
-            if(!is_array($hash)) return $stat[$h];
+            if(!is_array($uuid)) return $stat[$h];
         }
 
         return $stat;
     }
 
-    static public function getInfo($hash) {
+    static public function getInfo($uuid) {
         $info = [];
-        $hashes = is_array($hash)?$hash:[$hash];
+        $uuids = is_array($uuid)?$uuid:[$uuid];
 
-        foreach ($hashes as $h){
-            $info[$h] = Cache::remember("system_monitor:info:$h", function () use ($h){
-                return Cache::store('redis')->handler()->hGetAll("system_monitor:info:$h");
+        foreach ($uuids as $u){
+            $info[$u] = Cache::remember("system_monitor:info:$u", function () use ($u){
+                return Cache::store('redis')->handler()->hGetAll("system_monitor:info:$u");
             }, self::$cacheTime);
 
-            if(!is_array($hash)) return $info[$h];
+            if(!is_array($uuid)) return $info[$u];
         }
 
         return $info;
+    }
+
+    static public function setInfo($uuid, $data) {
+        try {
+            Cache::store('redis')->handler()->hSetAll("system_monitor:info:$uuid", $data);
+            return ['code' => 200, 'message'=> "OK"];
+        } catch (Exception $e) {
+            Log::error($e -> getMessage());
+            return ['code' => 500, 'message'=> "Fail."];
+        }
     }
 
     static public function timeFormat($time){
@@ -102,7 +118,7 @@ class SystemMonitor
         $data = curl_exec($curl);
 
         // 显示错误信息
-        if (curl_error($curl))
+        if (curl_error($curl) || curl_getinfo($curl,CURLINFO_HTTP_CODE) != 200)
             Log::error(curl_error($curl));
         else
             curl_close($curl);
@@ -110,12 +126,24 @@ class SystemMonitor
         return $data;
     }
 
-    static public function getCollection($hash){
-        return Cache::remember("system_monitor:collection:$hash", function () use ($hash){
+    static public function getCollection($uuid){
+        return Cache::remember("system_monitor:collection:$uuid", function () use ($uuid){
             return Cache::store('redis')->handler()
-                ->zRangeByScore("system_monitor:collection:$hash", 0, time()
+                ->zRangeByScore("system_monitor:collection:$uuid", 0, time()
                     , ['withscores' => TRUE]);
         }, self::$cacheTime);
+    }
+
+    static public function setCollection($uuid, $data){
+        try {
+            Cache::store('redis')->handler()
+                ->zAdd("system_monitor:collection:$uuid", time(), $data);
+            return ['code' => 200, 'message'=> "OK"];
+        } catch (Exception $e) {
+            Log::error($e -> getMessage());
+            return ['code' => 500, 'message'=> "Fail."];
+        }
+        
     }
 
     static public function collectionFormat($data, $name){
@@ -198,35 +226,35 @@ class SystemMonitor
             ];
     }
 
-    static public function getIPByHash($token){
-        $hash = SystemMonitor::getHashes();
-        if(empty($hash[$token]))
+    static public function getIPByUUID($uuid){
+        $uuids = SystemMonitor::getUUIDs();
+        if(empty($uuids[$uuid]))
             throw new Exception("Wrong Token", 403);
-        return $hash[$token];
+        return $uuids[$uuid];
     }
 
-    static public function deleteInfo($hash){
-        $ip = SystemMonitor::getIPByHash($hash);
-        Cache::rm("system_monitor:collection:$hash");
-        Cache::rm("system_monitor:info:$hash");
+    static public function deleteInfo($uuid){
+        $ip = SystemMonitor::getIPByUUID($uuid);
+        Cache::rm("system_monitor:collection:$uuid");
+        Cache::rm("system_monitor:info:$uuid");
         Cache::rm("system_monitor:hashes");
-        Cache::store('redis')->rm("system_monitor:collection:$hash");
-        Cache::store('redis')->rm("system_monitor:info:$hash");
-        Cache::store('redis')->handler()->hDel("system_monitor:hashes", $hash);
+        Cache::store('redis')->rm("system_monitor:collection:$uuid");
+        Cache::store('redis')->rm("system_monitor:info:$uuid");
+        Cache::store('redis')->handler()->hDel("system_monitor:hashes", $uuid);
     }
 
-    static public function setDisplay($hash, $display){
+    static public function setDisplay($uuid, $display){
         if (!empty($display))
             Cache::store('redis')->handler()
-                ->sRem("system_monitor:hide", $hash);
+                ->sRem("system_monitor:hide", $uuid);
         else
             Cache::store('redis')->handler()
-                ->sAdd("system_monitor:hide", $hash);
+                ->sAdd("system_monitor:hide", $uuid);
 
         Cache::rm("system_monitor:hide");
     }
 
-    static public function hashIsDisplay($hash){
+    static public function UUIDIsDisplay($uuid){
         if(!Cache::has("system_monitor:hide")){
             $data = Cache::store('redis')->handler()
                 ->sMembers("system_monitor:hide");
@@ -235,7 +263,7 @@ class SystemMonitor
             $data = Cache::get("system_monitor:hide");
         }
         $data =  array_flip($data);
-        return !isset($data[$hash]);
+        return !isset($data[$uuid]);
     }
 
     static public function getHide(){
@@ -250,10 +278,10 @@ class SystemMonitor
     }
 
     static public function refreshCache(){
-        foreach (self::getHashes() as $hash => $ip){
-            self::getInfo($hash);
+        foreach (self::getUUIDs() as $uuid => $ip){
+            self::getInfo($uuid);
             self::fetchIPInfo($ip);
-            self::getCollection($hash);
+            self::getCollection($uuid);
         }
     }
 
@@ -263,8 +291,8 @@ class SystemMonitor
     }
 
     static private function countryCmp($a,$b){
-        if ($a["IP"]["country_name"] == $b["IP"]["country_name"]) return 0;
-        if ($a["IP"]["country_name"] == 'Private') return -1;
-        return ($a["IP"]["country_name"]<$b["IP"]["country_name"])?-1:1;
+        if ($a["IP"]["country"] == $b["IP"]["country"]) return 0;
+        if ($a["IP"]["country"] == 'Private') return -1;
+        return ($a["IP"]["country"]<$b["IP"]["country"])?-1:1;
     }
 }

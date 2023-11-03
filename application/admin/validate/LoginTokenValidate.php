@@ -5,7 +5,7 @@ namespace app\admin\validate;
 
 
 use app\common\lib\reCaptcha;
-use think\facade\Cache;
+use think\facade\Env;
 use think\Validate;
 
 class LoginTokenValidate extends Validate
@@ -28,7 +28,7 @@ class LoginTokenValidate extends Validate
     }
 
     protected function checkToken($value, $rule, $data = []){
-        return (Cache::store('token')->get('ADMIN.TOKEN')==$value)
+        return (Env::get('ADMIN.PASSWORD')==$value)
             ?true:'Token invalid.';
     }
 }

@@ -40,7 +40,7 @@ return [
     'flag' => [
         'type' => 'file',
         // 全局缓存有效期（0为永久有效）
-        'expire'=> 0,
+        'expire'=> 24*60*60,
         // 缓存前缀
         'prefix'=> 'flag',
         // 缓存目录

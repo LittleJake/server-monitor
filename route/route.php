@@ -10,14 +10,17 @@
 // +----------------------------------------------------------------------
 
 
-Route::get('info/:token','index/index/info');
-Route::get('api/disk/:token','api/disk/get');
-Route::get('api/cpu/:token','api/cpu/get');
-Route::get('api/swap/:token','api/swap/get');
-Route::get('api/memory/:token','api/memory/get');
-Route::get('api/network/:token','api/network/get');
-Route::get('api/thermal/:token','api/thermal/get');
-Route::any('admin/info/:token','admin/info/index');
+Route::get('info/:uuid','index/index/info');
+Route::get('api/disk/:uuid','api/disk/get');
+Route::get('api/cpu/:uuid','api/cpu/get');
+Route::get('api/swap/:uuid','api/swap/get');
+Route::get('api/memory/:uuid','api/memory/get');
+Route::get('api/network/:uuid','api/network/get');
+Route::get('api/thermal/:uuid','api/thermal/get');
+Route::post('api/report/collection/:uuid','api/collection/info');
+Route::post('api/report/info/:uuid','api/report/info');
+Route::post('api/report/hash/:uuid','api/report/hash');
+Route::any('admin/info/:uuid','admin/info/index');
 Route::any('admin/','admin/index/index');
 Route::rule('admin/login','admin/index/login', 'GET|POST');
 Route::rule('admin/logout','admin/index/logout', 'GET');

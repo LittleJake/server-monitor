@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdui/0.4.3/css/mdui.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdui/1.0.2/css/mdui.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <script type="text/javascript">
         var onloadCallback = function() {grecaptcha.render('recaptcha', {'sitekey' : '{:env("RECAPTCHA.HTML_TOKEN")}'});};
@@ -48,13 +48,12 @@
         <p class="mdui-text-color-white-secondary">{:lang('License')}</p>
     </div>
 </div>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdui/0.4.3/js/mdui.min.js"></script>
-<script type="text/javascript" src="/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdui/1.0.2/js/mdui.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://www.recaptcha.net/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
 <script>
     function checkForm(){
         var captcha = $('textarea[name="g-recaptcha-response"]').val(), token = $('input[name="token"]').val();
-        if (token.length !== 64){mdui.alert('Wrong Token');return false;}
         if (captcha == null || captcha === ''){mdui.alert('Wrong Captcha');return false;}
         return true;
     }

@@ -10,5 +10,6 @@
 // +----------------------------------------------------------------------
 
 return [
-    'app\command\token'
+    'token' => 'app\command\Token',
+    'refresh' => 'app\command\Refresh',
 ];

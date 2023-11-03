@@ -11,17 +11,17 @@ use think\Response;
 
 class Thermal extends Controller
 {
-    protected $middleware = ['FlowControl', 'CheckToken'];
+    protected $middleware = ['FlowControl', 'CheckUUID', 'CheckJson'];
 
     /**
      * 显示资源列表
      *
-     * @param string $token
+     * @param string $uuid
      * @return Response
      * @throws Exception
      */
-    public function get($token = '')
+    public function get($uuid = '')
     {
-        return json(SystemMonitor::collectionFormat(SystemMonitor::getCollection($token), 'Thermal'));
+        return json(SystemMonitor::collectionFormat(SystemMonitor::getCollection($uuid), 'Thermal'));
     }
 }
