@@ -22,10 +22,10 @@ composer install
 cp .env.example .env
 ```
 
-#### 后台登录密钥重置
+#### 上报节点密钥操作（增/删/查）
 
 ```bash
-php think token:generate
+php think token help
 ```
 
 #### 配置Redis数据源
