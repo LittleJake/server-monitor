@@ -4,8 +4,6 @@ namespace app\api\controller;
 
 use app\common\lib\SystemMonitor;
 use think\Controller;
-use think\Exception;
-use think\Response;
 
 class Report extends Controller
 {

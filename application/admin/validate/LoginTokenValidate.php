@@ -28,7 +28,7 @@ class LoginTokenValidate extends Validate
     }
 
     protected function checkToken($value, $rule, $data = []){
-        return (Env::get('ADMIN.PASSWORD')==$value)
+        return (!empty(Env::get('ADMIN.PASSWORD')) && Env::get('ADMIN.PASSWORD') == $value)
             ?true:'Token invalid.';
     }
 }
