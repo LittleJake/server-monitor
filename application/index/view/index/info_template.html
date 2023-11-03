@@ -1,6 +1,5 @@
 <style>
     .line {margin: 20px;height: 8px;position: relative;}
-    .h-60 {height: 60vh;}
     .graph {overflow: visible;}
 </style>
 <script>
@@ -50,7 +49,7 @@
                 <h4>{:lang("Uptime")}</h4>
                 <p>{$info['Uptime']}</p>
                 <h4>{:lang("Country")}</h4>
-                <p class="mdui-valign"><span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip['country_code'])?'none':strtolower($ip['country_code'])}"></span>{$ip['country_name']}</p>
+                <p class="mdui-valign"><span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip['countryCode'])?'none':strtolower($ip['countryCode'])}"></span>{$ip['country']}</p>
             </div>
         </div>
     </div>
@@ -63,7 +62,7 @@
         <div class="mdui-panel-item-body">
             <div class="mdui-row">
                 <div class="mdui-col-xs-12">
-                    <div id="cpu-collection" class="graph h-60">
+                    <div id="cpu-collection" class="graph">
                         <div class="mdui-spinner"></div>
                     </div>
                 </div>
@@ -78,15 +77,17 @@
         </div>
         <div class="mdui-panel-item-body">
             <div class="mdui-row">
-                <div class="mdui-col-lg-3 h-60" style="overflow: scroll;">
+                <div class="mdui-col-lg-3" style="overflow: scroll;max-height: 40vh;">
                     {volist name="latest['Disk']" id="row"}
-                    <h4>{$key}</h4>
-                    <p>{$row.used} MB / {$row.total} MB</p>
-                    <div id="disk_status_{$i}" class="line"></div>
+                    <div class="mdui-row">
+                        <h4>{$key}</h4>
+                        <p>{$row.used} MB / {$row.total} MB</p>
+                        <div id="disk_status_{$i}" class="line"></div>
+                    </div>
                     {/volist}
                 </div>
                 <div class="mdui-col-lg-9">
-                    <div id="disk-collection" class="graph h-60">
+                    <div id="disk-collection" class="graph">
                         <div class="mdui-spinner"></div>
                     </div>
                 </div>
@@ -110,7 +111,7 @@
                 <div id="swap_status" class="line"></div>
             </div>
             <div class="mdui-col-lg-9">
-                <div id="memory-collection" class="graph h-60">
+                <div id="memory-collection" class="graph">
                     <div class="mdui-spinner"></div>
                 </div>
             </div>
@@ -125,7 +126,7 @@
         </div>
         <div class="mdui-panel-item-body">
             <div class="mdui-col-xs-12">
-                <div id="network-collection" style="height: 600px;">
+                <div id="network-collection">
                     <div class="mdui-spinner"></div>
                 </div>
             </div>
@@ -140,7 +141,7 @@
         </div>
         <div class="mdui-panel-item-body">
             <div class="mdui-col-xs-12">
-                <div id="thermal-collection" class="graph h-60">
+                <div id="thermal-collection" class="graph">
                     <div class="mdui-spinner"></div>
                 </div>
             </div>
@@ -170,13 +171,13 @@
         .animate("{$latest['Memory']['Swap']['percent']/100}");
 
     $.ajax({
-        url: "{:url('api/network/get', ['token' => $token])}", method: "get",
+        url: "{:url('api/network/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
         success: function(e){
             let option = {
                 title: {text:"Network RX & TX", left: 'center'},
                 tooltip: {trigger: 'axis', axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}},
                 legend: {bottom: 50, data: ['RX Packets (k)', 'RX Throughput (MB)', 'TX Packets (k)', 'TX Throughput (MB)',]},
-                grid: [{left: 50, right: 50, height: '35%'}, {left: 50, right: 50, top: '45%', height: '35%'}],
+                grid: [{height: '30%'}, {top: '45%', height: '30%'}],
                 axisPointer: {link: {xAxisIndex: 'all'}},
                 dataZoom: [{show: true, realtime: true, start: 70, end: 100, xAxisIndex: [0, 1]}, {type: 'inside', realtime: true, start: 70, end: 100, xAxisIndex: [0, 1]}],
                 xAxis: [
@@ -202,7 +203,7 @@
                 ]
             };
 
-            ctx_network = echarts.init(document.getElementById('network-collection'));
+            ctx_network = echarts.init(document.getElementById('network-collection'), null, {height: window.innerHeight * 0.5});
             ctx_network.setOption(option);
         },
         error: function () {
@@ -211,7 +212,7 @@
     });
     
     $.ajax({
-        url: "{:url('api/disk/get', ['token' => $token])}", method: "get",
+        url: "{:url('api/disk/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
         success: function(e){
             let option = {
                 tooltip: {trigger: 'axis'},
@@ -238,14 +239,14 @@
                 });
             });
 
-            ctx_disk = echarts.init(document.getElementById('disk-collection'));
+            ctx_disk = echarts.init(document.getElementById('disk-collection'), null, {height: window.innerHeight * 0.5});
             ctx_disk.setOption(option);
         },
         error: function () {document.getElementById('disk-collection').parentNode.innerHTML="Fail to load storage data.";}
     });
 
     $.ajax({
-        url: "{:url('api/memory/get', ['token' => $token])}", method: "get",
+        url: "{:url('api/memory/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
         success: function(e){
             let option = {
                 tooltip: {trigger: 'axis'},
@@ -262,20 +263,6 @@
                         shadowOffsetX: 2, shadowOffsetY: 2
                     }}],
                 series:[],
-                // series: [{
-                //     name: 'Memory Usage(MB)', type: 'line', smooth: true, symbol: 'none', sampling: 'average',
-                //     itemStyle: {color: 'rgb(144,5,146)'},
-                //     areaStyle: {
-                //         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                //             offset: 0, color: 'rgb(205,68,255)'}, {offset: 1, color: 'rgb(255,70,199)'}])},
-                //     data: e.memory.load
-                // },{
-                //     name: 'Swap Usage(MB)', type: 'line', smooth: true, symbol: 'none', sampling: 'average',
-                //     itemStyle: {color: 'rgb(5,64,146)'},
-                //     areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                //             offset: 0, color: 'rgb(68,115,255)'}, {offset: 1, color: 'rgb(70,129,255)'}])},
-                //     data: e.swap.load
-                // }],
                 legend: {top: 30}
             };
 
@@ -286,15 +273,15 @@
                 });
             });
 
-            ctx_mem = echarts.init(document.getElementById('memory-collection'));
+            ctx_mem = echarts.init(document.getElementById('memory-collection'), null, {height: window.innerHeight * 0.5});
             ctx_mem.setOption(option);
         },
         error: function () {
-            document.getElementById('memory-collection').parentNode.innerHTML="Fail to load memory data.";
+            document.getElementById('memory-collection').innerHTML="Fail to load memory data.";
         }
     });
     $.ajax({
-        url: "{:url('api/cpu/get', ['token' => $token])}", method: "get",
+        url: "{:url('api/cpu/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
         success: function(e){
             let option = {
                 tooltip: {trigger: 'axis'},
@@ -313,30 +300,23 @@
                 series: [],
                 legend: {top: 30}
             };
-            // {
-            //         name: 'CPU', type: 'line', smooth: true, symbol: 'none',
-            //         sampling: 'average', itemStyle: {color: 'rgb(255,24,24)'},
-            //         areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-            //                 offset: 0, color: 'rgb(255, 158, 68)'}, {offset: 1, color: 'rgb(255, 70, 131)'}])},
-            //         data: e.load
-            //     }
             Object.keys(e.value).forEach(function(k){
                 option.series.push({
                     name: k, type: 'line', smooth: true, symbol: 'none', sampling: 'average',
                     areaStyle: {}, data: e.value[k]
                 });
             });
-            ctx_cpu = echarts.init(document.getElementById('cpu-collection'));
+            ctx_cpu = echarts.init(document.getElementById('cpu-collection'), null, {height: window.innerHeight * 0.5});
             ctx_cpu.setOption(option);
         },
         error: function () {document.getElementById('cpu-collection').parentNode.innerHTML="Fail to load CPU data.";}
     });
 
     $.ajax({
-        url: "{:url('api/thermal/get', ['token' => $token])}", method: "get",
+        url: "{:url('api/thermal/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
         success: function(e){
             if (e.value.length === 0){
-                document.getElementById('thermal-collection').parentNode.innerHTML="No Sensor Available.";
+                document.getElementById('thermal-collection').innerHTML="No Sensor Available.";
                 return 0;
             }
 
@@ -355,13 +335,6 @@
                         shadowOffsetX: 2, shadowOffsetY: 2
                     }}],
                 series:[],
-                // series: [{
-                //     name: 'Temperature(°C)', type: 'line', smooth: true, symbol: 'none',
-                //     sampling: 'average', itemStyle: {color: '#ff8080'},
-                //     areaStyle: {color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                //             offset: 0, color: '#ff8080'}, {offset: 1, color: '#99e699'}])},
-                //     data: e.load
-                // }],
                 legend: {top: 30}
             };
             
@@ -372,10 +345,10 @@
                 });
             });
             
-            ctx_thermal = echarts.init(document.getElementById('thermal-collection'));
+            ctx_thermal = echarts.init(document.getElementById('thermal-collection'), null, {height: window.innerHeight * 0.5});
             ctx_thermal.setOption(option);
         },
-        error: function () {document.getElementById('thermal-collection').parentNode.innerHTML="Fail to load sensor data.";}
+        error: function () {document.getElementById('thermal-collection').innerHTML="Fail to load sensor data.";}
     });
     window.onresize = function() {
         ctx_cpu && ctx_cpu.resize();

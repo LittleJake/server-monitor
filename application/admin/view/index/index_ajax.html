@@ -1,8 +1,8 @@
 <div class="mdui-col-md-4">
     <ul class="mdui-list word-wrap">
-        {volist name="hash" id="vo"}
+        {volist name="uuids" id="vo"}
         <div class="mdui-list-item mdui-ripple mdui-p-l-0">
-            <div class="mdui-list-item-content ajax-load" data-href="{:url('admin/info/index',['token'=>$key])}">
+            <div class="mdui-list-item-content ajax-load" data-href="{:url('admin/info/index',['uuid'=>$key])}">
                 <div class="mdui-list-item-title">
                     {$vo}
                 </div>
@@ -12,7 +12,7 @@
             </div>
             <div class="mdui-divide"></div>
             <label class="mdui-switch">
-                <input class="switch" type="checkbox" data-href="{:url('admin/info/index',['token'=>$key])}"
+                <input class="switch" type="checkbox" data-href="{:url('admin/info/index',['uuid'=>$key])}"
                        {if !isset($hide[$key])}checked{/if} />
                 <i class="mdui-switch-icon"></i>
             </label>
@@ -21,18 +21,18 @@
             </button>
             <ul class="mdui-menu" id="list-{$i}">
                 <li class="mdui-menu-item" disabled>
-                    <a href="javascript:;" class="mdui-ripple reboot" data-href="{:url('admin/info/index',['token'=>$key])}">
+                    <a href="javascript:;" class="mdui-ripple reboot" data-href="{:url('admin/info/index',['uuid'=>$key])}">
                         <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe5d5;</i>Reboot
                     </a>
                 </li>
                 <li class="mdui-menu-item" disabled>
-                    <a href="javascript:;" class="mdui-ripple reset" data-href="{:url('admin/info/index',['token'=>$key])}">
+                    <a href="javascript:;" class="mdui-ripple reset" data-href="{:url('admin/info/index',['uuid'=>$key])}">
                         <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe8b3;</i>Reset Data
                     </a>
                 </li>
                 <li class="mdui-divider"></li>
                 <li class="mdui-menu-item">
-                    <a href="javascript:;" class="mdui-ripple delete" data-href="{:url('admin/info/index',['token'=>$key])}">
+                    <a href="javascript:;" class="mdui-ripple delete" data-href="{:url('admin/info/index',['uuid'=>$key])}">
                         <i class="mdui-menu-item-icon mdui-icon material-icons">delete</i>Remove
                     </a>
                 </li>

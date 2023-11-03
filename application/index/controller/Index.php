@@ -2,55 +2,55 @@
 namespace app\index\controller;
 
 use app\common\lib\SystemMonitor;
+use think\Facade\Log;
 
 
 class Index extends Base
 {
     protected $middleware = [
         'FlowControl',
-        'CheckToken' => ['only'=> ['info']]
+        'CheckUUID' => ['only'=> ['info']]
     ];
 
     public function index()
     {
-        $hashes = SystemMonitor::getHashes();
+        $uuids = SystemMonitor::getUUIDs();
         $hide = array_flip(SystemMonitor::getHide());
-        $hashes_online = [];
-        $hashes_offline = [];
+        $uuids_online = [];
+        $uuids_offline = [];
         $time = time();
         
-        foreach ($hashes as $hash => $ip) {
-            $hash_temp = [
+        foreach ($uuids as $uuid => $ip) {
+            $uuid_temp = [
                 'IP' => SystemMonitor::fetchIPInfo($ip),
-                'INFO' => SystemMonitor::getInfo($hash)
+                'INFO' => SystemMonitor::getInfo($uuid)
             ];
-            if (empty($hash_temp['INFO'])) continue;
-            if (empty($hash_temp["IP"]['country_code']))
-                $hash_temp["IP"]["country_name"] = "Private";
+            if (empty($uuid_temp['INFO'])) continue;
+            if (empty($uuid_temp["IP"]['countryCode']))
+                $uuid_temp["IP"]["country"] = "Private";
 
-            if ((time() - intval($hash_temp['INFO']['Update Time'])) > 500)
-                $hashes_offline[$hash] = $hash_temp;
+            if (($time - intval($uuid_temp['INFO']['Update Time'])) > 500)
+                $uuids_offline[$uuid] = $uuid_temp;
             else
-                $hashes_online[$hash] = $hash_temp;
+                $uuids_online[$uuid] = $uuid_temp;
         }
-
-        $hashes_online = SystemMonitor::sortByCountry($hashes_online);
-        $hashes_offline = SystemMonitor::sortByCountry($hashes_offline);
-        $this->assign("hashes_online", $hashes_online);
-        $this->assign("hashes_offline", $hashes_offline);
+        $uuids_online = SystemMonitor::sortByCountry($uuids_online);
+        $uuids_offline = SystemMonitor::sortByCountry($uuids_offline);
+        $this->assign("uuids_online", $uuids_online);
+        $this->assign("uuids_offline", $uuids_offline);
         $this->assign("hide", $hide);
         return $this->fetch();
     }
 
-    public function info($token = ''){
-        $latest = json_decode(SystemMonitor::getLatest($token), TRUE);
-        $info = SystemMonitor::getInfo($token);
+    public function info($uuid = ''){
+        $latest = json_decode(SystemMonitor::getLatest($uuid), TRUE);
+        $info = SystemMonitor::getInfo($uuid);
         // $uptime_str = SystemMonitor::timeFormat(intval($info['Uptime']));
-        $ip = SystemMonitor::fetchIPInfo(SystemMonitor::getIPByHash($token));
+        $ip = SystemMonitor::fetchIPInfo(SystemMonitor::getIPByUUID($uuid));
         ksort($info);
         $this->assign("latest", $latest);
         $this->assign("info", $info);
-        $this->assign("token", $token);
+        $this->assign("uuid", $uuid);
         $this->assign("ip", $ip);
         if($this->request->isAjax())
             return $this->fetch("index/info_ajax");
