@@ -23,7 +23,6 @@ class SystemMonitor
                     if($data == null) throw new Exception("Failed to query country code");
                     return $data;
                 }, 24*60*60);
-                Log::info($ip_without_cidr_24);
             }
             catch (Exception $e){
                 Log::error($e->getMessage());

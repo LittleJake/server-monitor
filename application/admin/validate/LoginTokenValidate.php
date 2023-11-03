@@ -12,14 +12,13 @@ class LoginTokenValidate extends Validate
 {
     protected $rule = [
         'g-recaptcha-response|Captcha' => ['require', 'checkCaptcha'],
-        'token|Token' => ['require', 'length' => 64, 'alphaNum', 'checkToken'],
+        'token|Token' => ['require', 'alphaNum', 'checkToken'],
     ];
 
     protected $message = [
         'g-recaptcha-response.require' => 'Captcha invalid.',
         'token.require' => 'Token not empty.',
         'token.alphaNum' => 'Wrong Token format.',
-        'token.length' => 'Wrong Token format.',
     ];
 
     protected function checkCaptcha($value, $rule, $data = []){
