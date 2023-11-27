@@ -74,7 +74,7 @@
                             {$v['INFO']['IPV4']}
                         </div>
                         <div class="mdui-list-item-text mdui-list-item-one-line">
-                            {$v['IP']['country']}
+                            {$v['IP']['country']|default="Unknown"}
                         </div>
                     </div>
                     <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>
