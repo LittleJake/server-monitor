@@ -33,12 +33,9 @@ class Index extends Base
                     'country' => $uuid_temp['INFO']['Country'],
                     "countryCode" => $uuid_temp['INFO']['Country Code']
                 ];
-            else {
+            else 
                 $uuid_temp['IP'] = SystemMonitor::fetchIPInfo($ip);
-                if (empty($uuid_temp["IP"]['countryCode']))
-                    $uuid_temp["IP"]["country"] = "Private";
-            }
-
+            
             if (($time - intval($uuid_temp['INFO']['Update Time'])) > 500)
                 $uuids_offline[$uuid] = $uuid_temp;
             else
@@ -58,6 +55,14 @@ class Index extends Base
         $info = SystemMonitor::getInfo($uuid);
         // $uptime_str = SystemMonitor::timeFormat(intval($info['Uptime']));
         $ip = SystemMonitor::fetchIPInfo(SystemMonitor::getIPByUUID($uuid));
+        if (!empty($info['Country']) && !empty($info['Country Code']))
+            $ip = [
+                'country' => $info['Country'],
+                "countryCode" => $info['Country Code']
+            ];
+        else 
+            $ip = SystemMonitor::fetchIPInfo(SystemMonitor::getIPByUUID($uuid));
+        
         ksort($info);
         $this->assign("latest", $latest);
         $this->assign("info", $info);
