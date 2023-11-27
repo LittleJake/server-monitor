@@ -43,11 +43,13 @@
             </div>
             <div class="mdui-col-xs-12 mdui-col-md-6">
                 <h4>{:lang("Process")}</h4>
-                <p>{$info['Process']}</p>
+                <p>{$info['Process']|default="N/A"}</p>
                 <h4>{:lang("Connection")}</h4>
-                <p>{$info['Connection']}</p>
+                <p>{$info['Connection']|default="N/A"}</p>
+                <h4>{:lang("Throughput")}</h4>
+                <p>{$info['Throughput']|default="Undefined"}</p>
                 <h4>{:lang("Uptime")}</h4>
-                <p>{$info['Uptime']}</p>
+                <p>{$info['Uptime']|default="N/A"}</p>
                 <h4>{:lang("Country")}</h4>
                 <p class="mdui-valign"><span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip['countryCode'])?'none':strtolower($ip['countryCode'])}"></span>{$ip['country']}</p>
             </div>
@@ -177,7 +179,7 @@
                 title: {text:"Network RX & TX", left: 'center'},
                 tooltip: {trigger: 'axis', axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}},
                 legend: {bottom: 50, data: ['RX Packets (k)', 'RX Throughput (MB)', 'TX Packets (k)', 'TX Throughput (MB)',]},
-                grid: [{height: '30%'}, {top: '45%', height: '30%'}],
+                grid: [{height: '60%'}, {height: '60%'}],
                 axisPointer: {link: {xAxisIndex: 'all'}},
                 dataZoom: [{show: true, realtime: true, start: 70, end: 100, xAxisIndex: [0, 1]}, {type: 'inside', realtime: true, start: 70, end: 100, xAxisIndex: [0, 1]}],
                 xAxis: [
@@ -187,19 +189,24 @@
                 yAxis: [{
                     type: 'value',
                     name: 'Packets',
-                    axisLabel: {formatter: '{value} k'}
+                    axisLabel: {formatter: '{value} k'},
+                    position: 'right',
+                    axisLine: {show: true},
+                    splitLine: {show: false},
                 }, {
                     gridIndex: 1,
                     type: 'value',
                     name: 'Throughput',
                     axisLabel: {formatter: '{value} MB'},
-                    inverse: true
+                    position: 'left',
+                    axisLine: {show: true},
+                    splitLine: {show: false},
                 }],
                 series: [
-                    {name: 'RX Packets (k)',symbol: 'none', type: 'line', areaStyle: {}, data: e.RX.packets},
-                    {name: 'TX Packets (k)',symbol: 'none', type: 'line', areaStyle: {}, data: e.TX.packets},
-                    {name: 'RX Throughput (MB)',symbol: 'none', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.RX.megabytes},
-                    {name: 'TX Throughput (MB)',symbol: 'none', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.TX.megabytes},
+                    {name: 'RX Packets (k)',symbol: 'none', type: 'line', areaStyle: {}, data: e.RX.packets,},
+                    {name: 'TX Packets (k)',symbol: 'none', type: 'line', areaStyle: {}, data: e.TX.packets,},
+                    {name: 'RX Throughput (MB)',symbol: 'none', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.RX.megabytes,},
+                    {name: 'TX Throughput (MB)',symbol: 'none', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.TX.megabytes,},
                 ]
             };
 
@@ -220,7 +227,7 @@
                 xAxis: {type: 'category', boundaryGap: false, data: e.time},
                 yAxis: {
                     type: 'value',
-                    axisLabel: {formatter: '{value} MB'}
+                    axisLabel: {formatter: '{value} MB'},
                 },
                 dataZoom: [{type: 'inside', start: 70, end: 100}, {
                     start: 90, end: 100, handleSize: '80%',
@@ -254,7 +261,7 @@
                 xAxis: {type: 'category', boundaryGap: false, data: e.time},
                 yAxis: {
                     type: 'value',
-                    axisLabel: {formatter: '{value} MB'}
+                    axisLabel: {formatter: '{value} MB'},
                 },
                 dataZoom: [{type: 'inside', start: 70, end: 100}, {
                     start: 90, end: 100, handleSize: '80%',
@@ -341,7 +348,7 @@
             Object.keys(e.value).forEach(function(k){
                 option.series.push({
                     name: k, type: 'line', smooth: true, symbol: 'none', sampling: 'average',
-                    areaStyle: {}, data: e.value[k]
+                    areaStyle: {}, data: e.value[k],
                 });
             });
             
