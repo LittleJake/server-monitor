@@ -1,4 +1,5 @@
 <?php
+
 namespace app\index\controller;
 
 use app\common\lib\SystemMonitor;
@@ -9,7 +10,7 @@ class Index extends Base
 {
     protected $middleware = [
         'FlowControl',
-        'CheckUUID' => ['only'=> ['info']]
+        'CheckUUID' => ['only' => ['info']]
     ];
 
     public function index()
@@ -19,15 +20,24 @@ class Index extends Base
         $uuids_online = [];
         $uuids_offline = [];
         $time = time();
-        
+
         foreach ($uuids as $uuid => $ip) {
             $uuid_temp = [
-                'IP' => SystemMonitor::fetchIPInfo($ip),
+                'IP' => [],
                 'INFO' => SystemMonitor::getInfo($uuid)
             ];
             if (empty($uuid_temp['INFO'])) continue;
-            if (empty($uuid_temp["IP"]['countryCode']))
-                $uuid_temp["IP"]["country"] = "Private";
+
+            if (!empty($uuid_temp['INFO']['Country']) && !empty($uuid_temp['INFO']['Country Code']))
+                $uuid_temp['IP'] = [
+                    'country' => $uuid_temp['INFO']['Country'],
+                    "countryCode" => $uuid_temp['INFO']['Country Code']
+                ];
+            else {
+                $uuid_temp['IP'] = SystemMonitor::fetchIPInfo($ip);
+                if (empty($uuid_temp["IP"]['countryCode']))
+                    $uuid_temp["IP"]["country"] = "Private";
+            }
 
             if (($time - intval($uuid_temp['INFO']['Update Time'])) > 500)
                 $uuids_offline[$uuid] = $uuid_temp;
@@ -42,7 +52,8 @@ class Index extends Base
         return $this->fetch();
     }
 
-    public function info($uuid = ''){
+    public function info($uuid = '')
+    {
         $latest = json_decode(SystemMonitor::getLatest($uuid), TRUE);
         $info = SystemMonitor::getInfo($uuid);
         // $uptime_str = SystemMonitor::timeFormat(intval($info['Uptime']));
@@ -52,7 +63,7 @@ class Index extends Base
         $this->assign("info", $info);
         $this->assign("uuid", $uuid);
         $this->assign("ip", $ip);
-        if($this->request->isAjax())
+        if ($this->request->isAjax())
             return $this->fetch("index/info_ajax");
 
         return $this->fetch();

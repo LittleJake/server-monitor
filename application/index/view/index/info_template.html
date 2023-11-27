@@ -43,11 +43,13 @@
             </div>
             <div class="mdui-col-xs-12 mdui-col-md-6">
                 <h4>{:lang("Process")}</h4>
-                <p>{$info['Process']}</p>
+                <p>{$info['Process']|default="N/A"}</p>
                 <h4>{:lang("Connection")}</h4>
-                <p>{$info['Connection']}</p>
+                <p>{$info['Connection']|default="N/A"}</p>
+                <h4>{:lang("Throughput")}</h4>
+                <p>{$info['Throughput']|default="Undefined"}</p>
                 <h4>{:lang("Uptime")}</h4>
-                <p>{$info['Uptime']}</p>
+                <p>{$info['Uptime']|default="N/A"}</p>
                 <h4>{:lang("Country")}</h4>
                 <p class="mdui-valign"><span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip['countryCode'])?'none':strtolower($ip['countryCode'])}"></span>{$ip['country']}</p>
             </div>
