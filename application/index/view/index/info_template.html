@@ -283,9 +283,7 @@
             ctx_mem = echarts.init(document.getElementById('memory-collection'), null, {height: window.innerHeight * 0.5});
             ctx_mem.setOption(option);
         },
-        error: function () {
-            document.getElementById('memory-collection').innerHTML="Fail to load memory data.";
-        }
+        error: function () {document.getElementById('memory-collection').parentNode.innerHTML="Fail to load memory data.";}
     });
     $.ajax({
         url: "{:url('api/cpu/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
@@ -355,7 +353,7 @@
             ctx_thermal = echarts.init(document.getElementById('thermal-collection'), null, {height: window.innerHeight * 0.5});
             ctx_thermal.setOption(option);
         },
-        error: function () {document.getElementById('thermal-collection').innerHTML="Fail to load sensor data.";}
+        error: function () {document.getElementById('thermal-collection').parentNode.innerHTML="Fail to load sensor data.";}
     });
     window.onresize = function() {
         ctx_cpu && ctx_cpu.resize();

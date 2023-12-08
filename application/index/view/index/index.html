@@ -40,9 +40,9 @@
                 {volist name="uuids_online" id="v"}
                 {if !isset($hide[$key])}
                 {if(!empty($v['INFO']))}
-                <div class="mdui-list-item mdui-ripple mdui-p-l-2">
+                <div class="mdui-list-item mdui-ripple mdui-p-l-2 ajax-load" data-href="{:url('index/index/info',['uuid'=>$key])}">
                     <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($v['IP']['countryCode'])?'none':strtolower($v['IP']['countryCode'])}"></span>
-                    <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['uuid'=>$key])}">
+                    <div class="mdui-list-item-content">
                         <div class="mdui-list-item-title">
                             {$v['INFO']['IPV4']}
                         </div>
@@ -67,9 +67,9 @@
                 {volist name="uuids_offline" id="v"}
                 {if !isset($hide[$key])}
                 {if(!empty($v['INFO']))}
-                <div class="mdui-list-item mdui-ripple mdui-p-l-2">
+                <div class="mdui-list-item mdui-ripple mdui-p-l-2 ajax-load" data-href="{:url('index/index/info',['uuid'=>$key])}">
                     <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($v['IP']['countryCode'])?'none':strtolower($v['IP']['countryCode'])}"></span>
-                    <div class="mdui-list-item-content ajax-load" data-href="{:url('index/index/info',['uuid'=>$key])}">
+                    <div class="mdui-list-item-content">
                         <div class="mdui-list-item-title">
                             {$v['INFO']['IPV4']}
                         </div>
@@ -111,30 +111,32 @@
 <script>
     function refresh() {
         url = $('#refresh').attr("data-src");
-        if(url)
+        if(url) {
+            $('#loading').removeClass("mdui-hidden");
             $.ajax({
                 'url': url,
-                'success': function(data){$('#ajax').html(data);mdui.mutation();},
+                'success': function(data){$('#ajax').html(data);mdui.mutation();$('#loading').addClass("mdui-hidden");},
                 'error': function(data, status, e){mdui.snackbar({message: e});}
             })
-
+        }
     }
 
     $('.ajax-load').on('click',function () {
         var url = $(this).attr('data-href'), drawer = new mdui.Drawer('#drawer', {swipe: true});
         $('#loading').removeClass("mdui-hidden");
+        $('.mdui-list-item-active').removeClass('mdui-list-item-active');
         $.ajax({
             'url': url,
             'success': function(data){
                 $('#loading').addClass("mdui-hidden");
                 $('#ajax').html(data);
-                drawer.close();
                 mdui.mutation();
                 $('#refresh').attr("data-src", url);
             },
-            'error': function () {window.location = url;}
+            'error': function (data, status, e){mdui.snackbar({message: e});window.location = url;}
         });
-
+        
+        $(this).addClass('mdui-list-item-active');
         $('#refresh').on('click', function () {refresh()});
     })
 </script>
