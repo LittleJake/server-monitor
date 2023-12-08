@@ -162,18 +162,29 @@ class SystemMonitor
     }
 
     static public function diskFormat($data){
-        $k = [];
-        $v = [];
+        $time = [];
+        $value = [];
+        
+        //in case of missing mounting point periodically.
+        $mount_points = [];
+        foreach ($data as $kk => $_)
+            $mount_points = array_unique(array_merge($mount_points, array_keys(json_decode($kk, true)['Disk'])));
 
-        foreach ($data as $kk => $vv){
-            $k[] = date('m-d H:i',$vv);
-            foreach (json_decode($kk, true)['Disk'] as $kkk => $vvv)
-                $v[$kkk][] = $vvv['used'];
+        foreach ($data as $kk => $date){
+            $time[] = date('m-d H:i',$date);
+            $json = json_decode($kk, true);
+
+            foreach ($mount_points as $_ => $mount_point){
+                if (empty($json['Disk'][$mount_point]))
+                    $value[$mount_point][] = 0;  
+                else
+                    $value[$mount_point][] = $json['Disk'][$mount_point]['used'];  
+            }
         }
 
         return [
-            'time' => $k,
-            'value' => $v
+            'time' => $time,
+            'value' => $value
         ];
     }
 
