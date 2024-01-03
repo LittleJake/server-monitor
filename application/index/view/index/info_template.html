@@ -50,7 +50,7 @@
                 <p>{$info['Throughput']|default="Undefined"}</p>
                 <h4>{:lang("Uptime")}</h4>
                 <p>{$info['Uptime']|default="N/A"}</p>
-                <h4>{:lang("Country")}</h4>
+                <h4>{:lang("Country/Region")}</h4>
                 <p class="mdui-valign"><span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip['countryCode'])?'none':strtolower($ip['countryCode'])}"></span>{$ip['country']}</p>
             </div>
         </div>
