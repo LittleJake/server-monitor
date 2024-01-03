@@ -18,8 +18,9 @@ class Index extends Base
         $uuids = SystemMonitor::getUUIDs();
         $ip = SystemMonitor::fetchIPInfo(array_values($uuids));
         $hide = array_flip(SystemMonitor::getHide());
-
+        $names = SystemMonitor::getDisplayName(array_keys($uuids));
         asort($uuids);
+        $this->assign("names", $names);
         $this->assign("uuids", $uuids);
         $this->assign("hide", $hide);
         $this->assign("ip", $ip);

@@ -43,6 +43,8 @@ class Index extends Base
         }
         $uuids_online = SystemMonitor::sortByCountry($uuids_online);
         $uuids_offline = SystemMonitor::sortByCountry($uuids_offline);
+        $names = SystemMonitor::getDisplayName(array_keys($uuids));
+        $this->assign("names", $names);
         $this->assign("uuids_online", $uuids_online);
         $this->assign("uuids_offline", $uuids_offline);
         $this->assign("hide", $hide);
@@ -54,7 +56,6 @@ class Index extends Base
         $latest = json_decode(SystemMonitor::getLatest($uuid), TRUE);
         $info = SystemMonitor::getInfo($uuid);
         // $uptime_str = SystemMonitor::timeFormat(intval($info['Uptime']));
-        $ip = SystemMonitor::fetchIPInfo(SystemMonitor::getIPByUUID($uuid));
         if (!empty($info['Country']) && !empty($info['Country Code']))
             $ip = [
                 'country' => $info['Country'],
