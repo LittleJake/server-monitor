@@ -2,12 +2,13 @@
     <ul class="mdui-list word-wrap">
         {volist name="uuids" id="vo"}
         <div class="mdui-list-item mdui-ripple mdui-p-l-0">
+            <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip[$vo]['countryCode'])?'none':strtolower($ip[$vo]['countryCode'])}"></span>
             <div class="mdui-list-item-content ajax-load" data-href="{:url('admin/info/index',['uuid'=>$key])}">
                 <div class="mdui-list-item-title">
-                    {$vo}
+                    {:empty($names[$key])?$vo:$names[$key]}
                 </div>
                 <div class="mdui-list-item-text mdui-list-item-one-line">
-                    {:empty($ip[$vo]['countryCode'])?"Private":$ip[$vo]['city'].", ".$ip[$vo]['countryCode']}
+                    {:empty($ip[$vo]['countryCode'])?"Private":$ip[$vo]['country']}
                 </div>
             </div>
             <div class="mdui-divide"></div>
@@ -30,9 +31,14 @@
                         <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe8b3;</i>Reset Data
                     </a>
                 </li>
+                <li class="mdui-menu-item">
+                    <a href="javascript:;" class="mdui-ripple rename" data-href="{:url('admin/info/index',['uuid'=>$key])}">
+                        <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe3c9;</i>Rename
+                    </a>
+                </li>
                 <li class="mdui-divider"></li>
                 <li class="mdui-menu-item">
-                    <a href="javascript:;" class="mdui-ripple delete" data-href="{:url('admin/info/index',['uuid'=>$key])}">
+                    <a href="javascript:;" class="mdui-ripple delete" data-ip="{$vo}" data-href="{:url('admin/info/index',['uuid'=>$key])}">
                         <i class="mdui-menu-item-icon mdui-icon material-icons">delete</i>Remove
                     </a>
                 </li>

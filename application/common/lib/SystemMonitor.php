@@ -264,6 +264,24 @@ class SystemMonitor
         Cache::rm("system_monitor:hide");
     }
 
+    static public function setDisplayName($uuid, $name){
+        if (!empty($name))
+            Cache::store('redis')->handler()
+                ->hSet("system_monitor:name", $uuid, $name);
+        else
+            Cache::store('redis')->handler()
+                ->hDel("system_monitor:name", $uuid);
+    }
+
+    static public function getDisplayName($uuid){
+        $name = [];
+        $uuids = is_array($uuid)?$uuid:[$uuid];
+        foreach ($uuids as $u){
+            $name[$u] = Cache::store('redis')->handler()->hGet("system_monitor:name", $u);
+            if(!is_array($uuid)) return $name[$u];
+        }
+        return $name;
+    }
     static public function UUIDIsDisplay($uuid){
         if(!Cache::has("system_monitor:hide")){
             $data = Cache::store('redis')->handler()

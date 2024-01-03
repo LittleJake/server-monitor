@@ -44,13 +44,29 @@
 <script>
     $('.delete').on('click', function(){
         var parent = $(this.parentNode.parentNode.parentNode), btn = $(this);
-        $.ajax({
-            'url': btn.attr("data-href"), 'type': 'DELETE', 'data': {},
-            'success': function (resp) {
-                mdui.snackbar({message: 'Node deleted.', position: 'bottom'});parent.addClass("mdui-hidden");
-            },
-            'error': function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'})}
+        mdui.confirm("Are you sure to delete node: "+btn.attr("data-ip")+"?", function(){
+            $.ajax({
+                'url': btn.attr("data-href"), 'type': 'DELETE', 'data': {},
+                'success': function (resp) {
+                    mdui.snackbar({message: 'Node deleted.', position: 'bottom'});parent.addClass("mdui-hidden");
+                },
+                'error': function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'})}
+            });
         });
+    });
+    $('.rename').on('click', function(){
+        var parent = $(this.parentNode.parentNode.parentNode), btn = $(this);
+        mdui.prompt('Renaming node',
+            function (value){
+                $.ajax({
+                    'url': btn.attr("data-href"), 'type': 'PATCH', 'data': {'rename': value},
+                    'success': function (resp) {
+                        mdui.snackbar({message: 'Node renamed.', position: 'bottom'});
+                    },
+                    'error': function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'})}
+                });
+            }
+        );
     });
     $('.switch').on('click', function(){
         var message = 'Hide.', btn = $(this), display = this.checked;
