@@ -25,4 +25,7 @@ Route::any('admin/','admin/index/index');
 Route::rule('admin/login','admin/index/login', 'GET|POST');
 Route::rule('admin/logout','admin/index/logout', 'GET');
 
+
+Route::rule('/manifest.json','index/index/manifest', 'GET');
+
 return [];

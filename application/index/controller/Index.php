@@ -74,4 +74,27 @@ class Index extends Base
 
         return $this->fetch();
     }
+
+    public function manifest(){
+        $manifest = [
+            "short_name"=> "Monitor",
+            "name" => "Server Monitor",
+            "icons" => [[
+                "src"=> "/static/images/icons-192.png",
+                "type"=> "image/png",
+                "sizes"=>"192x192"
+            ],[
+                "src"=> "/static/images/icons-512.png",
+                "type"=> "image/png",
+                "sizes"=> "512x512"
+            ]],
+            "start_url"=> "/?source=pwa",
+            "background_color"=> "#3F51B5",
+            "display"=> "standalone",
+            "scope"=> "/",
+            "theme_color"=> "#3F51B5"
+        ];
+
+        return json($manifest);
+    }
 }
