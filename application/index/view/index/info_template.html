@@ -174,6 +174,7 @@
 
     $.ajax({
         url: "{:url('api/network/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
+        async: true,
         success: function(e){
             let option = {
                 title: {text:"Network RX & TX", left: 'center'},
@@ -220,6 +221,7 @@
     
     $.ajax({
         url: "{:url('api/disk/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
+        async: true,
         success: function(e){
             let option = {
                 tooltip: {trigger: 'axis'},
@@ -254,6 +256,7 @@
 
     $.ajax({
         url: "{:url('api/memory/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
+        async: true,
         success: function(e){
             let option = {
                 tooltip: {trigger: 'axis'},
@@ -287,6 +290,7 @@
     });
     $.ajax({
         url: "{:url('api/cpu/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
+        async: true,
         success: function(e){
             let option = {
                 tooltip: {trigger: 'axis'},
@@ -319,6 +323,7 @@
 
     $.ajax({
         url: "{:url('api/thermal/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
+        async: true,
         success: function(e){
             if (e.value.length === 0){
                 document.getElementById('thermal-collection').innerHTML="No Sensor Available.";

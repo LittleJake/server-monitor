@@ -110,14 +110,18 @@
 </div>
 {include file='index@index/js_template' /}
 <script>
+    var refreshLock = false;
     function refresh() {
         url = $('#refresh').attr("data-src");
-        if(url) {
+        if(url && !refreshLock) {
+            refreshLock = true;
             $('#loading').removeClass("mdui-hidden");
             $.ajax({
-                'url': url,
-                'success': function(data){$('#ajax').html(data);mdui.mutation();$('#loading').addClass("mdui-hidden");},
-                'error': function(data, status, e){mdui.snackbar({message: e});}
+                url: url,
+                async: true,
+                success: function(data){$('#ajax').html(data);mdui.mutation();$('#loading').addClass("mdui-hidden");},
+                error: function(data, status, e){mdui.snackbar({message: e});},
+                complete: function(){refreshLock = false;}
             })
         }
     }
@@ -127,14 +131,14 @@
         $('#loading').removeClass("mdui-hidden");
         $('.mdui-list-item-active').removeClass('mdui-list-item-active');
         $.ajax({
-            'url': url,
-            'success': function(data){
+            url: url,
+            success: function(data){
                 $('#loading').addClass("mdui-hidden");
                 $('#ajax').html(data);
                 mdui.mutation();
                 $('#refresh').attr("data-src", url);
             },
-            'error': function (data, status, e){mdui.snackbar({message: e});window.location = url;}
+            error: function (data, status, e){mdui.snackbar({message: e});window.location = url;}
         });
         
         $(this).addClass('mdui-list-item-active');
