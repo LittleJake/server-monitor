@@ -60,15 +60,13 @@
     $('#submit').on('click', function () {
         if(checkForm())
             $.ajax({
-                'type': 'POST',
-                'data': {
+                type: 'POST',
+                data: {
                     'g-recaptcha-response': $('textarea[name="g-recaptcha-response"]').val(),
                     'token': $('input[name="token"]').val()
                 },
-                'success': function (resp) {window.location = "{:url('admin/index/index')}";},
-                'error': function (data) {
-                    mdui.alert("HTTP"+data.status+" - "+data.responseJSON.message);grecaptcha.reset();
-                }
+                success: function (resp) {window.location = "{:url('admin/index/index')}";},
+                error: function (data) {mdui.alert("HTTP"+data.status+" - "+data.responseJSON.message);grecaptcha.reset();}
             })
     });
 </script>
