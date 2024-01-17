@@ -62,7 +62,7 @@ MDUI
 
 ThinkPHP
 
-ipapi.co
+ip-api.com
 
 ### Sponsors
 
