@@ -1,6 +1,23 @@
 <style>
-    .line {margin: 20px;height: 8px;position: relative;}
-    .graph {overflow: visible;}
+    .line {
+        margin: 20px;
+        height: 8px;
+        position: relative;
+    }
+
+    .icon {
+        background-size: contain;
+        background-position: 50%;
+        background-repeat: no-repeat;
+        position: relative;
+        display: inline-block;
+        width: 1.33333333em;
+        line-height: 1em;
+    }
+
+    .graph {
+        overflow: visible;
+    }
 </style>
 <script>
     function load_icon(name,url,color) {
@@ -11,7 +28,7 @@
             success: function(res){
                 $(".icon-"+name).html(res);
                 $(".icon-"+name+">svg").css("fill", color);
-                $(".icon-"+name+">svg").addClass("mdui-list-item-icon");
+                $(".icon-"+name+">svg").addClass("icon");
             }
         });
     }
