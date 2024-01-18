@@ -4,6 +4,8 @@ namespace app\admin\controller;
 
 use app\admin\validate\LoginTokenValidate;
 use app\common\lib\SystemMonitor;
+use think\facade\Request;
+
 class Index extends Base
 {
     /**
@@ -15,15 +17,19 @@ class Index extends Base
     {
         if (!session('?is_login'))
             $this->redirect('admin/index/login');
+
         $uuids = SystemMonitor::getUUIDs();
-        $ip = SystemMonitor::fetchIPInfo(array_values($uuids));
+        $data = SystemMonitor::getInfo(array_keys($uuids));
         $hide = array_flip(SystemMonitor::getHide());
         $names = SystemMonitor::getDisplayName(array_keys($uuids));
         asort($uuids);
         $this->assign("names", $names);
         $this->assign("uuids", $uuids);
         $this->assign("hide", $hide);
-        $this->assign("ip", $ip);
+        $this->assign("data", $data);
+
+        if(Request::isAjax())
+            return  $this->fetch('index_ajax');
         return $this->fetch();
     }
 

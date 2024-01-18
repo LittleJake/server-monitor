@@ -3,7 +3,6 @@
 namespace app\index\controller;
 
 use app\common\lib\SystemMonitor;
-use think\Facade\Log;
 
 
 class Index extends Base
@@ -17,36 +16,13 @@ class Index extends Base
     {
         $uuids = SystemMonitor::getUUIDs();
         $hide = array_flip(SystemMonitor::getHide());
-        $uuids_online = [];
-        $uuids_offline = [];
-        $time = time();
-
-        foreach ($uuids as $uuid => $ip) {
-            $uuid_temp = [
-                'IP' => [],
-                'INFO' => SystemMonitor::getInfo($uuid)
-            ];
-            if (empty($uuid_temp['INFO'])) continue;
-
-            if (!empty($uuid_temp['INFO']['Country']) && !empty($uuid_temp['INFO']['Country Code']))
-                $uuid_temp['IP'] = [
-                    'country' => $uuid_temp['INFO']['Country'],
-                    "countryCode" => $uuid_temp['INFO']['Country Code']
-                ];
-            else 
-                $uuid_temp['IP'] = SystemMonitor::fetchIPInfo($ip);
-            
-            if (($time - intval($uuid_temp['INFO']['Update Time'])) > 500)
-                $uuids_offline[$uuid] = $uuid_temp;
-            else
-                $uuids_online[$uuid] = $uuid_temp;
-        }
-        $uuids_online = SystemMonitor::sortByCountry($uuids_online);
-        $uuids_offline = SystemMonitor::sortByCountry($uuids_offline);
+        $online = SystemMonitor::sortByCountry(SystemMonitor::getOnline());
+        $offline = SystemMonitor::sortByCountry(SystemMonitor::getOffline());
         $names = SystemMonitor::getDisplayName(array_keys($uuids));
+
         $this->assign("names", $names);
-        $this->assign("uuids_online", $uuids_online);
-        $this->assign("uuids_offline", $uuids_offline);
+        $this->assign("online", $online);
+        $this->assign("offline", $offline);
         $this->assign("hide", $hide);
         return $this->fetch();
     }
@@ -56,25 +32,33 @@ class Index extends Base
         $latest = json_decode(SystemMonitor::getLatest($uuid), TRUE);
         $info = SystemMonitor::getInfo($uuid);
         // $uptime_str = SystemMonitor::timeFormat(intval($info['Uptime']));
-        if (!empty($info['Country']) && !empty($info['Country Code']))
-            $ip = [
-                'country' => $info['Country'],
-                "countryCode" => $info['Country Code']
-            ];
-        else 
-            $ip = SystemMonitor::fetchIPInfo(SystemMonitor::getIPByUUID($uuid));
-        
+
         ksort($info);
         $this->assign("latest", $latest);
         $this->assign("info", $info);
         $this->assign("uuid", $uuid);
-        $this->assign("ip", $ip);
         if ($this->request->isAjax())
             return $this->fetch("index/info_ajax");
 
         return $this->fetch();
     }
+    public function list()
+    {
+        $uuids = SystemMonitor::getUUIDs();
+        $hide = array_flip(SystemMonitor::getHide());
+        $online = SystemMonitor::sortByCountry(SystemMonitor::getOnline());
+        $offline = SystemMonitor::sortByCountry(SystemMonitor::getOffline());
+        $names = SystemMonitor::getDisplayName(array_keys($uuids));
 
+        $this->assign("names", $names);
+        $this->assign("online", $online);
+        $this->assign("offline", $offline);
+        $this->assign("hide", $hide);
+        
+        if ($this->request->isAjax())
+            return $this->fetch("index/list_ajax");
+        return $this->fetch();
+    }
     public function manifest(){
         $manifest = [
             "short_name"=> "Monitor",
