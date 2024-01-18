@@ -35,7 +35,7 @@ class Token extends Command
                     $str = "0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ";
                     $token = '';
                     for($i = 128;$i;$i--)
-                        $token .= substr($str, rand(0,strlen($str)-1), 1);
+                        $token .= substr($str, random_int(0,strlen($str)-1), 1);
 
                     $node_token[$uuid] = $token;
 
