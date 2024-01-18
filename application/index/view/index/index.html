@@ -31,29 +31,31 @@
 </div>
 <div class="mdui-drawer" id="drawer">
     <div class="mdui-list" mdui-collapse="{accordion: false}">
+        <div class="mdui-list-item mdui-ripple mdui-p-l-2 ajax-load" data-href="{:url('index/index/list')}">
+            <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-theme">&#xe8ef;</i>
+            <div class="mdui-list-item-content">{:lang("Server List")}</div>
+        </div>
         <div class="mdui-collapse-item">
             <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
                 <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-theme">&#xe30a;</i>
-                <div class="mdui-list-item-content">{:lang("Online")} ({:count($uuids_online)})</div>
+                <div class="mdui-list-item-content">{:lang("Online")} ({:count($online)})</div>
                 <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
             </div>
             <div class="mdui-collapse-item-body mdui-list">
-                {volist name="uuids_online" id="v"}
+                {volist name="online" id="v"}
                 {if !isset($hide[$key])}
-                {if(!empty($v['INFO']))}
                 <div class="mdui-list-item mdui-ripple mdui-p-l-2 ajax-load" data-href="{:url('index/index/info',['uuid'=>$key])}">
-                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($v['IP']['countryCode'])?'none':strtolower($v['IP']['countryCode'])}"></span>
+                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($v['Country Code'])?'none':strtolower($v['Country Code'])}"></span>
                     <div class="mdui-list-item-content">
                         <div class="mdui-list-item-title">
-                            {:empty($names[$key])?$v['INFO']['IPV4']:$names[$key]}
+                            {:empty($names[$key])?$v['IPV4']:$names[$key]}
                         </div>
                         <div class="mdui-list-item-text mdui-list-item-one-line">
-                            {$v['IP']['country']}
+                            {$v['Country']}
                         </div>
                     </div>
                     <i class="mdui-icon material-icons mdui-text-color-green">&#xe2bf;</i>
                 </div>
-                {/if}
                 {/if}
                 {/volist}
             </div>
@@ -61,26 +63,24 @@
         <div class="mdui-collapse-item">
             <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
                 <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-theme-accent">&#xe30a;</i>
-                <div class="mdui-list-item-content">{:lang("Offline")} ({:count($uuids_offline)})</div>
+                <div class="mdui-list-item-content">{:lang("Offline")} ({:count($offline)})</div>
                 <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
             </div>
             <div class="mdui-collapse-item-body mdui-list">
-                {volist name="uuids_offline" id="v"}
+                {volist name="offline" id="v"}
                 {if !isset($hide[$key])}
-                {if(!empty($v['INFO']))}
                 <div class="mdui-list-item mdui-ripple mdui-p-l-2 ajax-load" data-href="{:url('index/index/info',['uuid'=>$key])}">
-                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($v['IP']['countryCode'])?'none':strtolower($v['IP']['countryCode'])}"></span>
+                    <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($v['Country Code'])?'none':strtolower($v['Country Code'])}"></span>
                     <div class="mdui-list-item-content">
                         <div class="mdui-list-item-title">
-                            {:empty($names[$key])?$v['INFO']['IPV4']:$names[$key]}
+                            {:empty($names[$key])?$v['IPV4']:$names[$key]}
                         </div>
                         <div class="mdui-list-item-text mdui-list-item-one-line">
-                            {$v['IP']['country']|default="Unknown"}
+                            {$v['Country']|default="Unknown"}
                         </div>
                     </div>
                     <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>
                 </div>
-                {/if}
                 {/if}
                 {/volist}
             </div>

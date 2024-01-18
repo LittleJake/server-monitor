@@ -16,7 +16,7 @@ class Info extends Base
 
         if ($this->request->isPatch()){
             if (!empty($this->request->patch('display')))
-                SystemMonitor::setDisplay($uuid, $this->request->patch('display'));
+                SystemMonitor::setHide($uuid, $this->request->patch('display'));
             if (!empty($this->request->patch('rename')))
                 SystemMonitor::setDisplayName($uuid, $this->request->patch('rename'));
             return json(['status' => 200, 'message' => "ok"]);
