@@ -45,7 +45,16 @@ class Index extends Base
     public function list()
     {
         $uuids = SystemMonitor::getUUIDs();
-        //TODO
+        $hide = array_flip(SystemMonitor::getHide());
+        $online = SystemMonitor::sortByCountry(SystemMonitor::getOnline());
+        $offline = SystemMonitor::sortByCountry(SystemMonitor::getOffline());
+        $names = SystemMonitor::getDisplayName(array_keys($uuids));
+
+        $this->assign("names", $names);
+        $this->assign("online", $online);
+        $this->assign("offline", $offline);
+        $this->assign("hide", $hide);
+        
         if ($this->request->isAjax())
             return $this->fetch("index/list_ajax");
         return $this->fetch();

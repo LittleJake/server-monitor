@@ -1,17 +1,34 @@
 <style>
-    .line {margin: 20px;height: 8px;position: relative;}
-    .graph {overflow: visible;}
+    .line {
+        margin: 20px;
+        height: 8px;
+        position: relative;
+    }
+
+    .icon {
+        background-size: contain;
+        background-position: 50%;
+        background-repeat: no-repeat;
+        position: relative;
+        display: inline-block;
+        width: 1.33333333em;
+        line-height: 1em;
+    }
+
+    .graph {
+        overflow: visible;
+    }
 </style>
 <script>
-    function load_icon(name,url,color) {
+    function load_icon(name, url, color) {
         $.ajax({
             url: url,
             type: "GET",
             dataType: "text",
-            success: function(res){
-                $(".icon-"+name).html(res);
-                $(".icon-"+name+">svg").css("fill", color);
-                $(".icon-"+name+">svg").addClass("mdui-list-item-icon");
+            success: function (res) {
+                $(".icon-" + name).html(res);
+                $(".icon-" + name + ">svg").css("fill", color);
+                $(".icon-" + name + ">svg").addClass("icon");
             }
         });
     }
@@ -24,7 +41,78 @@
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body mdui-typo">
-            
+            <div class="mdui-table-fluid">
+                <table class="mdui-table">
+                    <thead>
+                        <tr>
+                            <th>{:lang("Status")}</th>
+                            <th>{:lang("Country/Region")}</th>
+                            <th>{:lang("Name")}</th>
+                            <th>{:lang("OS")}</th>
+                            <th>{:lang("Uptime")}</th>
+                            <th>{:lang("Throughput")}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {volist name="online" id="v"}
+                        {if !isset($hide[$key])}
+                        <tr>
+                            <td>
+                                <i class="mdui-icon material-icons mdui-text-color-green">&#xe2bf;</i>
+                            </td>
+                            <td>
+                                <span
+                                    class="flag-icon flag-icon-{:empty($v['Country Code'])?'none':strtolower($v['Country Code'])}"></span>
+                                {$v['Country Code']|default="Unknown"}
+                            </td>
+                            <td>
+                                {:empty($names[$key])?$v['IPV4']:$names[$key]}
+                            </td>
+                            <td>
+                                <?php $icon = getIcon($v['System Version']) ?>
+                                <span class="icon-{$icon[0]}"></span>
+                                <script>load_icon('{$icon[0]}', '{$icon[1]}', '{$icon[2]}')</script>
+                            </td>
+                            <td>
+                                {$v['Uptime']|default="N/A"}
+                            </td>
+                            <td>
+                                {$v['Throughput']|default="Undefined"}
+                            </td>
+                        </tr>
+                        {/if}
+                        {/volist}
+                        {volist name="offline" id="v"}
+                        {if !isset($hide[$key])}
+                        <tr>
+                            <td>
+                                <i class="mdui-icon material-icons mdui-text-color-red">&#xe2c1;</i>
+                            </td>
+                            <td>
+                                <span
+                                    class="flag-icon flag-icon-{:empty($v['Country Code'])?'none':strtolower($v['Country Code'])}"></span>
+                                {$v['Country Code']|default="Unknown"}
+                            </td>
+                            <td>
+                                {:empty($names[$key])?$v['IPV4']:$names[$key]}
+                            </td>
+                            <td>
+                                <?php $icon = getIcon($v['System Version']) ?>
+                                <span class="icon-{$icon[0]}"></span>
+                                <script>load_icon('{$icon[0]}', '{$icon[1]}', '{$icon[2]}')</script>
+                            </td>
+                            <td>
+                                {$v['Uptime']|default="N/A"}
+                            </td>
+                            <td>
+                                {$v['Throughput']|default="Undefined"}
+                            </td>
+                        </tr>
+                        {/if}
+                        {/volist}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
