@@ -51,7 +51,7 @@
                 <h4>{:lang("Uptime")}</h4>
                 <p>{$info['Uptime']|default="N/A"}</p>
                 <h4>{:lang("Country/Region")}</h4>
-                <p class="mdui-valign"><span class="mdui-list-item-icon flag-icon flag-icon-{:empty($ip['countryCode'])?'none':strtolower($ip['countryCode'])}"></span>{$ip['country']}</p>
+                <p class="mdui-valign"><span class="mdui-list-item-icon flag-icon flag-icon-{:empty($info['Country Code'])?'none':strtolower($info['Country Code'])}"></span>{$info['Country']}</p>
             </div>
         </div>
     </div>
