@@ -7,7 +7,7 @@ use think\Controller;
 use think\Exception;
 use think\Response;
 
-class Memory extends Controller
+class Battery extends Controller
 {
     protected $middleware = ['FlowControl', 'CheckUUID', 'CheckJson'];
 
@@ -20,6 +20,6 @@ class Memory extends Controller
      */
     public function get($uuid = '')
     {
-        return json(SystemMonitor::collectionFormat(SystemMonitor::getCollection($uuid), "Memory"));
+        return json(SystemMonitor::collectionFormat(SystemMonitor::getCollection($uuid), 'Battery'));
     }
 }

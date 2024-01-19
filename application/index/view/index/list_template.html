@@ -45,12 +45,11 @@
                 <table class="mdui-table">
                     <thead>
                         <tr>
-                            <th>{:lang("Status")}</th>
-                            <th>{:lang("Country/Region")}</th>
-                            <th>{:lang("Name")}</th>
+                            <th>#</th>
+                            <th>{:lang("Server Name")}</th>
                             <th>{:lang("OS")}</th>
                             <th>{:lang("Uptime")}</th>
-                            <th>{:lang("Throughput")}</th>
+                            <th class="mdui-hidden-sm-down">{:lang("Throughput")}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -62,10 +61,8 @@
                             </td>
                             <td>
                                 <span
-                                    class="flag-icon flag-icon-{:empty($v['Country Code'])?'none':strtolower($v['Country Code'])}"></span>
-                                {$v['Country Code']|default="Unknown"}
-                            </td>
-                            <td>
+                                    class="flag-icon flag-icon-{:empty($v['Country Code'])?'none':strtolower($v['Country Code'])}"
+                                    mdui-tooltip="{'content': '{$v['Country']|default=" Unknown"}'}"></span>
                                 {:empty($names[$key])?$v['IPV4']:$names[$key]}
                             </td>
                             <td>
@@ -76,7 +73,7 @@
                             <td>
                                 {$v['Uptime']|default="N/A"}
                             </td>
-                            <td>
+                            <td class="mdui-hidden-sm-down">
                                 {$v['Throughput']|default="Undefined"}
                             </td>
                         </tr>
@@ -90,10 +87,8 @@
                             </td>
                             <td>
                                 <span
-                                    class="flag-icon flag-icon-{:empty($v['Country Code'])?'none':strtolower($v['Country Code'])}"></span>
-                                {$v['Country Code']|default="Unknown"}
-                            </td>
-                            <td>
+                                    class="flag-icon flag-icon-{:empty($v['Country Code'])?'none':strtolower($v['Country Code'])}"
+                                    mdui-tooltip="{'content': '{$v['Country']|default=" Unknown"}'}"></span>
                                 {:empty($names[$key])?$v['IPV4']:$names[$key]}
                             </td>
                             <td>
@@ -104,7 +99,7 @@
                             <td>
                                 {$v['Uptime']|default="N/A"}
                             </td>
-                            <td>
+                            <td class="mdui-hidden-sm-down">
                                 {$v['Throughput']|default="Undefined"}
                             </td>
                         </tr>
