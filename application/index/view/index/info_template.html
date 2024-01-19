@@ -55,8 +55,8 @@
                 <p>{$info['IPV4']|default='None'}</p>
                 <h4>{:lang("IPV6")}</h4>
                 <p>{$info['IPV6']|default='None'}</p>
-                <h4>{:lang("Update Time")}</h4>
-                <p>{$info['Update Time']|date="Y-m-d H:i:s"}</p>
+                <h4>{:lang("Location")}</h4>
+                <p class="mdui-valign"><span class="mdui-list-item-icon flag-icon flag-icon-{:empty($info['Country Code'])?'none':strtolower($info['Country Code'])}"></span>{$info['Country']}</p>
             </div>
             <div class="mdui-col-xs-12 mdui-col-md-6">
                 <h4>{:lang("Process")}</h4>
@@ -67,8 +67,10 @@
                 <p>{$info['Throughput']|default="Undefined"}</p>
                 <h4>{:lang("Uptime")}</h4>
                 <p>{$info['Uptime']|default="N/A"}</p>
-                <h4>{:lang("Country/Region")}</h4>
-                <p class="mdui-valign"><span class="mdui-list-item-icon flag-icon flag-icon-{:empty($info['Country Code'])?'none':strtolower($info['Country Code'])}"></span>{$info['Country']}</p>
+                <h4>{:lang("Load Average")}</h4>
+                <p>{$info['Load Average']|default="N/A"}</p>
+                <h4>{:lang("Update Time")}</h4>
+                <p>{$info['Update Time']|date="Y-m-d H:i:s"}</p>
             </div>
         </div>
     </div>
@@ -161,6 +163,21 @@
         <div class="mdui-panel-item-body">
             <div class="mdui-col-xs-12">
                 <div id="thermal-collection" class="graph">
+                    <div class="mdui-spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mdui-panel-item mdui-panel-item-open">
+        <div class="mdui-panel-item-header">
+            <i class="mdui-icon material-icons" style="color: #009032;">&#xe1a5;</i>
+            <div class="mdui-panel-item-title">{:lang("Battery")}</div>
+            <div class="mdui-panel-item-summary">{:lang("Battery Sensor")}</div>
+            <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+        </div>
+        <div class="mdui-panel-item-body">
+            <div class="mdui-col-xs-12">
+                <div id="battery-collection" class="graph">
                     <div class="mdui-spinner"></div>
                 </div>
             </div>
@@ -377,11 +394,53 @@
         },
         error: function () {document.getElementById('thermal-collection').parentNode.innerHTML="Fail to load sensor data.";}
     });
+
+    
+    $.ajax({
+        url: "{:url('api/battery/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
+        async: true,
+        success: function(e){
+            if (e.value.length === 0){
+                document.getElementById('battery-collection').innerHTML="No Sensor Available.";
+                return 0;
+            }
+
+            let option = {
+                tooltip: {trigger: 'axis'},
+                title: {left: 'center', text: '{:lang("Battery Sensor")}'},
+                xAxis: {type: 'category', boundaryGap: false, data: e.time},
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {formatter: '{value} %'}
+                },
+                dataZoom: [{type: 'inside', start: 70, end: 100}, {
+                    start: 90, end: 100, handleSize: '80%',
+                    handleStyle: {
+                        color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)',
+                        shadowOffsetX: 2, shadowOffsetY: 2
+                    }}],
+                series:[],
+                legend: {top: 30}
+            };
+            
+            Object.keys(e.value).forEach(function(k){
+                option.series.push({
+                    name: k, type: 'line', smooth: true, symbol: 'none', sampling: 'average',
+                    areaStyle: {}, data: e.value[k],
+                });
+            });
+            
+            ctx_battery = echarts.init(document.getElementById('battery-collection'), null, {height: window.innerHeight * 0.5});
+            ctx_battery.setOption(option);
+        },
+        error: function () {document.getElementById('battery-collection').parentNode.innerHTML="Fail to load sensor data.";}
+    });
     window.onresize = function() {
         ctx_cpu && ctx_cpu.resize();
         ctx_disk && ctx_disk.resize();
         ctx_mem && ctx_mem.resize();
         ctx_thermal && ctx_thermal.resize();
         ctx_network && ctx_network.resize();
+        ctx_battery && ctx_battery.resize();
     };
 </script>
