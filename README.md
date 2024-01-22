@@ -1,10 +1,9 @@
 Server Monitor
 ==========
 
-<img alt="Apache 2.0" src="https://img.shields.io/badge/License-Apache2.0-green">
-<img alt="think v5.1.40" src="https://img.shields.io/packagist/php-v/topthink/think/v5.1.41">
-<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/LittleJake/server-monitor?style=social">
-<img alt="GitHub followers" src="https://img.shields.io/github/followers/LittleJake?style=social">
+<img alt="Apache 2.0" src="https://img.shields.io/badge/License-Apache2.0-green"><img alt="think v5.1.40" src="https://img.shields.io/packagist/php-v/topthink/think/v5.1.41">
+
+<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/LittleJake/server-monitor?style=social"><img alt="GitHub followers" src="https://img.shields.io/github/followers/LittleJake?style=social">
 
 基于ThinkPHP5.1的服务器监控平台，需要配合服务端python脚本，使用Redis存储相关数据。
 
@@ -139,4 +138,10 @@ php think refresh:cache
 
 Thanks for the amazing VM server provided by [DartNode](https://dartnode.com?via=1).
 
-<a href="https://dartnode.com?via=1"><img src="https://raw.githubusercontent.com/LittleJake/LittleJake/master/images/dartnode.png" width="150" align='left' ></a>
+ <a href="https://dartnode.com?via=1"><img src="https://raw.githubusercontent.com/LittleJake/LittleJake/master/images/dartnode.png" width="150"></a>
+
+Thanks for the open source project license provided by [JetBrains](https://www.jetbrains.com/).
+
+ <a href="https://www.jetbrains.com/"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="150" alt="JetBrains Logo (Main) logo."></a>
+
+
