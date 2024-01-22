@@ -21,7 +21,7 @@ class SystemMonitor
             try {
                 //For Multicast IP use TTL
                 $info[$v] = Cache::store('flag')->remember($v, function () use ($ip_without_cidr_24) {
-                    $data = json_decode(self::curl_get(self::$url . "$ip_without_cidr_24?fields=country,countryCode&lang="), true);
+                    $data = json_decode(self::curlGet(self::$url . "$ip_without_cidr_24?fields=country,countryCode&lang="), true);
                     if ($data == null) throw new Exception("Failed to query country code");
                     return $data;
                 }, 24 * 60 * 60);
@@ -102,7 +102,7 @@ class SystemMonitor
         ]);
     }
 
-    static private function curl_get($url)
+    static private function curlGet($url)
     {
         $header = ['Accept: application/json', 'User-Agent: Mozilla/5.0'];
         $curl = curl_init();
@@ -120,8 +120,8 @@ class SystemMonitor
         curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
         //设置获取的信息以文件流的形式返回，而不是直接输出。
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, TRUE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, TRUE);
         //执行命令
         $data = curl_exec($curl);
 
