@@ -17,6 +17,7 @@ Route::get('api/swap/:uuid','api/swap/get');
 Route::get('api/memory/:uuid','api/memory/get');
 Route::get('api/network/:uuid','api/network/get');
 Route::get('api/thermal/:uuid','api/thermal/get');
+Route::get('api/battery/:uuid','api/battery/get');
 Route::post('api/report/collection/:uuid','api/collection/info');
 Route::post('api/report/info/:uuid','api/report/info');
 Route::post('api/report/hash/:uuid','api/report/hash');

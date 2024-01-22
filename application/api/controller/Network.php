@@ -20,6 +20,6 @@ class Network extends Controller
      */
     public function get($uuid = '')
     {
-        return json(SystemMonitor::networkFormat(SystemMonitor::getCollection($uuid)));
+        return json(SystemMonitor::collectionFormat(SystemMonitor::getCollection($uuid), "Network"));
     }
 }

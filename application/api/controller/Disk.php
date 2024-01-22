@@ -20,6 +20,6 @@ class Disk extends Controller
      */
     public function get($uuid = '')
     {
-        return json(SystemMonitor::diskFormat(SystemMonitor::getCollection($uuid)));
+        return json(SystemMonitor::collectionFormat(SystemMonitor::getCollection($uuid), 'Disk'));
     }
 }

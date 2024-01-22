@@ -21,7 +21,7 @@ class SystemMonitor
             try {
                 //For Multicast IP use TTL
                 $info[$v] = Cache::store('flag')->remember($v, function () use ($ip_without_cidr_24) {
-                    $data = json_decode(self::curl_get(self::$url . "$ip_without_cidr_24?fields=country,countryCode&lang="), true);
+                    $data = json_decode(self::curlGet(self::$url . "$ip_without_cidr_24?fields=country,countryCode&lang="), true);
                     if ($data == null) throw new Exception("Failed to query country code");
                     return $data;
                 }, 24 * 60 * 60);
@@ -102,7 +102,7 @@ class SystemMonitor
         ]);
     }
 
-    static private function curl_get($url)
+    static private function curlGet($url)
     {
         $header = ['Accept: application/json', 'User-Agent: Mozilla/5.0'];
         $curl = curl_init();
@@ -120,8 +120,8 @@ class SystemMonitor
         curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
         //设置获取的信息以文件流的形式返回，而不是直接输出。
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, TRUE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, TRUE);
         //执行命令
         $data = curl_exec($curl);
 
@@ -161,96 +161,75 @@ class SystemMonitor
 
     static public function collectionFormat($data, $name)
     {
-        $k = [];
-        $v = [];
-
-        foreach ($data as $kk => $vv) {
-            $k[] = date('m-d H:i', $vv);
-            foreach (json_decode($kk, true)[$name] as $kkk => $vvv)
-                $v[$kkk][] = $vvv;
-        }
-
-        return [
-            'time' => $k,
-            'value' => $v
-        ];
-    }
-
-    static public function diskFormat($data)
-    {
         $time = [];
         $value = [];
 
-        //in case of missing mounting point periodically.
-        $mount_points = [];
-        foreach ($data as $kk => $_)
-            $mount_points = array_unique(array_merge($mount_points, array_keys(json_decode($kk, true)['Disk'])));
+        switch (strtolower($name)) {
+            case "thermal":
+            case "battery":
+            case "load":
+                foreach ($data as $data_json => $data_time) {
+                    $sensors = json_decode($data_json, true)[$name];
+                    if (count($sensors) > 0)
+                        $time[] = date('m-d H:i', $data_time);
+                    //extract $name from collection.
+                    foreach ($sensors as $sensor => $sensor_value)
+                        $value[$sensor][] = $sensor_value;
+                }
+                break;
 
-        foreach ($data as $kk => $date) {
-            $time[] = date('m-d H:i', $date);
-            $json = json_decode($kk, true);
+            case "disk":
+            case "memory":
+                //in case of missing mounting point periodically.
+                $mount_points = [];
+                foreach ($data as $data_json => $_)
+                    $mount_points = array_unique(array_merge($mount_points, array_keys(json_decode($data_json, true)[$name])));
 
-            foreach ($mount_points as $_ => $mount_point) {
-                if (empty($json['Disk'][$mount_point]))
-                    $value[$mount_point][] = 0;
-                else
-                    $value[$mount_point][] = $json['Disk'][$mount_point]['used'];
-            }
+                foreach ($data as $data_json => $data_time) {
+                    $time[] = date('m-d H:i', $data_time);
+                    $disk_data = json_decode($data_json, true)[$name];
+
+                    foreach ($mount_points as $_ => $mount_point) {
+                        if (empty($disk_data[$mount_point]))
+                            $value[$mount_point][] = 0;
+                        else
+                            $value[$mount_point][] = $disk_data[$mount_point]['used'];
+                    }
+                }
+                break;
+            case "network":
+                $rx_packets = [];
+                $rx_megabytes = [];
+                $tx_packets = [];
+                $tx_megabytes = [];
+
+                foreach ($data as $data_json => $data_time) {
+                    $time[] = date('m-d H:i', $data_time);
+                    $network_data = json_decode($data_json, true)[$name];
+                    $rx_packets[] = (intval($network_data['RX']['packets']) * 1.0) / 1000;
+                    $tx_packets[] = (intval($network_data['TX']['packets']) * 1.0) / 1000;
+                    $rx_megabytes[] = intval(intval(intval($network_data['RX']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
+                    $tx_megabytes[] = intval(intval(intval($network_data['TX']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
+                }
+
+                return [
+                    'RX' => [
+                        'time' => $time,
+                        'packets' => $rx_packets,
+                        'megabytes' => $rx_megabytes
+                    ],
+                    'TX' => [
+                        'time' => $time,
+                        'packets' => $tx_packets,
+                        'megabytes' => $tx_megabytes
+                    ]
+                ];
         }
+
 
         return [
             'time' => $time,
             'value' => $value
-        ];
-    }
-
-
-    static public function memoryFormat($data)
-    {
-        $k = [];
-        $v = [];
-
-        foreach ($data as $kk => $vv) {
-            $k[] = date('m-d H:i', $vv);
-            foreach (json_decode($kk, true)['Memory'] as $kkk => $vvv)
-                $v[$kkk][] = $vvv['used'];
-        }
-
-        return [
-            'time' => $k,
-            'value' => $v
-        ];
-    }
-
-    static public function networkFormat($data)
-    {
-        $k = [];
-        $rx_packets = [];
-        $rx_megabytes = [];
-        $tx_packets = [];
-        $tx_megabytes = [];
-
-        foreach ($data as $kk => $vv) {
-            $k[] = date('m-d H:i', $vv);
-            $j = json_decode($kk, true)['Network'];
-            // $arr = explode(',',json_decode($kk, true)['value']);
-            $rx_packets[] = (intval($j['RX']['packets']) * 1.0) / 1000;
-            $tx_packets[] = (intval($j['TX']['packets']) * 1.0) / 1000;
-            $rx_megabytes[] = intval(intval(intval($j['RX']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
-            $tx_megabytes[] = intval(intval(intval($j['TX']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
-        }
-
-        return [
-            'RX' => [
-                'time' => $k,
-                'packets' => $rx_packets,
-                'megabytes' => $rx_megabytes
-            ],
-            'TX' => [
-                'time' => $k,
-                'packets' => $tx_packets,
-                'megabytes' => $tx_megabytes
-            ]
         ];
     }
 
@@ -294,7 +273,7 @@ class SystemMonitor
             Cache::store('redis')->handler()
                 ->hDel("system_monitor:name", $uuid);
         }
-        
+
         Cache::rm("system_monitor:name");
     }
 
