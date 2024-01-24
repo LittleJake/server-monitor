@@ -22,7 +22,7 @@ class reCaptcha
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $this->recaptcha_url);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST,TRUE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST,2);
         curl_setopt($curl, CURLOPT_POST, 1);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
         curl_setopt($curl,CURLOPT_TIMEOUT, 5);
