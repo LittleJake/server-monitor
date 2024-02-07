@@ -2,7 +2,8 @@
 
 namespace app\http\middleware;
 
-use think\Exception;
+use think\exception\HttpException;
+use think\facade\Cache;
 
 class CheckToken
 {
@@ -12,7 +13,7 @@ class CheckToken
         $auth = $request->header('authorization');
         $node_token = Cache::store('token')->has("node_token")?json_decode(Cache::store("token")->get("node_token"), true):[];
         if($node_token[$uuid] != $auth)
-            throw new Exception("Authorization Failed.", 403);
+            throw new HttpException(403, "Authorization Failed.");
 
         return $next($request);
     }

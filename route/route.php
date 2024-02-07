@@ -18,15 +18,16 @@ Route::get('api/memory/:uuid','api/memory/get');
 Route::get('api/network/:uuid','api/network/get');
 Route::get('api/thermal/:uuid','api/thermal/get');
 Route::get('api/battery/:uuid','api/battery/get');
-Route::post('api/report/collection/:uuid','api/collection/info');
+
+Route::post('api/report/collection/:uuid','api/report/collection');
 Route::post('api/report/info/:uuid','api/report/info');
 Route::post('api/report/hash/:uuid','api/report/hash');
+
 Route::any('admin/info/:uuid','admin/info/index');
 Route::any('admin/','admin/index/index');
+
 Route::rule('admin/login','admin/index/login', 'GET|POST');
 Route::rule('admin/logout','admin/index/logout', 'GET');
-
-
 Route::rule('/manifest.json','index/index/manifest', 'GET');
 
 return [];

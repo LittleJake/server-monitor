@@ -6,6 +6,7 @@ use think\Exception;
 use think\facade\Cache;
 use think\facade\Env;
 use think\facade\Log;
+use think\exception\HttpException;
 
 class SystemMonitor
 {
@@ -49,8 +50,20 @@ class SystemMonitor
 
     static public function setUUID($uuid, $ip)
     {
-        return Cache::store('redis')->handler()
-            ->hSet("system_monitor:hashes", $uuid, $ip);
+        try {
+            Cache::store('redis')->handler()->hSet("system_monitor:hashes", $uuid, $ip);
+            Cache::store('redis')->handler()->expire("system_monitor:hashes", Env::get("MONITOR.DATA_TIMEOUT"));
+            $uuids = SystemMonitor::getUUIDs();
+            if (empty($uuids[$uuid])) {
+                Cache::rm("system_monitor:hashes");
+                return ['code' => 200, 'message' => "Authorization OK, welcome aboard."];
+            }
+    
+            return ['code' => 200, 'message' => "OK"];
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return ['code' => 500, 'message' => "Fail."];
+        }
     }
 
     static public function getLatest($uuid)
@@ -87,7 +100,8 @@ class SystemMonitor
     static public function setInfo($uuid, $data)
     {
         try {
-            Cache::store('redis')->handler()->hSetAll("system_monitor:info:$uuid", $data);
+            Cache::store('redis')->handler()->hMset("system_monitor:info:$uuid", $data);
+            Cache::store('redis')->handler()->expire("system_monitor:info:$uuid", Env::get("MONITOR.DATA_TIMEOUT"));
             return ['code' => 200, 'message' => "OK"];
         } catch (Exception $e) {
             Log::error($e->getMessage());
@@ -152,6 +166,9 @@ class SystemMonitor
         try {
             Cache::store('redis')->handler()
                 ->zAdd("system_monitor:collection:$uuid", time(), $data);
+            Cache::store('redis')->handler()
+                ->zRemRangeByScore("system_monitor:collection:$uuid", 0, time() - Env::get("MONITOR.RETENTION_TIME"));
+            Cache::store('redis')->handler()->expire("system_monitor:collection:$uuid", Env::get("MONITOR.DATA_TIMEOUT"));
             return ['code' => 200, 'message' => "OK"];
         } catch (Exception $e) {
             Log::error($e->getMessage());
@@ -237,7 +254,7 @@ class SystemMonitor
     {
         $uuids = SystemMonitor::getUUIDs();
         if (empty($uuids[$uuid]))
-            throw new Exception("Wrong Token", 403);
+            throw new HttpException(403, "Wrong Token");
         return $uuids[$uuid];
     }
 
