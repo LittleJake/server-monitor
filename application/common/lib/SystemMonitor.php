@@ -167,7 +167,7 @@ class SystemMonitor
             Cache::store('redis')->handler()
                 ->zAdd("system_monitor:collection:$uuid", time(), $data);
             Cache::store('redis')->handler()
-                ->zRemRangeByScore("system_monitor:collection:$uuid", 0, time() - Env::get("MONITOR.DATA_TIMEOUT"));
+                ->zRemRangeByScore("system_monitor:collection:$uuid", 0, time() - Env::get("MONITOR.RETENTION_TIME"));
             Cache::store('redis')->handler()->expire("system_monitor:collection:$uuid", Env::get("MONITOR.DATA_TIMEOUT"));
             return ['code' => 200, 'message' => "OK"];
         } catch (Exception $e) {
