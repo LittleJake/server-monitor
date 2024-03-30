@@ -29,4 +29,19 @@ class Info extends Base
         }
         throw new HttpException(405, 'Method Not Allowed');
     }
+    public function clear(){
+        //TODO RESTful API
+        if (!session('?is_login'))
+            throw new HttpException(403, 'Forbidden');
+        
+        $count = SystemMonitor::clearInfo();
+        return json(['status' => 200, 'message' => "$count cleared"]);
+    }
+    public function purge(){
+        //TODO RESTful API
+        if (!session('?is_login'))
+            throw new HttpException(403, 'Forbidden');
+        SystemMonitor::deleteInfo();
+        return json(['status' => 200, 'message' => "ok"]);
+    }
 }

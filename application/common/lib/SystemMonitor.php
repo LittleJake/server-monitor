@@ -42,10 +42,12 @@ class SystemMonitor
 
     static public function getUUIDs()
     {
-        return Cache::remember('system_monitor:hashes', function () {
+        $data = Cache::remember('system_monitor:hashes', function () {
             return Cache::store('redis')->handler()
                 ->hGetAll("system_monitor:hashes");
         }, self::$cacheTime);
+
+        return !empty($data)?$data:[];
     }
 
     static public function setUUID($uuid, $ip)
@@ -258,15 +260,39 @@ class SystemMonitor
         return $uuids[$uuid];
     }
 
-    static public function deleteInfo($uuid)
+    static public function deleteInfo($uuid = "")
     {
-        $ip = SystemMonitor::getIPByUUID($uuid);
+        if (empty($uuid)){
+            Cache::rm("system_monitor:collection");
+            Cache::rm("system_monitor:info");
+            Cache::rm("system_monitor:hashes");
+            Cache::store('redis')->rm("system_monitor:collection");
+            Cache::store('redis')->rm("system_monitor:info");
+            Cache::store('redis')->rm("system_monitor:hashes");
+            return;
+        }
+        
         Cache::rm("system_monitor:collection:$uuid");
         Cache::rm("system_monitor:info:$uuid");
         Cache::rm("system_monitor:hashes");
         Cache::store('redis')->rm("system_monitor:collection:$uuid");
         Cache::store('redis')->rm("system_monitor:info:$uuid");
         Cache::store('redis')->handler()->hDel("system_monitor:hashes", $uuid);
+    }
+
+    static public function clearInfo()
+    {
+        $count = 0;
+        $uuids = self::getUUIDs();
+
+        foreach ($uuids as $uuid => $_) {
+            if(empty(self::getCollection($uuid))) {
+                self::deleteInfo($uuid);
+                $count++;
+            }      
+        }
+
+        return $count;
     }
 
     static public function setHide($uuid, $hide)
