@@ -211,7 +211,7 @@ class SystemMonitor
                         $time[] = date('m-d H:i', $data_time);
                     //extract $name from collection.
                     foreach ($sensor_labels as $_ => $sensor_label)
-                        $value[$sensor_label][] = empty($sensors[$sensor_label])?-1:$sensors[$sensor_label];
+                        $value[$sensor_label][] = empty($sensors[$sensor_label])?0:$sensors[$sensor_label];
                 }
                 break;
 
