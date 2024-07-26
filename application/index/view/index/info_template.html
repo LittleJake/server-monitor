@@ -100,14 +100,16 @@
         </div>
         <div class="mdui-panel-item-body">
             <div class="mdui-row">
-                <div class="mdui-col-lg-3" style="overflow: scroll;">
-                    {volist name="latest['Disk']" id="row"}
-                    <div class="mdui-row">
-                        <h4>{$key}</h4>
-                        <p>{$row.used} MB / {$row.total} MB</p>
-                        <div id="disk_status_{$i}" class="line"></div>
+                <div class="mdui-col-lg-3">
+                    <div class="mdui-container" style="overflow: scroll; max-height: 50vh;">
+                        {volist name="latest['Disk']" id="row"}
+                        <div class="mdui-row">
+                            <h4>{$key}</h4>
+                            <p>{$row.used} MB / {$row.total} MB</p>
+                            <div id="disk_status_{$i}" class="line"></div>
+                        </div>
+                        {/volist}
                     </div>
-                    {/volist}
                 </div>
                 <div class="mdui-col-lg-9">
                     <div id="disk-collection" class="graph">
