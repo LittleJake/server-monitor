@@ -18,7 +18,15 @@
     <div class="mdui-toolbar mdui-color-theme">
         <a href="{:url('/')}" class="mdui-typo-headline">{:lang("Server Monitor")}</a>
         <div class="mdui-toolbar-spacer"></div>
-        <a href="{:url('admin/index/logout')}" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">&#xe879;</i></a>
+        <span id="purge" class="mdui-btn mdui-btn-icon" title="Remove All">
+            <i class="mdui-icon material-icons">&#xe92b;</i>
+        </span>
+        <span id="clear" class="mdui-btn mdui-btn-icon" title="Remove Invalid">
+            <i class="mdui-icon material-icons">&#xe16c;</i>
+        </span>
+        <a href="{:url('admin/index/logout')}" class="mdui-btn mdui-btn-icon" title="Logout">
+            <i class="mdui-icon material-icons">&#xe879;</i>
+        </a>
     </div>
 </div>
 <div class="mdui-container">
@@ -45,6 +53,33 @@
         url: window.location,
         success: function(data){$('#ajax').html(data);mdui.mutation(); },
         error: function (data, status, e){mdui.snackbar({message: e});}
+    });
+    
+    $('#purge').on('click', function(){
+        mdui.confirm("Are you sure to purge all data?", function(){
+            mdui.prompt('Please input "YES" to procceed.',
+            function (value) {
+                if (value === 'YES'){
+                    $.ajax({
+                        url: "{:url('admin/info/purge')}", type: 'GET',
+                        success: function (resp) {mdui.snackbar({message: 'Node deleted.', position: 'bottom'});reload_list();},
+                        error: function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'})}
+                    });
+                } else {
+                    mdui.snackbar({message: 'Cancelled.', position: 'bottom'});
+                }
+            }, function(){mdui.snackbar({message: 'Cancelled.', position: 'bottom'});});
+        });
+    });
+    
+    $('#clear').on('click', function(){
+        mdui.confirm("Are you sure to clear invalid data?", function(){
+            $.ajax({
+                url: "{:url('admin/info/clear')}", type: 'GET',
+                success: function (resp) {mdui.snackbar({message: 'Cleared.', position: 'bottom'});reload_list();},
+                error: function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'})}
+            });
+        });
     });
 </script>
 </body>

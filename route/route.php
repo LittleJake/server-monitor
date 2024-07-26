@@ -18,12 +18,15 @@ Route::get('api/memory/:uuid','api/memory/get');
 Route::get('api/network/:uuid','api/network/get');
 Route::get('api/thermal/:uuid','api/thermal/get');
 Route::get('api/battery/:uuid','api/battery/get');
+Route::get('api/ping/:uuid','api/ping/get');
 
 Route::post('api/report/collection/:uuid','api/report/collection');
 Route::post('api/report/info/:uuid','api/report/info');
 Route::post('api/report/hash/:uuid','api/report/hash');
 
 Route::any('admin/info/:uuid','admin/info/index');
+Route::get('admin/info/clear','admin/info/clear');
+Route::get('admin/info/purge','admin/info/purge');
 Route::any('admin/','admin/index/index');
 
 Route::rule('admin/login','admin/index/login', 'GET|POST');
