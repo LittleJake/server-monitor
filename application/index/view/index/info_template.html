@@ -57,6 +57,8 @@
                 <p>{$info['IPV6']|default='None'}</p>
                 <h4>{:lang("Location")}</h4>
                 <p class="mdui-valign"><span class="mdui-list-item-icon flag-icon flag-icon-{:empty($info['Country Code'])?'none':strtolower($info['Country Code'])}"></span>{$info['Country']}</p>
+                <h4>{:lang("Agent Version")}</h4>
+                <p>{$info['Agent Version']|default='N/A'}</p>
             </div>
             <div class="mdui-col-xs-12 mdui-col-md-6">
                 <h4>{:lang("Process")}</h4>
@@ -98,7 +100,7 @@
         </div>
         <div class="mdui-panel-item-body">
             <div class="mdui-row">
-                <div class="mdui-col-lg-3" style="overflow: scroll;max-height: 40vh;">
+                <div class="mdui-col-lg-3" style="overflow: scroll;">
                     {volist name="latest['Disk']" id="row"}
                     <div class="mdui-row">
                         <h4>{$key}</h4>
@@ -183,6 +185,21 @@
             </div>
         </div>
     </div>
+    <div class="mdui-panel-item mdui-panel-item-open">
+        <div class="mdui-panel-item-header">
+            <i class="mdui-icon material-icons" style="color: #900088;">&#xe01b;</i>
+            <div class="mdui-panel-item-title">{:lang("Ping")}</div>
+            <div class="mdui-panel-item-summary">{:lang("Ping View")}</div>
+            <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+        </div>
+        <div class="mdui-panel-item-body">
+            <div class="mdui-col-xs-12">
+                <div id="ping-collection" class="graph">
+                    <div class="mdui-spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script>
     var bar_config = {
@@ -245,7 +262,7 @@
                 ]
             };
 
-            ctx_network = echarts.init(document.getElementById('network-collection'), null, {height: window.innerHeight * 0.5});
+            ctx_network = echarts.init(document.getElementById('network-collection'), null, {height: window.innerHeight * 0.6});
             ctx_network.setOption(option);
         },
         error: function () {
@@ -282,7 +299,7 @@
                 });
             });
 
-            ctx_disk = echarts.init(document.getElementById('disk-collection'), null, {height: window.innerHeight * 0.5});
+            ctx_disk = echarts.init(document.getElementById('disk-collection'), null, {height: window.innerHeight * 0.6});
             ctx_disk.setOption(option);
         },
         error: function () {document.getElementById('disk-collection').parentNode.innerHTML="Fail to load storage data.";}
@@ -389,7 +406,7 @@
                 });
             });
             
-            ctx_thermal = echarts.init(document.getElementById('thermal-collection'), null, {height: window.innerHeight * 0.5});
+            ctx_thermal = echarts.init(document.getElementById('thermal-collection'), null, {height: window.innerHeight * 0.6});
             ctx_thermal.setOption(option);
         },
         error: function () {document.getElementById('thermal-collection').parentNode.innerHTML="Fail to load sensor data.";}
@@ -430,17 +447,61 @@
                 });
             });
             
-            ctx_battery = echarts.init(document.getElementById('battery-collection'), null, {height: window.innerHeight * 0.5});
+            ctx_battery = echarts.init(document.getElementById('battery-collection'), null, {height: window.innerHeight * 0.4});
             ctx_battery.setOption(option);
         },
         error: function () {document.getElementById('battery-collection').parentNode.innerHTML="Fail to load sensor data.";}
     });
+
+    
+
+    $.ajax({
+        url: "{:url('api/ping/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
+        async: true,
+        success: function(e){
+            if (e.value.length === 0){
+                document.getElementById('ping-collection').innerHTML="No Ping View Available.";
+                return 0;
+            }
+
+            let option = {
+                tooltip: {trigger: 'axis'},
+                title: {left: 'center', text: '{:lang("Ping Sensor")}'},
+                xAxis: {type: 'category', boundaryGap: false, data: e.time},
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {formatter: '{value} ms'}
+                },
+                dataZoom: [{type: 'inside', start: 70, end: 100}, {
+                    start: 90, end: 100, handleSize: '80%',
+                    handleStyle: {
+                        color: '#fff', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.6)',
+                        shadowOffsetX: 2, shadowOffsetY: 2
+                    }}],
+                series:[],
+                legend: {top: 30}
+            };
+            
+            Object.keys(e.value).forEach(function(k){
+                option.series.push({
+                    name: k, type: 'line', smooth: true, symbol: 'none', sampling: 'average',
+                    areaStyle: {}, data: e.value[k],
+                });
+            });
+            
+            ctx_ping = echarts.init(document.getElementById('ping-collection'), null, {height: window.innerHeight * 0.8});
+            ctx_ping.setOption(option);
+        },
+        error: function () {document.getElementById('ping-collection').parentNode.innerHTML="Fail to load ping view data.";}
+    });
+
     window.onresize = function() {
+        ctx_battery && ctx_battery.resize();
         ctx_cpu && ctx_cpu.resize();
         ctx_disk && ctx_disk.resize();
         ctx_mem && ctx_mem.resize();
-        ctx_thermal && ctx_thermal.resize();
         ctx_network && ctx_network.resize();
-        ctx_battery && ctx_battery.resize();
+        ctx_ping && ctx_ping.resize();
+        ctx_thermal && ctx_thermal.resize();
     };
 </script>
