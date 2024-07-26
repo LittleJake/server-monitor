@@ -184,16 +184,34 @@ class SystemMonitor
         $value = [];
 
         switch (strtolower($name)) {
-            case "thermal":
             case "battery":
             case "load":
+            case "ping":
+            case "thermal":
+                //in case of missing mounting point periodically.
+                $sensor_labels = [];
+                foreach ($data as $data_json => $_) {
+                    $data_decode = json_decode($data_json, true);
+
+                    if (!array_key_exists($name, $data_decode))
+                        continue;
+
+                    $sensor_labels = array_unique(array_merge($sensor_labels, array_keys(json_decode($data_json, true)[$name])));
+                }
+
                 foreach ($data as $data_json => $data_time) {
-                    $sensors = json_decode($data_json, true)[$name];
-                    if (count($sensors) > 0)
+                    if (count($sensor_labels) > 0)
                         $time[] = date('m-d H:i', $data_time);
+                    
+                    $data_decode = json_decode($data_json, true);
+
+                    if (!array_key_exists($name, $data_decode))
+                        continue;
+                    
+                    $sensors = json_decode($data_json, true)[$name];
                     //extract $name from collection.
-                    foreach ($sensors as $sensor => $sensor_value)
-                        $value[$sensor][] = $sensor_value;
+                    foreach ($sensor_labels as $_ => $sensor_label)
+                        $value[$sensor_label][] = empty($sensors[$sensor_label])?-1:$sensors[$sensor_label];
                 }
                 break;
 
@@ -208,12 +226,9 @@ class SystemMonitor
                     $time[] = date('m-d H:i', $data_time);
                     $disk_data = json_decode($data_json, true)[$name];
 
-                    foreach ($mount_points as $_ => $mount_point) {
-                        if (empty($disk_data[$mount_point]))
-                            $value[$mount_point][] = 0;
-                        else
-                            $value[$mount_point][] = $disk_data[$mount_point]['used'];
-                    }
+                    foreach ($mount_points as $_ => $mount_point) 
+                        $value[$mount_point][] = empty($disk_data[$mount_point])?0:$value[$mount_point][] = $disk_data[$mount_point]['used'];
+                    
                 }
                 break;
             case "network":
