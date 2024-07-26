@@ -200,15 +200,15 @@ class SystemMonitor
                 }
 
                 foreach ($data as $data_json => $data_time) {
-                    if (count($sensor_labels) > 0)
-                        $time[] = date('m-d H:i', $data_time);
-                    
                     $data_decode = json_decode($data_json, true);
-
+                    
                     if (!array_key_exists($name, $data_decode))
                         continue;
                     
                     $sensors = json_decode($data_json, true)[$name];
+
+                    if (count($sensor_labels) > 0)
+                        $time[] = date('m-d H:i', $data_time);
                     //extract $name from collection.
                     foreach ($sensor_labels as $_ => $sensor_label)
                         $value[$sensor_label][] = empty($sensors[$sensor_label])?-1:$sensors[$sensor_label];
