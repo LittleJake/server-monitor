@@ -247,15 +247,47 @@ class SystemMonitor
                 }
 
                 return [
+                    'time' => $time,
                     'RX' => [
-                        'time' => $time,
                         'packets' => $rx_packets,
                         'megabytes' => $rx_megabytes
                     ],
                     'TX' => [
-                        'time' => $time,
                         'packets' => $tx_packets,
                         'megabytes' => $tx_megabytes
+                    ]
+                ];
+                
+            case "io":
+                $read_counts = [];
+                $read_megabytes = [];
+                $read_time_ms = [];
+                $write_counts = [];
+                $write_megabytes = [];
+                $write_time_ms = [];
+
+                foreach ($data as $data_json => $data_time) {
+                    $time[] = date('m-d H:i', $data_time);
+                    $io_data = json_decode($data_json, true)[$name];
+                    $read_counts[] = (intval($io_data['read']['count']) * 1.0) / 1000;
+                    $write_counts[] = (intval($io_data['write']['count']) * 1.0) / 1000;
+                    $read_megabytes[] = intval(intval(intval($io_data['read']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
+                    $write_megabytes[] = intval(intval(intval($io_data['write']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
+                    $read_time_ms[] = intval($io_data['read']['time']);
+                    $write_time_ms[] = intval($io_data['write']['time']);
+                }
+
+                return [
+                    'time' => $time,
+                    'read' => [
+                        'counts' => $read_counts,
+                        'megabytes' => $read_megabytes,
+                        'time_ms' => $read_time_ms
+                    ],
+                    'write' => [
+                        'counts' => $write_counts,
+                        'megabytes' => $write_megabytes,
+                        'time_ms' => $write_time_ms
                     ]
                 ];
         }

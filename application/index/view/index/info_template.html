@@ -1,7 +1,6 @@
 <style>
     .line {
         margin: 20px;
-        height: 8px;
         position: relative;
     }
 
@@ -99,9 +98,8 @@
             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
         </div>
         <div class="mdui-panel-item-body">
-            <div class="mdui-row">
                 <div class="mdui-col-lg-3">
-                    <div class="mdui-container" style="overflow: scroll; max-height: 50vh;">
+                    <div class="mdui-container" style="overflow: auto; max-height: 50vh;">
                         {volist name="latest['Disk']" id="row"}
                         <div class="mdui-row">
                             <h4>{$key}</h4>
@@ -117,7 +115,6 @@
                     </div>
                 </div>
             </div>
-        </div>
     </div>
     <div class="mdui-panel-item mdui-panel-item-open">
         <div class="mdui-panel-item-header">
@@ -152,6 +149,21 @@
         <div class="mdui-panel-item-body">
             <div class="mdui-col-xs-12">
                 <div id="network-collection">
+                    <div class="mdui-spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mdui-panel-item mdui-panel-item-open">
+        <div class="mdui-panel-item-header">
+            <i class="mdui-icon material-icons">&#xe640;</i>
+            <div class="mdui-panel-item-title">{:lang("Disk I/O")}</div>
+            <div class="mdui-panel-item-summary">{:lang("Disk I/O Data")}</div>
+            <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+        </div>
+        <div class="mdui-panel-item-body">
+            <div class="mdui-col-xs-12">
+                <div id="io-collection">
                     <div class="mdui-spinner"></div>
                 </div>
             </div>
@@ -204,6 +216,7 @@
     </div>
 </div>
 <script>
+    var ctx_battery, ctx_cpu, ctx_disk, ctx_mem, ctx_network, ctx_ping, ctx_io, ctx_thermal;
     var bar_config = {
             strokeWidth: 4, easing: 'easeInOut', duration: 1400, color: '#33cc33', trailColor: '#eee', trailWidth: 1,
             svgStyle: {width: '100%', height: '100%'},
@@ -220,10 +233,8 @@
     new ProgressBar.Line(disk_status_{$i}, bar_config).animate("{$row.percent / 100}");
     {/volist}
     
-    new ProgressBar.Line(memory_status, bar_config)
-        .animate("{$latest['Memory']['Mem']['percent']/100}");
-    new ProgressBar.Line(swap_status, bar_config)
-        .animate("{$latest['Memory']['Swap']['percent']/100}");
+    new ProgressBar.Line(memory_status, bar_config).animate("{$latest['Memory']['Mem']['percent']/100}");
+    new ProgressBar.Line(swap_status, bar_config).animate("{$latest['Memory']['Swap']['percent']/100}");
 
     $.ajax({
         url: "{:url('api/network/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
@@ -235,11 +246,8 @@
                 legend: {bottom: 50, data: ['RX Packets (k)', 'RX Throughput (MB)', 'TX Packets (k)', 'TX Throughput (MB)',]},
                 grid: [{height: '60%'}, {height: '60%'}],
                 axisPointer: {link: {xAxisIndex: 'all'}},
-                dataZoom: [{show: true, realtime: true, start: 70, end: 100, xAxisIndex: [0, 1]}, {type: 'inside', realtime: true, start: 70, end: 100, xAxisIndex: [0, 1]}],
-                xAxis: [
-                    {type: 'category', boundaryGap: false, data: e.RX.time},
-                    {gridIndex: 1, boundaryGap: false, data: e.TX.time, show: false}
-                ],
+                dataZoom: [{show: true, realtime: true, start: 70, end: 100}, {type: 'inside', realtime: true, start: 70, end: 100}],
+                xAxis: {type: 'category', boundaryGap: false, data: e.time},
                 yAxis: [{
                     type: 'value',
                     name: 'Packets',
@@ -248,7 +256,6 @@
                     axisLine: {show: true},
                     splitLine: {show: false},
                 }, {
-                    gridIndex: 1,
                     type: 'value',
                     name: 'Throughput',
                     axisLabel: {formatter: '{value} MB'},
@@ -258,20 +265,64 @@
                 }],
                 series: [
                     {name: 'RX Packets (k)',symbol: 'none', type: 'line', areaStyle: {}, data: e.RX.packets,},
+                    {name: 'RX Throughput (MB)',symbol: 'none', yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.RX.megabytes,},
                     {name: 'TX Packets (k)',symbol: 'none', type: 'line', areaStyle: {}, data: e.TX.packets,},
-                    {name: 'RX Throughput (MB)',symbol: 'none', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.RX.megabytes,},
-                    {name: 'TX Throughput (MB)',symbol: 'none', xAxisIndex: 1, yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.TX.megabytes,},
+                    {name: 'TX Throughput (MB)',symbol: 'none', yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.TX.megabytes,},
                 ]
             };
 
             ctx_network = echarts.init(document.getElementById('network-collection'), null, {height: window.innerHeight * 0.6});
             ctx_network.setOption(option);
         },
-        error: function () {
-            document.getElementById('network-collection').parentNode.innerHTML="Fail to load network data.";
-        }
+        error: function () {document.getElementById('network-collection').parentNode.innerHTML="Fail to load network data.";}
     });
-    
+    $.ajax({
+        url: "{:url('api/iO/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
+        async: true,
+        success: function(e){
+            let option = {
+                title: {text:"Disk I/O", left: 'center'},
+                tooltip: {trigger: 'axis', axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}},
+                legend: {bottom: 50, data: ['Read Counts(k)', 'Read Throughput (MB)', 'Read Time (ms)', 'Write Counts(k)', 'Write Throughput (MB)', 'Write Time (ms)',]},
+                grid: [{height: '60%'}, {height: '60%'}],
+                axisPointer: {link: {xAxisIndex: 'all'}},
+                dataZoom: [{show: true, realtime: true, start: 70, end: 100, xAxisIndex: [0, 1]}, {type: 'inside', realtime: true, start: 70, end: 100, xAxisIndex: [0, 1]}],
+                xAxis: {type: 'category', boundaryGap: false, data: e.time},
+                yAxis: [{
+                    type: 'value',
+                    name: 'Counts',
+                    axisLabel: {formatter: '{value} k'},
+                    position: 'right',
+                    axisLine: {show: true},
+                    splitLine: {show: false},
+                }, {
+                    type: 'value',
+                    name: 'Throughput',
+                    axisLabel: {formatter: '{value} MB'},
+                    position: 'left',
+                    axisLine: {show: true},
+                    splitLine: {show: false},
+                }, {
+                    type: 'value',
+                    name: 'Time (ms)',
+                    position: 'left',
+                    show: false
+                }],
+                series: [
+                    {name: 'Read Counts (k)',symbol: 'none', type: 'line', areaStyle: {}, data: e.read.counts,},
+                    {name: 'Read Throughput (MB)',symbol: 'none', yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.read.megabytes,},
+                    {name: 'Read Time (ms)',symbol: 'none', yAxisIndex: 2, type: 'line', areaStyle: {}, data: e.read.time_ms,},
+                    {name: 'Write Counts (k)',symbol: 'none', type: 'line', areaStyle: {}, data: e.write.counts,},
+                    {name: 'Write Throughput (MB)',symbol: 'none', yAxisIndex: 1, type: 'line', areaStyle: {}, data: e.write.megabytes,},
+                    {name: 'Write Time (ms)',symbol: 'none', yAxisIndex: 2, type: 'line', areaStyle: {}, data: e.write.time_ms,},
+                ]
+            };
+
+            ctx_io = echarts.init(document.getElementById('io-collection'), null, {height: window.innerHeight * 0.6});
+            ctx_io.setOption(option);
+        },
+        error: function () {document.getElementById('io-collection').parentNode.innerHTML="Fail to load IO data.";}
+    });
     $.ajax({
         url: "{:url('api/disk/get', ['uuid' => $uuid])}", method: "get", dataType: 'json',
         async: true,
@@ -280,10 +331,7 @@
                 tooltip: {trigger: 'axis'},
                 title: {left: 'center', text: '{:lang("Storage")}'},
                 xAxis: {type: 'category', boundaryGap: false, data: e.time},
-                yAxis: {
-                    type: 'value',
-                    axisLabel: {formatter: '{value} MB'},
-                },
+                yAxis: {type: 'value',axisLabel: {formatter: '{value} MB'},},
                 dataZoom: [{type: 'inside', start: 70, end: 100}, {
                     start: 90, end: 100, handleSize: '80%',
                     handleStyle: {
@@ -315,10 +363,7 @@
                 tooltip: {trigger: 'axis'},
                 title: {left: 'center', text: '{:lang("Memory")}'},
                 xAxis: {type: 'category', boundaryGap: false, data: e.time},
-                yAxis: {
-                    type: 'value',
-                    axisLabel: {formatter: '{value} MB'},
-                },
+                yAxis: {type: 'value',axisLabel: {formatter: '{value} MB'},},
                 dataZoom: [{type: 'inside', start: 70, end: 100}, {
                     start: 90, end: 100, handleSize: '80%',
                     handleStyle: {
@@ -349,10 +394,7 @@
                 tooltip: {trigger: 'axis'},
                 title: {left: 'center', text: '{:lang("CPU Load")}'},
                 xAxis: {type: 'category', boundaryGap: false, data: e.time},
-                yAxis: {
-                    type: 'value',
-                    axisLabel: {formatter: '{value} %'}
-                },
+                yAxis: {type: 'value',axisLabel: {formatter: '{value} %'}},
                 dataZoom: [{type: 'inside', start: 70, end: 100}, {
                     start: 90, end: 100, handleSize: '80%',
                     handleStyle: {
@@ -428,10 +470,7 @@
                 tooltip: {trigger: 'axis'},
                 title: {left: 'center', text: '{:lang("Battery Sensor")}'},
                 xAxis: {type: 'category', boundaryGap: false, data: e.time},
-                yAxis: {
-                    type: 'value',
-                    axisLabel: {formatter: '{value} %'}
-                },
+                yAxis: {type: 'value', axisLabel: {formatter: '{value} %'}},
                 dataZoom: [{type: 'inside', start: 70, end: 100}, {
                     start: 90, end: 100, handleSize: '80%',
                     handleStyle: {
@@ -470,10 +509,7 @@
                 tooltip: {trigger: 'axis'},
                 title: {left: 'center', text: '{:lang("Ping Sensor")}'},
                 xAxis: {type: 'category', boundaryGap: false, data: e.time},
-                yAxis: {
-                    type: 'value',
-                    axisLabel: {formatter: '{value} ms'}
-                },
+                yAxis: {type: 'value', axisLabel: {formatter: '{value} ms'}},
                 dataZoom: [{type: 'inside', start: 70, end: 100}, {
                     start: 90, end: 100, handleSize: '80%',
                     handleStyle: {
@@ -504,6 +540,7 @@
         ctx_mem && ctx_mem.resize();
         ctx_network && ctx_network.resize();
         ctx_ping && ctx_ping.resize();
+        ctx_io && ctx_io.resize();
         ctx_thermal && ctx_thermal.resize();
     };
 </script>

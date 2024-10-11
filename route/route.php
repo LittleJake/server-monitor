@@ -19,6 +19,7 @@ Route::get('api/network/:uuid','api/network/get');
 Route::get('api/thermal/:uuid','api/thermal/get');
 Route::get('api/battery/:uuid','api/battery/get');
 Route::get('api/ping/:uuid','api/ping/get');
+Route::get('api/io/:uuid','api/iO/get');
 
 Route::post('api/report/collection/:uuid','api/report/collection');
 Route::post('api/report/info/:uuid','api/report/info');
