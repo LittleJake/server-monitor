@@ -40,3 +40,15 @@ function getIcon($desp = ''){
 function iconStandadize($name) {
     return str_replace(".", "dot", str_replace(" ", "", $name));
 }
+
+function sizeFormat($size) {
+    //input MB
+    if ($size > 1024*1024*1024) 
+        return sprintf("%.2f PB", $size*1.0/1024/1024/1024);
+    else if ($size > 1024 * 1024) 
+        return sprintf("%.2f TB", $size*1.0/1024/1024);
+    else if ($size > 1024)
+        return sprintf("%.2f GB", $size*1.0/1024);
+
+    return sprintf("%.2f MB", $size);
+}
