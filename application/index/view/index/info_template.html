@@ -103,7 +103,7 @@
                         {volist name="latest['Disk']" id="row"}
                         <div class="mdui-row">
                             <h4>{$key}</h4>
-                            <p>{$row.used} MB / {$row.total} MB</p>
+                            <p>{:sizeFormat($row.used)} / {:sizeFormat($row.total)}</p>
                             <div id="disk_status_{$i}" class="line"></div>
                         </div>
                         {/volist}
@@ -126,10 +126,10 @@
         <div class="mdui-panel-item-body">
             <div class="mdui-col-lg-3">
                 <h4>{:lang('Memory')}</h4>
-                <p>{$latest['Memory']['Mem']['used']} MB / {$latest['Memory']['Mem']['total']} MB</p>
+                <p>{:sizeFormat($latest['Memory']['Mem']['used'])} / {:sizeFormat($latest['Memory']['Mem']['total'])}</p>
                 <div id="memory_status" class="line"></div>
                 <h4>{:lang('Swap')}</h4>
-                <p>{$latest['Memory']['Swap']['used']} MB / {$latest['Memory']['Swap']['total']} MB</p>
+                <p>{:sizeFormat($latest['Memory']['Swap']['used'])} / {:sizeFormat($latest['Memory']['Swap']['total'])}</p>
                 <div id="swap_status" class="line"></div>
             </div>
             <div class="mdui-col-lg-9">
