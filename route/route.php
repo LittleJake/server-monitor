@@ -24,6 +24,8 @@ Route::get('api/io/:uuid','api/iO/get');
 Route::post('api/report/collection/:uuid','api/report/collection');
 Route::post('api/report/info/:uuid','api/report/info');
 Route::post('api/report/hash/:uuid','api/report/hash');
+Route::get('api/report/command/:uuid','api/report/command');
+
 
 Route::any('admin/info/:uuid','admin/info/index');
 Route::get('admin/info/clear','admin/info/clear');
