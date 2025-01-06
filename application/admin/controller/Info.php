@@ -27,6 +27,7 @@ class Info extends Base
             $command_list = ['start', 'stop', 'restart', 'update', 'reboot', 'shutdown', 'ping'];
             if (!empty($this->request->put('command')) && in_array($this->request->put('command'), $command_list))
                 return json(SystemMonitor::setCommand($uuid, $this->request->put('command')));
+            throw new HttpException(500, 'Command Not Allowed');
         }
         throw new HttpException(405, 'Method Not Allowed');
     }
