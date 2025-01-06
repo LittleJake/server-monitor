@@ -3,7 +3,7 @@
         {volist name="uuids" id="vo"}
         <div class="mdui-list-item mdui-ripple mdui-p-l-0">
             <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($data[$key]['Country Code'])?'none':strtolower($data[$key]['Country Code'])}"></span>
-            <div class="mdui-list-item-content ajax-load" onclick="mdui.alert('Name: {:empty($names[$key])?$vo:$names[$key]}<br>IP: {$vo}', 'Info');" data-href="{:url('admin/info/index',['uuid'=>$key])}">
+            <div class="mdui-list-item-content ajax-load" onclick="mdui.alert('Name: {:empty($names[$key])?$vo:$names[$key]}<br>IPv4: {$vo}<br>IPv6: {:empty($data[$key][\'IPV6\'])?\'None\':$data[$key][\'IPV6\']}', 'Info');" data-href="{:url('admin/info/index',['uuid'=>$key])}">
                 <div class="mdui-list-item-title">
                     {:empty($names[$key])?$vo:$names[$key]}
                 </div>
@@ -21,18 +21,18 @@
                 <i class="mdui-icon material-icons mdui-text-color-theme-secondary">&#xe5d4;</i>
             </button>
             <ul class="mdui-menu" id="list-{$i}">
-                <li class="mdui-menu-item" disabled>
-                    <a href="javascript:;" class="mdui-ripple reboot" data-href="{:url('admin/info/index',['uuid'=>$key])}">
+                <li class="mdui-menu-item">
+                    <a href="javascript:;" class="mdui-ripple btn-put" data-href="{:url('admin/info/index',['uuid'=>$key])}" data-action="reboot">
                         <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe5d5;</i>Reboot
                     </a>
                 </li>
                 <li class="mdui-menu-item" disabled>
-                    <a href="javascript:;" class="mdui-ripple reset" data-href="{:url('admin/info/index',['uuid'=>$key])}">
+                    <a href="javascript:;" class="mdui-ripple" data-href="{:url('admin/info/index',['uuid'=>$key])}" data-action="reset">
                         <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe8b3;</i>Reset Data
                     </a>
                 </li>
                 <li class="mdui-menu-item">
-                    <a href="javascript:;" class="mdui-ripple rename" data-href="{:url('admin/info/index',['uuid'=>$key])}">
+                    <a href="javascript:;" class="mdui-ripple rename" data-href="{:url('admin/info/index',['uuid'=>$key])}" data-name="{:empty($names[$key])?$vo:$names[$key]}">
                         <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe3c9;</i>Rename
                     </a>
                 </li>
@@ -68,6 +68,18 @@
         });
     });
 
+    $('.btn-put').on('click', function(){
+        var btn = $(this);
+
+        mdui.confirm("Are you sure to execute '"+ btn.attr("data-action") +"'?", function(){
+            $.ajax({
+                url: btn.attr("data-href"), type: 'PUT', data: {'command': btn.attr("data-action")},
+                success: function (resp) {mdui.snackbar({message: 'Command put.', position: 'bottom'});parent.addClass("mdui-hidden");reload_list();},
+                error: function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'})}
+            });
+        });
+    });
+
     $('.rename').on('click', function(){
         var parent = $(this.parentNode.parentNode.parentNode), btn = $(this);
         mdui.prompt('Renaming node',
@@ -78,7 +90,7 @@
                     error: function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'})}
                 });
             }
-        );
+        ,()=>{}, {"defaultValue": btn.attr("data-name")});
     });
     $('.switch').on('click', function(){
         var message = 'Hide.', btn = $(this), display = this.checked;

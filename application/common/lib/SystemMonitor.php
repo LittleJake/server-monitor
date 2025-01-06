@@ -440,4 +440,22 @@ class SystemMonitor
         if ($a["Country"] == 'Private') return -1;
         return ($a["Country"] < $b["Country"]) ? -1 : 1;
     }
+
+    static public function getCommand($uuid)
+    {
+        return Cache::store('redis')->handler()->rPop("system_monitor:command:$uuid");
+    }
+
+    
+    static public function setCommand($uuid, $command)
+    {
+        try {
+            Cache::store('redis')->handler()->lPush("system_monitor:command:$uuid", $command);
+            Cache::store('redis')->handler()->expire("system_monitor:command:$uuid", Env::get("MONITOR.DATA_TIMEOUT"));
+            return ['code' => 200, 'message' => "OK, $command"];
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return ['code' => 500, 'message' => "Fail."];
+        }
+    }
 }

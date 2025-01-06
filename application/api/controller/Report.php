@@ -28,4 +28,9 @@ class Report extends Controller
         $ip = $this-> request->post('ip');
         return json(SystemMonitor::setUUID($uuid, $ip));
     }
+
+    public function command($uuid = '')
+    {
+        return SystemMonitor::getCommand($uuid);
+    }
 }
