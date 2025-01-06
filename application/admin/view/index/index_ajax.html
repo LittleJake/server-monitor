@@ -22,6 +22,12 @@
             </button>
             <ul class="mdui-menu" id="list-{$i}">
                 <li class="mdui-menu-item">
+                    <a href="javascript:;" class="mdui-ripple btn-put" data-href="{:url('admin/info/index',['uuid'=>$key])}" data-action="ping">
+                        <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe01b;</i>Ping
+                    </a>
+                </li>
+                <li class="mdui-divider"></li>
+                <li class="mdui-menu-item">
                     <a href="javascript:;" class="mdui-ripple btn-put" data-href="{:url('admin/info/index',['uuid'=>$key])}" data-action="reboot">
                         <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe5d5;</i>Reboot
                     </a>
