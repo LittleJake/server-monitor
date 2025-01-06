@@ -24,7 +24,7 @@ class Info extends Base
             SystemMonitor::deleteInfo($uuid);
             return json(['status' => 200, 'message' => "ok"]);
         } else if ($this->request->isPut()){
-            $command_list = ['start', 'stop', 'restart', 'update', 'reboot', 'shutdown'];
+            $command_list = ['start', 'stop', 'restart', 'update', 'reboot', 'shutdown', 'ping'];
             if (!empty($this->request->put('command')) && in_array($this->request->put('command'), $command_list))
                 return json(SystemMonitor::setCommand($uuid, $this->request->put('command')));
         }
