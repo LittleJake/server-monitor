@@ -140,8 +140,4 @@ Thanks for the amazing VM server provided by [DartNode](https://dartnode.com?via
 
  <a href="https://dartnode.com?via=1"><img src="https://raw.githubusercontent.com/LittleJake/LittleJake/master/images/dartnode.png" width="150"></a>
 
-Thanks for the open source project license provided by [JetBrains](https://www.jetbrains.com/).
-
- <a href="https://www.jetbrains.com/"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="150" alt="JetBrains Logo (Main) logo."></a>
-
 
