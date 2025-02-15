@@ -31,6 +31,6 @@ class Report extends Controller
 
     public function command($uuid = '')
     {
-        return SystemMonitor::getCommand($uuid);
+        return json(SystemMonitor::getCommand($uuid));
     }
 }

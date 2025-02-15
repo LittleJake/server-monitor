@@ -443,7 +443,8 @@ class SystemMonitor
 
     static public function getCommand($uuid)
     {
-        return Cache::store('redis')->handler()->rPop("system_monitor:command:$uuid");
+        $command = Cache::store('redis')->handler()->rPop("system_monitor:command:$uuid");
+        return ['code' => 200, 'command' => "$command"];
     }
 
     
