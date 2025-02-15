@@ -60,7 +60,8 @@ class Token extends Command
                 break;
             case "list":
                 foreach ($node_token as $key => $value) 
-                    $output->writeln("$key: $value");
+                    $node_active = Cache::store('redis')->ttl("system_monitor:info:$key") > 0;
+                    $output->writeln("$key: $value\nActive: ".($node_active?"Yes":"No"));
                 exit(0);
             case "help":
                 $output->writeln("Node UUID token manager");

@@ -18,11 +18,8 @@ return [
     'type' => 'complex',
     'default' => [
         'type' => 'file',
-        // 全局缓存有效期（0为永久有效）
         'expire'=> 240,
-        // 缓存前缀
         'prefix'=> 'monitor',
-        // 缓存目录
         'path' => __DIR__.'/../runtime/cache/',
     ],
     'redis' => [
@@ -39,11 +36,8 @@ return [
     ],
     'flag' => [
         'type' => 'file',
-        // 全局缓存有效期（0为永久有效）
         'expire'=> 24*60*60,
-        // 缓存前缀
         'prefix'=> 'flag',
-        // 缓存目录
         'path' => __DIR__.'/../runtime/cache/',
     ],
     'token' => [
