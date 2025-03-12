@@ -14,7 +14,7 @@ class Report extends Controller
     public function collection($uuid = '')
     {
         $json = $this-> request -> post();
-        return json(SystemMonitor::setCollection($uuid, $json));
+        return json(SystemMonitor::setCollection($uuid, json_encode($json)));
     }
 
     public function info($uuid = '')
