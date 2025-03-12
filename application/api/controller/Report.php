@@ -14,7 +14,7 @@ class Report extends Controller
     public function collection($uuid = '')
     {
         $json = $this-> request -> post();
-        return json(SystemMonitor::setCollection($uuid, json_encode($json)));
+        return json(SystemMonitor::setCollection($uuid, $json));
     }
 
     public function info($uuid = '')
@@ -25,7 +25,11 @@ class Report extends Controller
 
     public function hash($uuid = '')
     {
-        $ip = $this-> request->post('ip');
+        if (!empty($this-> request->post('ip'))) {
+            $ip = $this-> request->post('ip');
+        } else if (!empty($this-> request->post())){
+            $ip = json_decode($this-> request->post()) -> ip;
+        }
         return json(SystemMonitor::setUUID($uuid, $ip));
     }
 
