@@ -10,8 +10,21 @@
 // +----------------------------------------------------------------------
 
 // 应用公共文件
+
+function getIconAlias($desp = '') {
+    $alias = [
+        'cortex' => 'arm',
+    ];
+
+    foreach ($alias as $k => $v)
+        if(stristr($desp, $k))
+            return "[$v]";
+    
+    return "";
+}
+
 function getIcon($desp = ''){
-    $url = "https://cdnjs.cloudflare.com/ajax/libs/simple-icons/6.22.0/";
+    $url = "https://cdnjs.cloudflare.com/ajax/libs/simple-icons/14.3.0/";
     $icon = [
         'redhat' => "#EE0000",
         'centos' => "#262577",
@@ -24,12 +37,13 @@ function getIcon($desp = ''){
         'qualcomm' => "#3253DC",
         'mediatek' => "#EC9430",
         'alpine linux' => "#0D597F",
-        
         'arm' => "#0091BD",
         'qemu' => "#FF6600",
         'linux' => "#FCC624",
     ];
-
+    
+    $desp = getIconAlias($desp) . $desp;
+    
     foreach ($icon as $k => $v)
         if(stristr($desp, $k))
             return [iconStandadize($k), $url.iconStandadize($k).".svg", $v];
