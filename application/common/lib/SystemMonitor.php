@@ -394,30 +394,26 @@ class SystemMonitor
         }, self::$cacheTime);
     }
 
-    static public function getOnline()
+    static public function getAlive()
     {
         $time = time();
         $uuids = array_keys(SystemMonitor::getUUIDs());
         $infos = SystemMonitor::getInfo($uuids);
 
         $data = array_filter($infos, function ($uuid) use ($infos, $time) {
+            if (
+                Cache::remember("system_monitor:alive:$uuid", function () use ($uuid) {
+                    return Cache::store('redis')->handler()->exists("system_monitor:alive:$uuid");
+                }, 60)
+                ) return true;
+            //fallback to Update Time
             return !empty($infos[$uuid]['Update Time']) && $time - intval($infos[$uuid]['Update Time']) <= Env::get("MONITOR.OFFLINE_THRESHOLD");
         }, ARRAY_FILTER_USE_KEY);
 
-        return $data;
-    }
-
-    static public function getOffline()
-    {
-        $time = time();
-        $uuids = array_keys(SystemMonitor::getUUIDs());
-        $infos = SystemMonitor::getInfo($uuids);
-
-        $data = array_filter($infos, function ($uuid) use ($infos, $time) {
-            return !empty($infos[$uuid]['Update Time']) && ($time - intval($infos[$uuid]['Update Time']) > Env::get("MONITOR.OFFLINE_THRESHOLD"));
-        }, ARRAY_FILTER_USE_KEY);
-
-        return $data;
+        return [
+            'Online' => $data,
+            'Offline' => array_diff_key($infos, $data)
+        ];
     }
 
     static public function refreshCache()
@@ -436,6 +432,7 @@ class SystemMonitor
 
     static private function countryCmp($a, $b)
     {
+        if (empty($a["Country"]) or empty($b["Country"])) return 0;
         if ($a["Country"] == $b["Country"]) return 0;
         if ($a["Country"] == 'Private') return -1;
         return ($a["Country"] < $b["Country"]) ? -1 : 1;

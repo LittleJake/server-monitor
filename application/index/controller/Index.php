@@ -16,8 +16,9 @@ class Index extends Base
     {
         $uuids = SystemMonitor::getUUIDs();
         $hide = array_flip(SystemMonitor::getHide());
-        $online = SystemMonitor::sortByCountry(SystemMonitor::getOnline());
-        $offline = SystemMonitor::sortByCountry(SystemMonitor::getOffline());
+        $data = SystemMonitor::getAlive();
+        $online = SystemMonitor::sortByCountry($data['Online']);
+        $offline = SystemMonitor::sortByCountry($data['Offline']);
         $names = SystemMonitor::getDisplayName(array_keys($uuids));
 
         $this->assign("names", $names);
@@ -46,8 +47,9 @@ class Index extends Base
     {
         $uuids = SystemMonitor::getUUIDs();
         $hide = array_flip(SystemMonitor::getHide());
-        $online = SystemMonitor::sortByCountry(SystemMonitor::getOnline());
-        $offline = SystemMonitor::sortByCountry(SystemMonitor::getOffline());
+        $data = SystemMonitor::getAlive();
+        $online = SystemMonitor::sortByCountry($data['Online']);
+        $offline = SystemMonitor::sortByCountry($data['Offline']);
         $names = SystemMonitor::getDisplayName(array_keys($uuids));
 
         $this->assign("names", $names);
