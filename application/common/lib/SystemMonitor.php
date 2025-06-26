@@ -94,8 +94,11 @@ class SystemMonitor
             }, self::$cacheTime);
 
             if (!is_array($uuid)) return $info[$u];
+            
         }
-
+        $info = array_filter($info, function ($item) {
+            return !empty($item);
+        });
         return $info;
     }
 
@@ -227,7 +230,7 @@ class SystemMonitor
                     $disk_data = json_decode($data_json, true)[$name];
 
                     foreach ($mount_points as $_ => $mount_point) 
-                        $value[$mount_point][] = empty($disk_data[$mount_point])?0:$value[$mount_point][] = $disk_data[$mount_point]['used'];
+                        $value[$mount_point][] = empty($disk_data[$mount_point])?0:$disk_data[$mount_point]['used'];
                     
                 }
                 break;

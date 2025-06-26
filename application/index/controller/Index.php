@@ -20,7 +20,6 @@ class Index extends Base
         $online = SystemMonitor::sortByCountry($data['Online']);
         $offline = SystemMonitor::sortByCountry($data['Offline']);
         $names = SystemMonitor::getDisplayName(array_keys($uuids));
-
         $this->assign("names", $names);
         $this->assign("online", $online);
         $this->assign("offline", $offline);

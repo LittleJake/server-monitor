@@ -17,7 +17,7 @@ return [
     // 应用名称
     'app_name'               => '',
     // 应用地址
-    'app_host'               => '',
+    'app_host'               => Env::get("APP.APP_HOST"),
     // 应用调试模式
     'app_debug'              => Env::get("APP.APP_DEBUG"),
     // 应用Trace
