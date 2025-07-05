@@ -14,6 +14,7 @@
 function getIconAlias($desp = '') {
     $alias = [
         'cortex' => 'arm',
+        'qwrt' => 'openwrt',
     ];
 
     foreach ($alias as $k => $v)
@@ -38,6 +39,7 @@ function getIcon($desp = ''){
         'mediatek' => "#EC9430",
         'alpine linux' => "#0D597F",
         'arm' => "#0091BD",
+        'openwrt' => "#00B5E2",
         'qemu' => "#FF6600",
         'linux' => "#FCC624",
     ];
