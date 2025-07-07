@@ -15,6 +15,7 @@ function getIconAlias($desp = '') {
     $alias = [
         'cortex' => 'arm',
         'qwrt' => 'openwrt',
+        'immortalwrt' => 'openwrt',
     ];
 
     foreach ($alias as $k => $v)
