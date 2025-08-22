@@ -16,6 +16,7 @@ function getIconAlias($desp = '') {
         'cortex' => 'arm',
         'qwrt' => 'openwrt',
         'immortalwrt' => 'openwrt',
+        'raspbian' => 'raspberrypi',
     ];
 
     foreach ($alias as $k => $v)
@@ -43,6 +44,7 @@ function getIcon($desp = ''){
         'openwrt' => "#00B5E2",
         'qemu' => "#FF6600",
         'linux' => "#FCC624",
+        'raspberrypi' => "#A22846",
     ];
     
     $desp = getIconAlias($desp) . $desp;
