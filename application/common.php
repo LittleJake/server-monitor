@@ -43,8 +43,11 @@ function getIcon($desp = ''){
         'arm' => "#0091BD",
         'openwrt' => "#00B5E2",
         'qemu' => "#FF6600",
-        'linux' => "#FCC624",
         'raspberrypi' => "#A22846",
+
+
+        //last
+        'linux' => "#FCC624",
     ];
     
     $desp = getIconAlias($desp) . $desp;
