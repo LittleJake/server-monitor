@@ -13,10 +13,10 @@ class Index extends Base
      *
      * @return \think\Response
      */
-    public function index()
+    public function index($type = '')
     {
-        if (!session('?is_login'))
-            $this->redirect('admin/index/login');
+        if (!session('?is_login') && session("is_login") != 1)
+            return $this->redirect('admin/index/login');
 
         $uuids = SystemMonitor::getUUIDs();
         $data = SystemMonitor::getInfo(array_keys($uuids));
@@ -28,9 +28,12 @@ class Index extends Base
         $this->assign("hide", $hide);
         $this->assign("data", $data);
 
-        if(Request::isAjax())
-            return  $this->fetch('index_ajax');
-        return $this->fetch();
+        if(Request::isAjax() && $type == 'list')
+            return  $this->fetch('index_ajax_list');
+        else if(Request::isAjax() && $type == 'main')
+            return  $this->fetch('index_ajax_main');
+        else if(!Request::isAjax())
+            return $this->fetch();
     }
 
     public function login()

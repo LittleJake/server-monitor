@@ -35,7 +35,9 @@
             <div class="mdui-panel-item-header">
                 <div class="mdui-panel-item-title">Control</div>
             </div>
-            <div class="mdui-panel-item-body" id="ajax">
+            <div class="mdui-panel-item-body">
+                <div class="mdui-col-md-4" id="ajax-list"></div>
+                <div class="mdui-col-md-4" id="ajax-main"></div>
             </div>
         </div>
     </div>
@@ -50,8 +52,13 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     $.ajax({
-        url: window.location,
-        success: function(data){$('#ajax').html(data);mdui.mutation(); },
+        url: "{:url('admin/index/index', ['type' => 'list'])}",
+        success: function(data){$('#ajax-list').html(data);mdui.mutation(); },
+        error: function (data, status, e){mdui.snackbar({message: e});}
+    });
+    $.ajax({
+        url: "{:url('admin/index/index', ['type' => 'main'])}",
+        success: function(data){$('#ajax-main').html(data);mdui.mutation(); },
         error: function (data, status, e){mdui.snackbar({message: e});}
     });
     

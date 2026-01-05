@@ -1,0 +1,110 @@
+
+<ul class="mdui-list word-wrap">
+    {volist name="uuids" id="vo"}
+    <div class="mdui-list-item mdui-ripple mdui-p-l-0">
+        <span class="mdui-list-item-icon flag-icon flag-icon-{:empty($data[$key]['Country Code'])?'none':strtolower($data[$key]['Country Code'])}"></span>
+        <div class="mdui-list-item-content ajax-load" onclick="mdui.alert('Name: {:empty($names[$key])?$vo:$names[$key]}<br>IPv4: {$vo}<br>IPv6: {:empty($data[$key][\'IPV6\'])?\'None\':$data[$key][\'IPV6\']}', 'Info');" data-href="{:url('admin/info/index',['uuid'=>$key])}">
+            <div class="mdui-list-item-title">
+                {:empty($names[$key])?$vo:$names[$key]}
+            </div>
+            <div class="mdui-list-item-text mdui-list-item-one-line">
+                {:empty($data[$key]['Country Code'])?"Private":$data[$key]['Country']}
+            </div>
+        </div>
+        <div class="mdui-divide"></div>
+        <label class="mdui-switch">
+            <input class="switch" type="checkbox" data-href="{:url('admin/info/index',['uuid'=>$key])}"
+                    {if !isset($hide[$key])}checked{/if} />
+            <i class="mdui-switch-icon"></i>
+        </label>
+        <button class="mdui-btn mdui-btn-icon mdui-ripple" mdui-menu="{target: '#list-{$i}', fixed: true}">
+            <i class="mdui-icon material-icons mdui-text-color-theme-secondary">&#xe5d4;</i>
+        </button>
+        <ul class="mdui-menu" id="list-{$i}">
+            <li class="mdui-menu-item">
+                <a href="javascript:;" class="mdui-ripple btn-put" data-href="{:url('admin/info/index',['uuid'=>$key])}" data-action="ping">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe01b;</i>Ping
+                </a>
+            </li>
+            <li class="mdui-divider"></li>
+            <li class="mdui-menu-item">
+                <a href="javascript:;" class="mdui-ripple btn-put" data-href="{:url('admin/info/index',['uuid'=>$key])}" data-action="reboot">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe5d5;</i>Reboot
+                </a>
+            </li>
+            <li class="mdui-menu-item" disabled>
+                <a href="javascript:;" class="mdui-ripple" data-href="{:url('admin/info/index',['uuid'=>$key])}" data-action="reset">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe8b3;</i>Reset Data
+                </a>
+            </li>
+            <li class="mdui-menu-item">
+                <a href="javascript:;" class="mdui-ripple rename" data-href="{:url('admin/info/index',['uuid'=>$key])}" data-name="{:empty($names[$key])?$vo:$names[$key]}">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">&#xe3c9;</i>Rename
+                </a>
+            </li>
+            <li class="mdui-divider"></li>
+            <li class="mdui-menu-item">
+                <a href="javascript:;" class="mdui-ripple delete" data-ip="{$vo}" data-href="{:url('admin/info/index',['uuid'=>$key])}">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">delete</i>Remove
+                </a>
+            </li>
+        </ul>
+    </div>
+    {/volist}
+</ul>
+<script>
+var reload_list = function(){
+    $.ajax({
+        url: "{:url('admin/index/index', ['type' => 'list'])}",
+        success: function(data){$('#ajax-list').html(data);mdui.mutation(); },
+        error: function (data, status, e){mdui.snackbar({message: e});window.location = url;}
+    });
+};
+
+$('.delete').on('click', function(){
+    var parent = $(this.parentNode.parentNode.parentNode), btn = $(this);
+    mdui.confirm("Are you sure to delete node: "+btn.attr("data-ip")+"?", function(){
+        $.ajax({
+            url: btn.attr("data-href"), type: 'DELETE', data: {},
+            success: function (resp) {mdui.snackbar({message: 'Node deleted.', position: 'bottom'});parent.addClass("mdui-hidden");reload_list();},
+            error: function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'})}
+        });
+    });
+});
+
+$('.btn-put').on('click', function(){
+    var btn = $(this);
+
+    mdui.confirm("Are you sure to execute '"+ btn.attr("data-action") +"'?", function(){
+        $.ajax({
+            url: btn.attr("data-href"), type: 'PUT', data: {'command': btn.attr("data-action")},
+            success: function (resp) {mdui.snackbar({message: 'Command put.', position: 'bottom'});parent.addClass("mdui-hidden");reload_list();},
+            error: function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'})}
+        });
+    });
+});
+
+$('.rename').on('click', function(){
+    var parent = $(this.parentNode.parentNode.parentNode), btn = $(this);
+    mdui.prompt('Renaming node',
+        function (value){
+            $.ajax({
+                url: btn.attr("data-href"), type: 'PATCH', data: {'rename': value},
+                success: function (resp) {mdui.snackbar({message: 'Node renamed.', position: 'bottom'});reload_list();},
+                error: function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'})}
+            });
+        }
+    ,()=>{}, {"defaultValue": btn.attr("data-name")});
+});
+$('.switch').on('click', function(){
+    var message = 'Hide.', btn = $(this), display = this.checked;
+    if (display){message = 'Display.'}
+    $.ajax({
+        url: btn.attr("data-href"), type: 'PATCH', data: {'display': display?1:0},
+        success: function (resp) {mdui.snackbar({message: message, position: 'bottom'});},
+        error: function (data, status, e) {mdui.snackbar({message: e, position: 'bottom'});reload_list();}
+    });
+});
+
+
+</script>

@@ -216,9 +216,20 @@
     </div>
 </div>
 <script>
+    var size_format = function(size) {
+        size = parseFloat(size);
+        let units = ['MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        let i = 0;
+        while (size >= 1024 && i < units.length - 1) {
+            size /= 1024;
+            i++;
+        }
+        return size.toFixed(2) + ' ' + units[i];
+    };
+
     var ctx_battery, ctx_cpu, ctx_disk, ctx_mem, ctx_network, ctx_ping, ctx_io, ctx_thermal;
     var bar_config = {
-            strokeWidth: 4, easing: 'easeInOut', duration: 1400, color: '#33cc33', trailColor: '#eee', trailWidth: 1,
+            strokeWidth: 2, easing: 'easeInOut', duration: 1400, color: '#33cc33', trailColor: '#eee', trailWidth: 1,
             svgStyle: {width: '100%', height: '100%'},
             text: {
                 style: {color: '#000', position: 'absolute', right: '0', top: '15px', padding: 0, margin: 0, transform: null},
@@ -242,7 +253,7 @@
         success: function(e){
             let option = {
                 title: {text:"Network RX & TX", left: 'center'},
-                tooltip: {trigger: 'axis', axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}},
+                tooltip: {trigger: 'axis', axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}, valueFormatter: (value) => parseFloat(value).toFixed(2)},
                 legend: {bottom: 50, data: ['RX Packets (k)', 'RX Throughput (MB)', 'TX Packets (k)', 'TX Throughput (MB)',]},
                 grid: [{height: '60%'}, {height: '60%'}],
                 axisPointer: {link: {xAxisIndex: 'all'}},
@@ -282,7 +293,7 @@
         success: function(e){
             let option = {
                 title: {text:"Disk I/O", left: 'center'},
-                tooltip: {trigger: 'axis', axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}},
+                tooltip: {trigger: 'axis', axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}, valueFormatter: (value) => parseFloat(value).toFixed(2)},
                 legend: {bottom: 50, data: ['Read Counts(k)', 'Read Throughput (MB)', 'Read Time (ms)', 'Write Counts(k)', 'Write Throughput (MB)', 'Write Time (ms)',]},
                 grid: [{height: '60%'}, {height: '60%'}],
                 axisPointer: {link: {xAxisIndex: 'all'}},
@@ -391,7 +402,7 @@
         async: true,
         success: function(e){
             let option = {
-                tooltip: {trigger: 'axis'},
+                tooltip: {trigger: 'axis', valueFormatter: (value) => parseFloat(value).toFixed(2)},
                 title: {left: 'center', text: '{:lang("CPU Load")}'},
                 xAxis: {type: 'category', boundaryGap: false, data: e.time},
                 yAxis: {type: 'value',axisLabel: {formatter: '{value} %'}},

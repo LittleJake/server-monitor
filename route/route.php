@@ -26,14 +26,16 @@ Route::post('api/report/info/:uuid','api/report/info');
 Route::post('api/report/hash/:uuid','api/report/hash');
 Route::get('api/report/command/:uuid','api/report/command');
 
+Route::get('/manifest.json','index/index/manifest');
+
+Route::rule('admin/login','admin/index/login', 'GET|POST');
+Route::get('admin/logout','admin/index/logout');
 
 Route::any('admin/info/:uuid','admin/info/index');
 Route::get('admin/info/clear','admin/info/clear');
 Route::get('admin/info/purge','admin/info/purge');
+Route::any('admin/index/:type','admin/index/index');
 Route::any('admin/','admin/index/index');
 
-Route::rule('admin/login','admin/index/login', 'GET|POST');
-Route::rule('admin/logout','admin/index/logout', 'GET');
-Route::rule('/manifest.json','index/index/manifest', 'GET');
 
 return [];

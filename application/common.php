@@ -64,13 +64,11 @@ function iconStandadize($name) {
 }
 
 function sizeFormat($size) {
-    //input MB
-    if ($size > 1024*1024*1024) 
-        return sprintf("%.2f PB", $size*1.0/1024/1024/1024);
-    else if ($size > 1024 * 1024) 
-        return sprintf("%.2f TB", $size*1.0/1024/1024);
-    else if ($size > 1024)
-        return sprintf("%.2f GB", $size*1.0/1024);
 
-    return sprintf("%.2f MB", $size);
+    $i = 0;
+    $units = ["MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+    for (; $size >= 1024 && $i < sizeof($units) -1; $i ++)
+        $size /= 1024;
+
+    return sprintf("%.2f %s", $size, $units[$i]);
 }
