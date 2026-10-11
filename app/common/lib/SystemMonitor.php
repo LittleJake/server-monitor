@@ -1,0 +1,461 @@
+<?php
+
+namespace app\common\lib;
+
+use think\Exception;
+use think\facade\Cache;
+use think\facade\Log;
+use think\exception\HttpException;
+
+class SystemMonitor
+{
+    static private $url = "http://ip-api.com/json/";
+    static private $cacheTime = 300;
+
+    static public function fetchIPInfo($ip)
+    {
+        $info = [];
+        $ips = is_array($ip) ? $ip : [$ip];
+        foreach ($ips as $v) {
+            $ip_without_cidr_24 = strrev(strstr(strrev($v), '.')) . "0";
+            try {
+                //For Multicast IP use TTL
+                $info[$v] = Cache::store('flag')->remember($v, function () use ($ip_without_cidr_24) {
+                    $data = json_decode(self::curlGet(self::$url . "$ip_without_cidr_24?fields=country,countryCode&lang="), true);
+                    if ($data == null) throw new Exception("Failed to query country code");
+                    return $data;
+                }, 24 * 60 * 60);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+                $info[$v] = [
+                    'countryCode' => '',
+                    'country' => ''
+                ];
+            }
+
+            if (!is_array($ip)) return $info[$v];
+        }
+
+        return $info;
+    }
+
+    static public function getUUIDs()
+    {
+        $data = Cache::remember('system_monitor:hashes', function () {
+            return Cache::store('redis')->handler()
+                ->hGetAll("system_monitor:hashes");
+        }, self::$cacheTime);
+
+        return !empty($data)?$data:[];
+    }
+
+    static public function setUUID($uuid, $ip)
+    {
+        try {
+            Cache::store('redis')->handler()->hSet("system_monitor:hashes", $uuid, $ip);
+            Cache::store('redis')->handler()->expire("system_monitor:hashes", env('monitor.data_timeout', 259200));
+            $uuids = SystemMonitor::getUUIDs();
+            if (empty($uuids[$uuid])) {
+                Cache::delete("system_monitor:hashes");
+                return ['code' => 200, 'message' => "Authorization OK, welcome aboard."];
+            }
+    
+            return ['code' => 200, 'message' => "OK"];
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return ['code' => 500, 'message' => "Fail."];
+        }
+    }
+
+    static public function getLatest($uuid)
+    {
+        $stat = [];
+        $uuids = is_array($uuid) ? $uuid : [$uuid];
+
+        foreach ($uuids as $h) {
+            $info = array_keys(self::getCollection($h));
+            $stat[$h] = array_pop($info);
+
+            if (!is_array($uuid)) return $stat[$h];
+        }
+
+        return $stat;
+    }
+
+    static public function getInfo($uuid)
+    {
+        $info = [];
+        $uuids = is_array($uuid) ? $uuid : [$uuid];
+
+        foreach ($uuids as $u) {
+            $info[$u] = Cache::remember("system_monitor:info:$u", function () use ($u) {
+                return Cache::store('redis')->handler()->hGetAll("system_monitor:info:$u");
+            }, self::$cacheTime);
+
+            if (!is_array($uuid)) return $info[$u];
+            
+        }
+        $info = array_filter($info, function ($item) {
+            return !empty($item);
+        });
+        return $info;
+    }
+
+    static public function setInfo($uuid, $data)
+    {
+        try {
+            Cache::store('redis')->handler()->hMset("system_monitor:info:$uuid", $data);
+            Cache::store('redis')->handler()->expire("system_monitor:info:$uuid", env('monitor.data_timeout', 259200));
+            return ['code' => 200, 'message' => "OK"];
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return ['code' => 500, 'message' => "Fail."];
+        }
+    }
+
+    static public function timeFormat($time)
+    {
+        return lang("Uptime Format", [
+            floor($time / (24 * 60 * 60)), floor(($time / (60 * 60)) % 24), floor(($time / (60)) % 60), floor($time % 60)
+        ]);
+    }
+
+    static private function curlGet($url)
+    {
+        $header = ['Accept: application/json', 'User-Agent: Mozilla/5.0'];
+        $curl = curl_init();
+        //设置抓取的url
+        curl_setopt($curl, CURLOPT_URL, $url);
+        //设置头文件的信息作为数据流输出
+        curl_setopt($curl, CURLOPT_HEADER, 0);
+        // 超时设置,以秒为单位
+        curl_setopt($curl, CURLOPT_TIMEOUT, 1);
+
+        // 超时设置，以毫秒为单位
+        curl_setopt($curl, CURLOPT_TIMEOUT_MS, 1000);
+
+        // 设置请求头
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+        //设置获取的信息以文件流的形式返回，而不是直接输出。
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
+        //执行命令
+        $data = curl_exec($curl);
+
+        // 显示错误信息
+        if (curl_error($curl) || curl_getinfo($curl, CURLINFO_HTTP_CODE) != 200)
+            Log::error(curl_error($curl));
+        else
+            curl_close($curl);
+
+        return $data;
+    }
+
+    static public function getCollection($uuid)
+    {
+        return Cache::remember("system_monitor:collection:$uuid", function () use ($uuid) {
+            return Cache::store('redis')->handler()
+                ->zRangeByScore(
+                    "system_monitor:collection:$uuid",
+                    0,
+                    time(),
+                    ['withscores' => TRUE]
+                );
+        }, self::$cacheTime);
+    }
+
+    static public function setCollection($uuid, $data)
+    {
+        try {
+            Cache::store('redis')->handler()
+                ->zAdd("system_monitor:collection:$uuid", time(), $data);
+            Cache::store('redis')->handler()
+                ->zRemRangeByScore("system_monitor:collection:$uuid", 0, time() - env('monitor.retention_time', 86400));
+            Cache::store('redis')->handler()->expire("system_monitor:collection:$uuid", env('monitor.data_timeout', 259200));
+            return ['code' => 200, 'message' => "OK"];
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return ['code' => 500, 'message' => "Fail."];
+        }
+    }
+
+    static public function collectionFormat($data, $name)
+    {
+        $time = [];
+        $value = [];
+
+        switch (strtolower($name)) {
+            case "battery":
+            case "load":
+            case "ping":
+            case "thermal":
+                //in case of missing mounting point periodically.
+                $sensor_labels = [];
+                foreach ($data as $data_json => $_) {
+                    $data_decode = json_decode($data_json, true);
+
+                    if (!array_key_exists($name, $data_decode))
+                        continue;
+
+                    $sensor_labels = array_unique(array_merge($sensor_labels, array_keys(json_decode($data_json, true)[$name])));
+                }
+
+                foreach ($data as $data_json => $data_time) {
+                    $data_decode = json_decode($data_json, true);
+                    
+                    if (!array_key_exists($name, $data_decode))
+                        continue;
+                    
+                    $sensors = json_decode($data_json, true)[$name];
+
+                    if (count($sensor_labels) > 0)
+                        $time[] = date('m-d H:i', $data_time);
+                    //extract $name from collection.
+                    foreach ($sensor_labels as $_ => $sensor_label)
+                        $value[$sensor_label][] = empty($sensors[$sensor_label])?0:$sensors[$sensor_label];
+                }
+                break;
+
+            case "disk":
+            case "memory":
+                //in case of missing mounting point periodically.
+                $mount_points = [];
+                foreach ($data as $data_json => $_)
+                    $mount_points = array_unique(array_merge($mount_points, array_keys(json_decode($data_json, true)[$name])));
+
+                foreach ($data as $data_json => $data_time) {
+                    $time[] = date('m-d H:i', $data_time);
+                    $disk_data = json_decode($data_json, true)[$name];
+
+                    foreach ($mount_points as $_ => $mount_point) 
+                        $value[$mount_point][] = empty($disk_data[$mount_point])?0:$disk_data[$mount_point]['used'];
+                    
+                }
+                break;
+            case "network":
+                $rx_packets = [];
+                $rx_megabytes = [];
+                $tx_packets = [];
+                $tx_megabytes = [];
+
+                foreach ($data as $data_json => $data_time) {
+                    $time[] = date('m-d H:i', $data_time);
+                    $network_data = json_decode($data_json, true)[$name];
+                    $rx_packets[] = (intval($network_data['RX']['packets']) * 1.0) / 1000;
+                    $tx_packets[] = (intval($network_data['TX']['packets']) * 1.0) / 1000;
+                    $rx_megabytes[] = intval(intval(intval($network_data['RX']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
+                    $tx_megabytes[] = intval(intval(intval($network_data['TX']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
+                }
+
+                return [
+                    'time' => $time,
+                    'RX' => [
+                        'packets' => $rx_packets,
+                        'megabytes' => $rx_megabytes
+                    ],
+                    'TX' => [
+                        'packets' => $tx_packets,
+                        'megabytes' => $tx_megabytes
+                    ]
+                ];
+                
+            case "io":
+                $read_counts = [];
+                $read_megabytes = [];
+                $read_time_ms = [];
+                $write_counts = [];
+                $write_megabytes = [];
+                $write_time_ms = [];
+
+                foreach ($data as $data_json => $data_time) {
+                    $time[] = date('m-d H:i', $data_time);
+                    $io_data = json_decode($data_json, true)[$name];
+                    $read_counts[] = (intval($io_data['read']['count']) * 1.0) / 1000;
+                    $write_counts[] = (intval($io_data['write']['count']) * 1.0) / 1000;
+                    $read_megabytes[] = intval(intval(intval($io_data['read']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
+                    $write_megabytes[] = intval(intval(intval($io_data['write']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
+                    $read_time_ms[] = intval($io_data['read']['time']);
+                    $write_time_ms[] = intval($io_data['write']['time']);
+                }
+
+                return [
+                    'time' => $time,
+                    'read' => [
+                        'counts' => $read_counts,
+                        'megabytes' => $read_megabytes,
+                        'time_ms' => $read_time_ms
+                    ],
+                    'write' => [
+                        'counts' => $write_counts,
+                        'megabytes' => $write_megabytes,
+                        'time_ms' => $write_time_ms
+                    ]
+                ];
+        }
+
+
+        return [
+            'time' => $time,
+            'value' => $value
+        ];
+    }
+
+    static public function getIPByUUID($uuid)
+    {
+        $uuids = SystemMonitor::getUUIDs();
+        if (empty($uuids[$uuid]))
+            throw new HttpException(403, "Wrong Token");
+        return $uuids[$uuid];
+    }
+
+    static public function deleteInfo($uuid = "")
+    {
+        if (empty($uuid)){
+            Cache::delete("system_monitor:collection");
+            Cache::delete("system_monitor:info");
+            Cache::delete("system_monitor:hashes");
+            Cache::store('redis')->delete("system_monitor:collection");
+            Cache::store('redis')->delete("system_monitor:info");
+            Cache::store('redis')->delete("system_monitor:hashes");
+            return;
+        }
+        
+        Cache::delete("system_monitor:collection:$uuid");
+        Cache::delete("system_monitor:info:$uuid");
+        Cache::delete("system_monitor:hashes");
+        Cache::store('redis')->delete("system_monitor:collection:$uuid");
+        Cache::store('redis')->delete("system_monitor:info:$uuid");
+        Cache::store('redis')->handler()->hDel("system_monitor:hashes", $uuid);
+    }
+
+    static public function clearInfo()
+    {
+        $count = 0;
+        $uuids = self::getUUIDs();
+
+        foreach ($uuids as $uuid => $_) {
+            if(empty(self::getCollection($uuid))) {
+                self::deleteInfo($uuid);
+                $count++;
+            }      
+        }
+
+        return $count;
+    }
+
+    static public function setHide($uuid, $hide)
+    {
+        if (!empty($hide))
+            Cache::store('redis')->handler()
+                ->sRem("system_monitor:hide", $uuid);
+        else
+            Cache::store('redis')->handler()
+                ->sAdd("system_monitor:hide", $uuid);
+
+        Cache::delete("system_monitor:hide");
+    }
+
+    static public function setDisplayName($uuid, $name)
+    {
+        if (!empty($name)) {
+            Cache::store('redis')->handler()
+                ->hSet("system_monitor:name", $uuid, $name);
+        } else {
+            Cache::store('redis')->handler()
+                ->hDel("system_monitor:name", $uuid);
+        }
+
+        Cache::delete("system_monitor:name");
+    }
+
+    static public function getDisplayName($uuid)
+    {
+        $name = Cache::remember("system_monitor:name", function () {
+            return Cache::store('redis')->handler()->hGetAll("system_monitor:name");
+        }, self::$cacheTime);
+
+        if (!is_array($uuid)) {
+            return $name[$uuid];
+        } else {
+            $uuids = array_flip($uuid);
+            return array_intersect_key($name, $uuids);
+        }
+    }
+
+    static public function UUIDIsDisplay($uuid)
+    {
+        $data =  array_flip(self::getHide());
+        return !isset($data[$uuid]);
+    }
+
+    static public function getHide()
+    {
+        return  Cache::remember("system_monitor:hide", function () {
+            return Cache::store('redis')->handler()->sMembers("system_monitor:hide");
+        }, self::$cacheTime);
+    }
+
+    static public function getAlive()
+    {
+        $time = time();
+        $uuids = array_keys(SystemMonitor::getUUIDs());
+        $infos = SystemMonitor::getInfo($uuids);
+
+        $data = array_filter($infos, function ($uuid) use ($infos, $time) {
+            if (
+                Cache::remember("system_monitor:alive:$uuid", function () use ($uuid) {
+                    return Cache::store('redis')->handler()->exists("system_monitor:alive:$uuid");
+                }, 60)
+                ) return true;
+            //fallback to Update Time
+            return !empty($infos[$uuid]['Update Time']) && $time - intval($infos[$uuid]['Update Time']) <= env('monitor.offline_threshold', 600);
+        }, ARRAY_FILTER_USE_KEY);
+
+        return [
+            'Online' => $data,
+            'Offline' => array_diff_key($infos, $data)
+        ];
+    }
+
+    static public function refreshCache()
+    {
+        foreach (self::getUUIDs() as $uuid => $_) {
+            self::getInfo($uuid);
+            self::getCollection($uuid);
+        }
+    }
+
+    static public function sortByCountry($arr)
+    {
+        uasort($arr, "self::countryCmp");
+        return $arr;
+    }
+
+    static private function countryCmp($a, $b)
+    {
+        if (empty($a["Country"]) or empty($b["Country"])) return 0;
+        if ($a["Country"] == $b["Country"]) return 0;
+        if ($a["Country"] == 'Private') return -1;
+        return ($a["Country"] < $b["Country"]) ? -1 : 1;
+    }
+
+    static public function getCommand($uuid)
+    {
+        $command = Cache::store('redis')->handler()->rPop("system_monitor:command:$uuid");
+        return ['code' => 200, 'command' => "$command"];
+    }
+
+    
+    static public function setCommand($uuid, $command)
+    {
+        try {
+            Cache::store('redis')->handler()->lPush("system_monitor:command:$uuid", $command);
+            Cache::store('redis')->handler()->expire("system_monitor:command:$uuid", env('monitor.data_timeout', 259200));
+            return ['code' => 200, 'message' => "OK, $command"];
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return ['code' => 500, 'message' => "Fail."];
+        }
+    }
+}

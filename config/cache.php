@@ -1,49 +1,56 @@
 <?php
-// +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
-// +----------------------------------------------------------------------
 
 // +----------------------------------------------------------------------
 // | 缓存设置
 // +----------------------------------------------------------------------
 
 return [
-    // 驱动方式
-    'type' => 'complex',
-    'default' => [
-        'type' => 'file',
-        'expire'=> 240,
-        'prefix'=> 'monitor',
-        'path' => __DIR__.'/../runtime/cache/',
+    // 默认缓存驱动
+    'default' => 'file',
+
+    // 缓存连接方式配置
+    'stores'  => [
+        'file' => [
+            // 驱动方式
+            'type'       => 'File',
+            // 缓存保存目录
+            'path'       => runtime_path() . 'cache' . DIRECTORY_SEPARATOR,
+            // 缓存前缀
+            'prefix'     => 'monitor_',
+            // 缓存有效期 0表示永久缓存
+            'expire'     => 240,
+            // 缓存标签前缀
+            'tag_prefix' => 'tag:',
+            // 序列化机制 例如 ['serialize', 'unserialize']
+            'serialize'  => [],
+        ],
+        'redis' => [
+            'type'       => 'redis',
+            'host'       => env('redis.host', '127.0.0.1'),
+            'port'       => env('redis.port', 6379),
+            'password'   => env('redis.password', ''),
+            'select'     => 0,
+            'timeout'    => 0,
+            'expire'     => 0,
+            'persistent' => false,
+            'prefix'     => '',
+            'serialize'  => true,
+        ],
+        'flag' => [
+            'type'       => 'File',
+            'path'       => runtime_path() . 'cache' . DIRECTORY_SEPARATOR,
+            'prefix'     => 'flag_',
+            'expire'     => 86400,
+            'tag_prefix' => 'flag_tag:',
+            'serialize'  => [],
+        ],
+        'token' => [
+            'type'       => 'File',
+            'path'       => runtime_path() . 'cache' . DIRECTORY_SEPARATOR,
+            'prefix'     => 'token_',
+            'expire'     => 0,
+            'tag_prefix' => 'token_tag:',
+            'serialize'  => [],
+        ],
     ],
-    'redis' => [
-        'type'       => 'Redis',
-        'host'       => Env::get('redis.host'),
-        'port'       => Env::get('redis.port'),
-        'password'   => Env::get('redis.password'),
-        'select'     => 0,
-        'timeout'    => 0,
-        'expire'     => 0,
-        'persistent' => false,
-        'prefix'     => '',
-        'serialize'  => true,
-    ],
-    'flag' => [
-        'type' => 'file',
-        'expire'=> 24*60*60,
-        'prefix'=> 'flag',
-        'path' => __DIR__.'/../runtime/cache/',
-    ],
-    'token' => [
-        'type' => 'file',
-        'expire' => 0,
-        'prefix' => 'token',
-        'path' => __DIR__.'/../runtime/cache/',
-    ]
 ];
