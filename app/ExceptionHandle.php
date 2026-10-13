@@ -7,6 +7,8 @@ use think\exception\Handle;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
 use think\exception\ValidateException;
+use think\facade\Log;
+use think\facade\Request;
 use think\Response;
 use Throwable;
 
@@ -20,7 +22,6 @@ class ExceptionHandle extends Handle
      * @var array
      */
     protected $ignoreReport = [
-        HttpException::class,
         HttpResponseException::class,
         ModelNotFoundException::class,
         DataNotFoundException::class,
@@ -36,8 +37,20 @@ class ExceptionHandle extends Handle
      */
     public function report(Throwable $exception): void
     {
-        // 使用内置的方式记录异常日志
+        // 记录基础异常日志（error 级）
         parent::report($exception);
+
+        // 补充审计日志：针对 HTTP 级别的异常记录请求上下文，便于追踪审计
+        if ($exception instanceof HttpException) {
+            Log::warning(sprintf(
+                '%s [%d] %s %s; ip=%s',
+                $exception->getMessage(),
+                $exception->getStatusCode(),
+                Request::method(),
+                Request::url(),
+                Request::ip()
+            ));
+        }
     }
 
     /**
