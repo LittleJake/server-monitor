@@ -10,7 +10,7 @@ use think\Response;
 
 class Ping extends \app\BaseController
 {
-    protected $middleware = ['FlowControl', 'CheckUUID', 'CheckJson'];
+    protected $middleware = ['CheckUUID', 'CheckJson'];
 
     /**
      * 显示资源列表

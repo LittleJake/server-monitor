@@ -3,7 +3,6 @@
 return [
     // 别名或分组
     'alias'    => [
-        'FlowControl' => app\http\middleware\FlowControl::class,
         'CheckToken'  => app\http\middleware\CheckToken::class,
         'CheckUUID'   => app\http\middleware\CheckUUID::class,
         'CheckJson'   => app\http\middleware\CheckJson::class,

@@ -8,7 +8,6 @@ use app\common\lib\SystemMonitor;
 class Index extends Base
 {
     protected $middleware = [
-        'FlowControl',
         'CheckUUID' => ['only' => ['info']]
     ];
 

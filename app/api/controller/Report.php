@@ -7,7 +7,7 @@ use app\common\lib\SystemMonitor;
 //TODO: Input sanitization.
 class Report extends \app\BaseController
 {
-    protected $middleware = ['FlowControl', 'CheckToken', 'CheckUUID' => ['except' => ['hash']]];
+    protected $middleware = ['CheckToken', 'CheckUUID' => ['except' => ['hash']]];
 
 
     public function collection($uuid = '')
