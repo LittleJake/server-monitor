@@ -18,7 +18,7 @@ return [
             // 缓存前缀
             'prefix'     => 'monitor_',
             // 缓存有效期 0表示永久缓存
-            'expire'     => 240,
+            'expire'     => 3600,
             // 缓存标签前缀
             'tag_prefix' => 'tag:',
             // 序列化机制 例如 ['serialize', 'unserialize']
