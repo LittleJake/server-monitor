@@ -89,7 +89,12 @@ class SystemMonitor
 
         foreach ($uuids as $u) {
             $info[$u] = Cache::remember("system_monitor:info:$u", function () use ($u) {
-                return Cache::store('redis')->handler()->hGetAll("system_monitor:info:$u");
+                $data = Cache::store('redis')->handler()->hGetAll("system_monitor:info:$u");
+                // Ensure Uptime is integer to avoid float-string precision warnings
+                if (isset($data['Uptime'])) {
+                    $data['Uptime'] = (int)floor((float)$data['Uptime']);
+                }
+                return $data;
             }, self::$cacheTime);
 
             if (!is_array($uuid)) return $info[$u];
@@ -104,6 +109,10 @@ class SystemMonitor
     static public function setInfo($uuid, $data)
     {
         try {
+            // Convert uptime to integer to avoid float-string precision issues
+            if (isset($data['Uptime'])) {
+                $data['Uptime'] = (int)floor((float)$data['Uptime']);
+            }
             Cache::store('redis')->handler()->hMset("system_monitor:info:$uuid", $data);
             Cache::store('redis')->handler()->expire("system_monitor:info:$uuid", env('monitor.data_timeout', 259200));
             return ['code' => 200, 'message' => "OK"];
