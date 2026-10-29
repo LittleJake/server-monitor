@@ -94,6 +94,9 @@ class SystemMonitor
                 if (isset($data['Uptime'])) {
                     $data['Uptime'] = (int)floor((float)$data['Uptime']);
                 }
+                if (isset($data['Update Time'])) {
+                    $data['Update Time'] = (int)floor((float)$data['Update Time']);
+                }
                 return $data;
             }, self::$cacheTime);
 
@@ -219,7 +222,7 @@ class SystemMonitor
                     $sensors = json_decode($data_json, true)[$name];
 
                     if (count($sensor_labels) > 0)
-                        $time[] = date('m-d H:i', $data_time);
+                        $time[] = date('m-d H:i', (int)floor((float)$data_time));
                     //extract $name from collection.
                     foreach ($sensor_labels as $_ => $sensor_label)
                         $value[$sensor_label][] = empty($sensors[$sensor_label])?0:$sensors[$sensor_label];
@@ -234,7 +237,7 @@ class SystemMonitor
                     $mount_points = array_unique(array_merge($mount_points, array_keys(json_decode($data_json, true)[$name])));
 
                 foreach ($data as $data_json => $data_time) {
-                    $time[] = date('m-d H:i', $data_time);
+                    $time[] = date('m-d H:i', (int)floor((float)$data_time));
                     $disk_data = json_decode($data_json, true)[$name];
 
                     foreach ($mount_points as $_ => $mount_point) 
@@ -249,12 +252,12 @@ class SystemMonitor
                 $tx_megabytes = [];
 
                 foreach ($data as $data_json => $data_time) {
-                    $time[] = date('m-d H:i', $data_time);
+                    $time[] = date('m-d H:i', (int)floor((float)$data_time));
                     $network_data = json_decode($data_json, true)[$name];
-                    $rx_packets[] = (intval($network_data['RX']['packets']) * 1.0) / 1000;
-                    $tx_packets[] = (intval($network_data['TX']['packets']) * 1.0) / 1000;
-                    $rx_megabytes[] = intval(intval(intval($network_data['RX']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
-                    $tx_megabytes[] = intval(intval(intval($network_data['TX']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
+                    $rx_packets[] = ((int)floor((float)$network_data['RX']['packets']) * 1.0) / 1000;
+                    $tx_packets[] = ((int)floor((float)$network_data['TX']['packets']) * 1.0) / 1000;
+                    $rx_megabytes[] = (int)floor((int)floor((float)$network_data['RX']['bytes']) * 100.00 / 1048576) * 1.0 / 100;
+                    $tx_megabytes[] = (int)floor((int)floor((float)$network_data['TX']['bytes']) * 100.00 / 1048576) * 1.0 / 100;
                 }
 
                 return [
@@ -278,14 +281,14 @@ class SystemMonitor
                 $write_time_ms = [];
 
                 foreach ($data as $data_json => $data_time) {
-                    $time[] = date('m-d H:i', $data_time);
+                    $time[] = date('m-d H:i', (int)floor((float)$data_time));
                     $io_data = json_decode($data_json, true)[$name];
-                    $read_counts[] = (intval($io_data['read']['count']) * 1.0) / 1000;
-                    $write_counts[] = (intval($io_data['write']['count']) * 1.0) / 1000;
-                    $read_megabytes[] = intval(intval(intval($io_data['read']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
-                    $write_megabytes[] = intval(intval(intval($io_data['write']['bytes']) * 100.00) / 1048576) * 1.0 / 100;
-                    $read_time_ms[] = intval($io_data['read']['time']);
-                    $write_time_ms[] = intval($io_data['write']['time']);
+                    $read_counts[] = ((int)floor((float)$io_data['read']['count']) * 1.0) / 1000;
+                    $write_counts[] = ((int)floor((float)$io_data['write']['count']) * 1.0) / 1000;
+                    $read_megabytes[] = (int)floor((int)floor((float)$io_data['read']['bytes']) * 100.00 / 1048576) * 1.0 / 100;
+                    $write_megabytes[] = (int)floor((int)floor((float)$io_data['write']['bytes']) * 100.00 / 1048576) * 1.0 / 100;
+                    $read_time_ms[] = (int)floor((float)$io_data['read']['time']);
+                    $write_time_ms[] = (int)floor((float)$io_data['write']['time']);
                 }
 
                 return [
@@ -418,7 +421,7 @@ class SystemMonitor
                 }, 60)
                 ) return true;
             //fallback to Update Time
-            return !empty($infos[$uuid]['Update Time']) && $time - intval($infos[$uuid]['Update Time']) <= env('monitor.offline_threshold', 600);
+            return !empty($infos[$uuid]['Update Time']) && $time - $infos[$uuid]['Update Time'] <= env('monitor.offline_threshold', 600);
         }, ARRAY_FILTER_USE_KEY);
 
         return [
