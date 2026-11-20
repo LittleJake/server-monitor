@@ -90,15 +90,15 @@ class SystemMonitor
         foreach ($uuids as $u) {
             $info[$u] = Cache::remember("system_monitor:info:$u", function () use ($u) {
                 $data = Cache::store('redis')->handler()->hGetAll("system_monitor:info:$u");
-                // Ensure Uptime is integer to avoid float-string precision warnings
-                if (isset($data['Uptime'])) {
-                    $data['Uptime'] = (int)floor((float)$data['Uptime']);
-                }
                 if (isset($data['Update Time'])) {
                     $data['Update Time'] = (int)floor((float)$data['Update Time']);
                 }
                 return $data;
             }, self::$cacheTime);
+
+            if (isset($info[$u]['Uptime'])) {
+                $info[$u]['Uptime'] = self::timeFormat($info[$u]['Uptime']);
+            }
 
             if (!is_array($uuid)) return $info[$u];
             
@@ -112,10 +112,6 @@ class SystemMonitor
     static public function setInfo($uuid, $data)
     {
         try {
-            // Convert uptime to integer to avoid float-string precision issues
-            if (isset($data['Uptime'])) {
-                $data['Uptime'] = (int)floor((float)$data['Uptime']);
-            }
             Cache::store('redis')->handler()->hMset("system_monitor:info:$uuid", $data);
             Cache::store('redis')->handler()->expire("system_monitor:info:$uuid", env('monitor.data_timeout', 259200));
             return ['code' => 200, 'message' => "OK"];
@@ -127,9 +123,41 @@ class SystemMonitor
 
     static public function timeFormat($time)
     {
-        return lang("Uptime Format", [
-            floor($time / (24 * 60 * 60)), floor(($time / (60 * 60)) % 24), floor(($time / (60)) % 60), floor($time % 60)
-        ]);
+        if (empty($time) && $time !== '0' && $time !== 0) {
+            return $time;
+        }
+
+        if (is_numeric($time)) {
+            $time = max(0, (int)floor((float)$time));
+            $days = intdiv($time, 86400);
+            $hours = intdiv($time, 3600) % 24;
+            $minutes = intdiv($time, 60) % 60;
+            $seconds = $time % 60;
+            $formatted = lang("Uptime Format", [$days, $hours, $minutes, $seconds]);
+            return ($formatted === "Uptime Format" || empty($formatted))
+                ? sprintf("%d Days %02d:%02d:%02d", $days, $hours, $minutes, $seconds)
+                : $formatted;
+        }
+
+        if (is_string($time)) {
+            $trimmed = trim($time);
+            if (
+                preg_match('/^(\d+)\s*Days?,?\s*(\d{1,2}):(\d{1,2}):(\d{1,2})$/i', $trimmed, $matches) ||
+                preg_match('/^(\d+)\s*Days?,?\s*(\d+)\s*Hours?,?\s*(\d+)\s*Minutes?,?\s*(\d+)\s*Seconds?$/i', $trimmed, $matches) ||
+                preg_match('/^(\d+)\s*日\s*(\d+)\s*小时\s*(\d+)\s*分钟\s*(\d+)\s*秒$/u', $trimmed, $matches)
+            ) {
+                $days = (int)$matches[1];
+                $hours = (int)$matches[2];
+                $minutes = (int)$matches[3];
+                $seconds = (int)$matches[4];
+                $formatted = lang("Uptime Format", [$days, $hours, $minutes, $seconds]);
+                return ($formatted === "Uptime Format" || empty($formatted))
+                    ? sprintf("%d Days %02d:%02d:%02d", $days, $hours, $minutes, $seconds)
+                    : $formatted;
+            }
+        }
+
+        return $time;
     }
 
     static private function curlGet($url)

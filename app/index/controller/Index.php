@@ -30,7 +30,6 @@ class Index extends Base
     {
         $latest = json_decode(SystemMonitor::getLatest($uuid), TRUE);
         $info = SystemMonitor::getInfo($uuid);
-        // $uptime_str = SystemMonitor::timeFormat(intval($info['Uptime']));
 
         ksort($info);
         $this->assign("latest", $latest);

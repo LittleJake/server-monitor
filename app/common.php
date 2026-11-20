@@ -72,3 +72,7 @@ function sizeFormat($size) {
 
     return sprintf("%.2f %s", $size, $units[$i]);
 }
+
+function timeFormat($time) {
+    return \app\common\lib\SystemMonitor::timeFormat($time);
+}
